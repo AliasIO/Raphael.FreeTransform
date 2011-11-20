@@ -2,9 +2,12 @@ RAPHAEL.FREETRANSFORM
 
   Free transform tool Raphaël elements.
 
+  ![Screenshot](https://github.com/ElbertF/Raphael.FreeTransform/raw/master/screenshot.png)
+
 
 EXAMPLE
 
+```html
   <script type="text/javascript" src="raphael-min.js"></script>
   <script type="text/javascript" src="raphael.free_transform.js"></script>
   
@@ -20,8 +23,4 @@ EXAMPLE
       
       paper.freeTransform(rect);
   </script>
-
-
-SCREENSHOT
-
-  https://github.com/ElbertF/Raphael.FreeTransform/raw/master/screenshot.png
+```
