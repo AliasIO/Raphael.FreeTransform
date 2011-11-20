@@ -28,14 +28,14 @@ Raphael.fn.freeTransform = function(el, x, y, width, height) {
 	if ( typeof height == 'undefined' ) height = paper.height;
 
 	el.freeTransform = {
-		disc:   disc,
-		line:   line,
-		scale:  0,
-		rotate: 0,
-		minX:   x,
-		minY:   y,
-		maxX:   x + width,
-		maxY:   y + height
+		disc:     disc,
+		line:     line,
+		scale:    1,
+		rotation: 0,
+		minX:     x,
+		minY:     y,
+		maxX:     x + width,
+		maxY:     y + height
 		};
 
 	disc.el = el;
@@ -43,9 +43,9 @@ Raphael.fn.freeTransform = function(el, x, y, width, height) {
 	el.drag(function(dx, dy) {
 		var ft = this.freeTransform;
 
-		this.attr({ x: dx + this.ox, y: dy + this.oy });
+		this.attr({ x: dx + ft.ox, y: dy + ft.oy });
 
-		this.transform('S' + scale + 'R' + rotation);
+		this.transform('S' + ft.scale + 'R' + ft.rotation);
 
 		var center = {
 			x: this.attrs.x + this.attrs.width  / 2,
