@@ -20,3 +20,8 @@ EXAMPLE
       
       paper.freeTransform(rect);
   </script>
+
+
+SCREENSHOT
+
+  https://github.com/ElbertF/Raphael.FreeTransform/raw/master/screenshot.png
