@@ -28,6 +28,7 @@ Raphael.fn.freeTransform = function(el, x, y, width, height) {
 	if ( typeof height == 'undefined' ) height = paper.height;
 
 	el.freeTransform = {
+		el:       el,
 		disc:     disc,
 		line:     line,
 		scale:    1,
@@ -35,7 +36,27 @@ Raphael.fn.freeTransform = function(el, x, y, width, height) {
 		minX:     x,
 		minY:     y,
 		maxX:     x + width,
-		maxY:     y + height
+		maxY:     y + height,
+		unplug:   function() {
+			this.disc.remove();
+
+			console.log(this.disc);
+			//this.disc.attr({ fill: 'red' });
+
+			//this.disc.remove();
+			//this.line.remove();
+
+			/*
+			var state = {
+				scale:    this.scale,
+				rotation: this.rotation
+				};
+
+			delete this.el.freeTransform;
+
+			return state;
+			*/
+		}
 		};
 
 	disc.el = el;
@@ -88,4 +109,6 @@ Raphael.fn.freeTransform = function(el, x, y, width, height) {
 		ft.ox = this.attrs.cx;
 		ft.oy = this.attrs.cy;
 	});
+
+	return el.freeTransform;
 };
