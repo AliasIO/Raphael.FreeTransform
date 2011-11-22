@@ -26,6 +26,8 @@ Example
 	// Add free transform handle
 	paper.freeTransform(rect);
 
+	console.log(rect);
+
 	// Remove free transform handle
 	// paper.freeTransform(rect).unplug();
 </script>
