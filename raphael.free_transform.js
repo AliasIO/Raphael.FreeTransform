@@ -5,6 +5,10 @@
  */
 
 Raphael.fn.freeTransform = function(el, x, y, width, height) {
+	if ( el.freeTransform ) {
+		return el.freeTransform;
+	}
+
 	var paper = this;
 
 	var center = {
@@ -39,14 +43,10 @@ Raphael.fn.freeTransform = function(el, x, y, width, height) {
 		maxY:     y + height,
 		unplug:   function() {
 			this.disc.remove();
+			this.line.remove();
 
-			console.log(this.disc);
-			//this.disc.attr({ fill: 'red' });
+			this.el.undrag();
 
-			//this.disc.remove();
-			//this.line.remove();
-
-			/*
 			var state = {
 				scale:    this.scale,
 				rotation: this.rotation
@@ -55,7 +55,6 @@ Raphael.fn.freeTransform = function(el, x, y, width, height) {
 			delete this.el.freeTransform;
 
 			return state;
-			*/
 		}
 		};
 
