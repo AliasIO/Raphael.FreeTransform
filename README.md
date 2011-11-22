@@ -23,6 +23,10 @@ Example
 		.attr('fill', '#f00')
 		;
 
+	// Add free transform handle
 	paper.freeTransform(rect);
+
+	// Remove free transform handle
+	// paper.freeTransform(rect).unplug();
 </script>
 ```
