@@ -102,8 +102,10 @@ Raphael.fn.freeTransform = function(el, options) {
 			deg = rad * 180 / Math.PI
 			;
 
+		// Keep line at length
 		if ( !ft.opts.scale && ft.opts.rotate ) {
-			// Keep line at length
+			cx = center.x + ( ft.el.attrs.height / 1.5 ) * Math.cos(rad);
+			cy = center.y + ( ft.el.attrs.height / 1.5 ) * Math.sin(rad);
 		}
 
 		this.attr({
