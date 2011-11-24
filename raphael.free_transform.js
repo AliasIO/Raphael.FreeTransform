@@ -34,29 +34,51 @@ Raphael.fn.freeTransform = function(el, options) {
 	}
 
 	/**
-	 * Calculate center point
+	 * Get box size
 	 */
-	ft.getCenter = function() {
-		attrs = this.el.attrs;
+	ft.getBox = function() {
+		var
+			attrs = this.el.attrs
+			bbox  = this.el.getBBox();
+			;
 
-		return {
-			x: attrs.x + attrs.width  / 2,
-			y: attrs.y + attrs.height / 2
-			};
+		if ( attrs.width ) {
+			return {
+				center: {
+					x: attrs.x + attrs.width  / 2,
+					y: attrs.y + attrs.height / 2
+					},
+				x:      attrs.x,
+			 	y:      attrs.y,
+				width:  attrs.width,
+				height: attrs.height
+				};
+		} else {
+			return {
+				center: {
+					x: bbox.x + bbox.width  / 2,
+					y: bbox.y + bbox.height / 2
+					},
+				x:      bbox.x,
+			 	y:      bbox.y,
+				width:  bbox.width,
+				height: bbox.height
+				};
+		}
 	}
 
 	if ( ft.opts.rotate || ft.opts.scale ) {
 		ft.handle = new Object;
 
-		var center = ft.getCenter();
+		var box = ft.getBox();
 
 		ft.handle.line = paper
-			.path('M' + center.x + ',' + center.y)
+			.path('M' + box.center.x + ',' + box.center.y)
 			.attr({ stroke: ft.opts.color, opacity: .2 })
 			;
 
 		ft.handle.disc = paper
-			.circle(center.x, center.y, 5)
+			.circle(box.center.x, box.center.y, 5)
 			.attr({ fill: ft.opts.color, stroke: 'none' })
 			;
 
@@ -67,7 +89,7 @@ Raphael.fn.freeTransform = function(el, options) {
 	 * Remove handle
 	 */
 	ft.unplug = function() {
-		ft = this;
+		var ft = this;
 
 		if ( ft.handle ) {
 			ft.handle.disc.remove();
@@ -88,6 +110,8 @@ Raphael.fn.freeTransform = function(el, options) {
 
 		if ( !ft.handle ) return;
 
+		var box = this.getBox();
+
 		var center = {
 			x: ft.handle.line.attrs.path[0][1],
 			y: ft.handle.line.attrs.path[0][2]
@@ -99,13 +123,13 @@ Raphael.fn.freeTransform = function(el, options) {
 		var rad = ( ft.el._.deg + 90 ) * Math.PI / 180;
 
 		var
-			cx = center.x + ( ft.el.attrs.width  * ft.el._.sx * ft.opts.size ) * Math.cos(rad) / ratio,
-			cy = center.y + ( ft.el.attrs.height * ft.el._.sy * ft.opts.size ) * Math.sin(rad)
+			cx = center.x + ( box.width  * ft.el._.sx * ft.opts.size ) * Math.cos(rad) / ratio,
+			cy = center.y + ( box.height * ft.el._.sy * ft.opts.size ) * Math.sin(rad)
 			;
 
 		ft.handle.disc.attr({
-			cx: Math.max(Math.min(cx, ft.opts.boundary.x + ft.opts.boundary.width),  ft.opts.boundary.x),
-			cy: Math.max(Math.min(cy, ft.opts.boundary.y + ft.opts.boundary.height), ft.opts.boundary.y)
+			cx: Math.max(Math.min(cx || 0, ft.opts.boundary.x + ft.opts.boundary.width),  ft.opts.boundary.x),
+			cy: Math.max(Math.min(cy || 0, ft.opts.boundary.y + ft.opts.boundary.height), ft.opts.boundary.y)
 			});
 
 		ft.handle.line.attr({ path: 'M' + center.x + ',' + center.y + 'L' + ft.handle.disc.attrs.cx + ',' + ft.handle.disc.attrs.cy });
@@ -121,11 +145,11 @@ Raphael.fn.freeTransform = function(el, options) {
 				;
 
 			if ( ft.handle ) {
-				var center = ft.getCenter();
+				var box = ft.getBox();
 
 				ft.handle.disc.attr({ cx: dx + ft.handle.disc.ox, cy: dy + ft.handle.disc.oy });
 
-				ft.handle.line.attr({ path: 'M' + center.x + ',' + center.y + 'L' + ft.handle.disc.attrs.cx + ',' + ft.handle.disc.attrs.cy });
+				ft.handle.line.attr({ path: 'M' + box.center.x + ',' + box.center.y + 'L' + ft.handle.disc.attrs.cx + ',' + ft.handle.disc.attrs.cy });
 			}
 		}, function() {
 			var ft = this.freeTransform;
@@ -145,7 +169,7 @@ Raphael.fn.freeTransform = function(el, options) {
 		ft.handle.disc.drag(function(dx, dy, x, y) {
 			var ft = this.ft;
 
-			var center = ft.getCenter();
+			var box = ft.getBox();
 
 			var
 				cx = dx + ft.ox,
@@ -154,14 +178,14 @@ Raphael.fn.freeTransform = function(el, options) {
 
 			if ( ft.opts.rotate ) {
 				var
-					rad = Math.atan2(cy - center.y, cx - center.x)
+					rad = Math.atan2(cy - box.center.y, cx - box.center.x)
 					deg = rad * 180 / Math.PI - 90
 					;
 
 				// Keep line at length if scaling is disabled
 				if ( !ft.opts.scale ) {
-					cx = center.x + ( ft.el.attrs.height / 1.5 ) * Math.cos(rad);
-					cy = center.y + ( ft.el.attrs.height / 1.5 ) * Math.sin(rad);
+					cx = box.center.x + ( box.height / ft.opts.size ) * Math.cos(rad);
+					cy = box.center.y + ( box.height / ft.opts.size ) * Math.sin(rad);
 				}
 			} else {
 				var deg = ft.el._.deg;
@@ -173,12 +197,12 @@ Raphael.fn.freeTransform = function(el, options) {
 
 			var ratio = ft.el.attrs.width / ft.el.attrs.height;
 
-			var length = Math.sqrt(Math.pow(cx - center.x, 2) + Math.pow(cy - center.y, 2));
+			var length = Math.sqrt(Math.pow(cx - box.center.x, 2) + Math.pow(cy - box.center.y, 2));
 
 			if ( ft.opts.scale ) {
 				var scale = {
-					x: length / ( ft.el.attrs.width  * ft.opts.size ) * ratio,
-					y: length / ( ft.el.attrs.height * ft.opts.size )
+					x: length / ( box.width  * ft.opts.size ) * ratio,
+					y: length / ( box.height * ft.opts.size )
 					};
 			} else {
 				var scale = {
