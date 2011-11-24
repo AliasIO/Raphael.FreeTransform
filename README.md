@@ -1,7 +1,7 @@
 Raphael.FreeTransform
 ====================
 
-  Free transform tool Raphaël elements.
+  Free transform tool Raphaël elements with many options.
 
   ![Screenshot](https://github.com/ElbertF/Raphael.FreeTransform/raw/master/screenshot.png)
 
@@ -16,19 +16,34 @@ Example
 <div id="foo"></div>
 
 <script type="text/javascript">
-	var paper = Raphael('foo');
+	var paper = Raphael(0, 0, 500, 500);
 
 	var rect = paper
-		.rect(50, 40, 50, 50)
+		.rect(200, 200, 100, 100)
 		.attr('fill', '#f00')
 		;
 
 	// Add free transform handle
 	paper.freeTransform(rect);
 
-	console.log(rect);
-
 	// Remove free transform handle
 	// paper.freeTransform(rect).unplug();
 </script>
 ```
+
+Options
+-------
+
+`boundary`
+`color`
+`drag`
+`rotate`
+`scale`
+`size`
+
+Functions
+---------
+
+`unplug()`
+
+`updateHandle()`
