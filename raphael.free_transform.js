@@ -72,11 +72,13 @@ Raphael.fn.freeTransform = function(el, options) {
 			y: ft.line.attrs.path[0][2]
 			};
 
+		var ratio = ft.el.attrs.width / ft.el.attrs.height;
+
 		// Get the element's rotation
 		var rad = ( ft.el._.deg + 90 ) * Math.PI / 180;
 
 		var
-			cx = center.x + ( ft.el.attrs.width  * ft.el._.sx * ft.opts.size ) * Math.cos(rad),
+			cx = center.x + ( ft.el.attrs.width  * ft.el._.sx * ft.opts.size ) * Math.cos(rad) / ratio,
 			cy = center.y + ( ft.el.attrs.height * ft.el._.sy * ft.opts.size ) * Math.sin(rad)
 			;
 
@@ -145,11 +147,13 @@ Raphael.fn.freeTransform = function(el, options) {
 		cx = Math.max(Math.min(cx, ft.opts.boundary.x + ft.opts.boundary.width),  ft.opts.boundary.x);
 		cy = Math.max(Math.min(cy, ft.opts.boundary.y + ft.opts.boundary.height), ft.opts.boundary.y);
 
+		var ratio = ft.el.attrs.width / ft.el.attrs.height;
+
 		var length = Math.sqrt(Math.pow(cx - center.x, 2) + Math.pow(cy - center.y, 2));
 
 		if ( ft.opts.scale ) {
 			var scale = {
-				x: length / ( ft.el.attrs.width  * ft.opts.size ),
+				x: length / ( ft.el.attrs.width  * ft.opts.size ) * ratio,
 				y: length / ( ft.el.attrs.height * ft.opts.size )
 				};
 		} else {
