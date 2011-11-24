@@ -1,7 +1,7 @@
 Raphael.FreeTransform
 ====================
 
-  Free transform tool Raphaël elements with many options.
+  Free transform tool for [Raphaël](http://raphaeljs.com/) elements with many options.
 
   ![Screenshot](https://github.com/ElbertF/Raphael.FreeTransform/raw/master/screenshot.png)
 
