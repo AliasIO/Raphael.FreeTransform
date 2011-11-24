@@ -170,5 +170,7 @@ Raphael.fn.freeTransform = function(el, options) {
 		ft.oy = this.attrs.cy;
 	});
 
+	ft.updateHandle();
+
 	return el.freeTransform;
 };
