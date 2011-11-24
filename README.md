@@ -35,11 +35,17 @@ Options
 -------
 
 `boundary`
+
 `color`
+
 `drag`
+
 `rotate`
+
 `scale`
+
 `size`
+
 
 Functions
 ---------
