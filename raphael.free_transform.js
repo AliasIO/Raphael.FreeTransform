@@ -39,7 +39,7 @@ Raphael.fn.freeTransform = function(el, options) {
 	ft.getBox = function() {
 		var
 			attrs = this.el.attrs
-			bbox  = this.el.getBBox();
+			bbox  = this.el.getBBox(true);
 			;
 
 		if ( attrs.width ) {
@@ -117,7 +117,7 @@ Raphael.fn.freeTransform = function(el, options) {
 			y: ft.handle.line.attrs.path[0][2]
 			};
 
-		var ratio = ft.el.attrs.width / ft.el.attrs.height;
+		var ratio = box.width / box.height;
 
 		// Get the element's rotation
 		var rad = ( ft.el._.deg + 90 ) * Math.PI / 180;
@@ -154,9 +154,11 @@ Raphael.fn.freeTransform = function(el, options) {
 		}, function() {
 			var ft = this.freeTransform;
 
+			var box = this.getBox();
+
 			// Offset values
-			ft.ox = this.attrs.x;
-			ft.oy = this.attrs.y;
+			ft.ox = box.x;
+			ft.oy = box.y;
 
 			if ( ft.handle ) {
 				ft.handle.disc.ox = ft.handle.disc.attrs.cx;
@@ -195,7 +197,7 @@ Raphael.fn.freeTransform = function(el, options) {
 			cx = Math.max(Math.min(cx, ft.opts.boundary.x + ft.opts.boundary.width),  ft.opts.boundary.x);
 			cy = Math.max(Math.min(cy, ft.opts.boundary.y + ft.opts.boundary.height), ft.opts.boundary.y);
 
-			var ratio = ft.el.attrs.width / ft.el.attrs.height;
+			var ratio = box.width / box.height;
 
 			var length = Math.sqrt(Math.pow(cx - box.center.x, 2) + Math.pow(cy - box.center.y, 2));
 
