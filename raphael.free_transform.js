@@ -34,31 +34,46 @@ Raphael.fn.freeTransform = function(el, options) {
 	}
 
 	/**
-	 * Get box size
+	 * Get what we need to know about the element
 	 */
-	ft.getBox = function() {
-		var bbox = this.el.getBBox(true);
+	ft.getThing = function() {
+		var el = this.el;
 
-		bbox.center = {
-			x: bbox.x + bbox.width  / 2,
-			y: bbox.y + bbox.height / 2
+		var thing = el.getBBox(true);
+
+		thing.translate = { x: 0, y: 0 };
+
+		for ( var i in el._.transform ) {
+			if ( el._.transform[i][0] == 't' || el._.transform[i][0] == 'T' ) {
+				thing.translate.x = el._.transform[i][1];
+				thing.translate.y = el._.transform[i][2];
+
+				break;
+			}
+		}
+
+		thing.transform = ft.el.matrix.split();
+
+		thing.center = {
+			x: thing.x + thing.translate.x + thing.width  / 2,
+			y: thing.y + thing.translate.y + thing.height / 2
 			};
 
-		return bbox;
+		return thing;
 	}
 
 	if ( ft.opts.rotate || ft.opts.scale ) {
 		ft.handle = new Object;
 
-		var box = ft.getBox();
+		var thing = ft.getThing();
 
 		ft.handle.line = paper
-			.path('M' + box.center.x + ',' + box.center.y)
+			.path('M' + thing.center.x + ',' + thing.center.y)
 			.attr({ stroke: ft.opts.color, opacity: .2 })
 			;
 
 		ft.handle.disc = paper
-			.circle(box.center.x, box.center.y, 5)
+			.circle(thing.center.x, thing.center.y, 5)
 			.attr({ fill: ft.opts.color, stroke: 'none' })
 			;
 
@@ -85,24 +100,21 @@ Raphael.fn.freeTransform = function(el, options) {
 	/**
 	 * Draw handle based on the elements attributes
 	 */
-	ft.updateHandle = function() {
+	ft.updateHandle = function(thing) {
 		var ft = this;
 
 		if ( !ft.handle ) return;
 
-		var
-			box    = ft.getBox(),
-			matrix = ft.el.matrix.split()
-			;
+		if ( !thing ) var thing = ft.getThing();
 
-		var ratio = box.width / box.height;
+		var ratio = thing.width / thing.height;
 
 		// Get the element's rotation
-		var rad = ( matrix.rotate + 90 ) * Math.PI / 180;
+		var rad = ( thing.transform.rotate + 90 ) * Math.PI / 180;
 
 		var
-			cx = box.center.x + ( box.width  * matrix.scalex * ft.opts.size ) * Math.cos(rad) / ratio,
-			cy = box.center.y + ( box.height * matrix.scaley * ft.opts.size ) * Math.sin(rad)
+			cx = thing.center.x + ( thing.width  * thing.transform.scalex * ft.opts.size ) * Math.cos(rad) / ratio,
+			cy = thing.center.y + ( thing.height * thing.transform.scaley * ft.opts.size ) * Math.sin(rad)
 			;
 
 		ft.handle.disc.attr({
@@ -110,38 +122,27 @@ Raphael.fn.freeTransform = function(el, options) {
 			cy: Math.max(Math.min(cy || 0, ft.opts.boundary.y + ft.opts.boundary.height), ft.opts.boundary.y)
 			});
 
-		ft.handle.line.attr({ path: 'M' + box.center.x + ',' + box.center.y + 'L' + ft.handle.disc.attrs.cx + ',' + ft.handle.disc.attrs.cy });
+		ft.handle.line.attr({ path: 'M' + thing.center.x + ',' + thing.center.y + 'L' + ft.handle.disc.attrs.cx + ',' + ft.handle.disc.attrs.cy });
 	}
 
 	if ( ft.opts.drag ) {
 		el.drag(function(dx, dy) {
 			var ft = this.freeTransform;
 
-			var matrix = ft.el.matrix.split();
-
-			this
-				.attr({ x: dx + ft.ox, y: dy + ft.oy, cx: dx + ft.ocx, cy: dy + ft.ocy })
-				.transform('S' + matrix.scalex + ',' + matrix.scaley + 'R' + matrix.rotate)
+			ft.el
+				.transform('S' + ft.o.transform.scalex + ',' + ft.o.transform.scaley + 'R' + ft.o.transform.rotate + 'T' + ( dx + ft.o.translate.x ) + ',' + ( dy + ft.o.translate.y ))
 				;
 
 			if ( ft.handle ) {
-				var box = ft.getBox();
-
 				ft.handle.disc.attr({ cx: dx + ft.handle.disc.ox, cy: dy + ft.handle.disc.oy });
 
-				ft.handle.line.attr({ path: 'M' + ( box.center.x ) + ',' + ( box.center.y ) + 'L' + ft.handle.disc.attrs.cx + ',' + ft.handle.disc.attrs.cy });
+				ft.handle.line.attr({ path: 'M' + ( ft.o.center.x + dx ) + ',' + ( ft.o.center.y + dy ) + 'L' + ft.handle.disc.attrs.cx + ',' + ft.handle.disc.attrs.cy });
 			}
 		}, function() {
 			var ft = this.freeTransform;
 
-			var box = ft.getBox();
-
 			// Offset values
-			ft.ox = box.x;
-			ft.oy = box.y;
-
-			ft.ocx = box.center.x;
-			ft.ocy = box.center.y;
+			ft.o = ft.getThing();
 
 			if ( ft.handle ) {
 				ft.handle.disc.ox = ft.handle.disc.attrs.cx;
@@ -155,57 +156,64 @@ Raphael.fn.freeTransform = function(el, options) {
 			var ft = this.ft;
 
 			var
-				box    = ft.getBox(),
-				matrix = ft.el.matrix.split()
-				;
-
-			var
 				cx = dx + ft.handle.disc.ox,
 				cy = dy + ft.handle.disc.oy
 				;
 
 			if ( ft.opts.rotate ) {
 				var
-					rad = Math.atan2(cy - box.center.y, cx - box.center.x)
+					rad = Math.atan2(cy - ft.o.center.y, cx - ft.o.center.x)
 					deg = rad * 180 / Math.PI - 90
 					;
 
 				// Keep line at length if scaling is disabled
 				if ( !ft.opts.scale ) {
-					cx = box.center.x + ( box.height / ft.opts.size ) * Math.cos(rad);
-					cy = box.center.y + ( box.height / ft.opts.size ) * Math.sin(rad);
+					cx = ft.o.center.x + ( ft.o.height / ft.opts.size ) * Math.cos(rad);
+					cy = ft.o.center.y + ( ft.o.height / ft.opts.size ) * Math.sin(rad);
 				}
 			} else {
-				var deg = ft.el._.deg;
+				var deg = ft.o.transform.rotate;
 			}
 
 			// Keep handle within boundaries
 			cx = Math.max(Math.min(cx, ft.opts.boundary.x + ft.opts.boundary.width),  ft.opts.boundary.x);
 			cy = Math.max(Math.min(cy, ft.opts.boundary.y + ft.opts.boundary.height), ft.opts.boundary.y);
 
-			var ratio = box.width / box.height;
+			var ratio = ft.o.width / ft.o.height;
 
-			var length = Math.sqrt(Math.pow(cx - box.center.x, 2) + Math.pow(cy - box.center.y, 2));
+			var length = Math.sqrt(Math.pow(cx - ft.o.center.x, 2) + Math.pow(cy - ft.o.center.y, 2));
 
 			if ( ft.opts.scale ) {
 				var scale = {
-					x: length / ( box.width  * ft.opts.size ) * ratio,
-					y: length / ( box.height * ft.opts.size )
+					x: length / ( ft.o.width  * ft.opts.size ) * ratio,
+					y: length / ( ft.o.height * ft.opts.size )
 					};
 			} else {
 				var scale = {
-					x: matrix.scalex,
-					y: matrix.scaley
+					x: ft.o.transform.scalex,
+					y: ft.o.transform.scaley
 					};
 			}
 
-			ft.el.transform('S' + scale.x + ',' + scale.y + 'R' + deg);
+			ft.el.transform('S' + scale.x + ',' + scale.y + 'R' + deg + 'T' + ft.o.translate.x + ',' + ft.o.translate.y);
+
+			/*
+			ft.o.transform.rotate = deg;
+
+			ft.o.width  = ft.o.width  * scale.x;
+			ft.o.height = ft.o.height * scale.y;
+
+			ft.o.center.x = ft.o.x + ft.o.translate.x + ft.o.width / 2;
+			ft.o.center.y = ft.o.y + ft.o.translate.y + ft.o.height / 2;
+			*/
 
 			ft.updateHandle();
 		}, function() {
 			var ft = this.ft;
 
 			// Offset values
+			ft.o = ft.getThing();
+
 			ft.handle.disc.ox = this.attrs.cx;
 			ft.handle.disc.oy = this.attrs.cy;
 		});
