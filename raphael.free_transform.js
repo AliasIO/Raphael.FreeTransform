@@ -90,21 +90,19 @@ Raphael.fn.freeTransform = function(el, options) {
 
 		if ( !ft.handle ) return;
 
-		var box = ft.getBox();
-
-		var center = {
-			x: ft.handle.line.attrs.path[0][1],
-			y: ft.handle.line.attrs.path[0][2]
-			};
+		var
+			box    = ft.getBox(),
+			matrix = ft.el.matrix.split()
+			;
 
 		var ratio = box.width / box.height;
 
 		// Get the element's rotation
-		var rad = ( ft.el._.deg + 90 ) * Math.PI / 180;
+		var rad = ( matrix.rotate + 90 ) * Math.PI / 180;
 
 		var
-			cx = center.x + ( box.width  * ft.el._.sx * ft.opts.size ) * Math.cos(rad) / ratio,
-			cy = center.y + ( box.height * ft.el._.sy * ft.opts.size ) * Math.sin(rad)
+			cx = box.center.x + ( box.width  * matrix.scalex * ft.opts.size ) * Math.cos(rad) / ratio,
+			cy = box.center.y + ( box.height * matrix.scaley * ft.opts.size ) * Math.sin(rad)
 			;
 
 		ft.handle.disc.attr({
@@ -112,16 +110,18 @@ Raphael.fn.freeTransform = function(el, options) {
 			cy: Math.max(Math.min(cy || 0, ft.opts.boundary.y + ft.opts.boundary.height), ft.opts.boundary.y)
 			});
 
-		ft.handle.line.attr({ path: 'M' + center.x + ',' + center.y + 'L' + ft.handle.disc.attrs.cx + ',' + ft.handle.disc.attrs.cy });
+		ft.handle.line.attr({ path: 'M' + box.center.x + ',' + box.center.y + 'L' + ft.handle.disc.attrs.cx + ',' + ft.handle.disc.attrs.cy });
 	}
 
 	if ( ft.opts.drag ) {
 		el.drag(function(dx, dy) {
 			var ft = this.freeTransform;
 
+			var matrix = ft.el.matrix.split();
+
 			this
-				.attr({ x: dx + ft.ox, y: dy + ft.oy })
-				.transform('S' + ft.el._.sx + ',' + ft.el._.sy + 'R' + ft.el._.deg)
+				.attr({ x: dx + ft.ox, y: dy + ft.oy, cx: dx + ft.ocx, cy: dy + ft.ocy })
+				.transform('S' + matrix.scalex + ',' + matrix.scaley + 'R' + matrix.rotate)
 				;
 
 			if ( ft.handle ) {
@@ -129,7 +129,7 @@ Raphael.fn.freeTransform = function(el, options) {
 
 				ft.handle.disc.attr({ cx: dx + ft.handle.disc.ox, cy: dy + ft.handle.disc.oy });
 
-				ft.handle.line.attr({ path: 'M' + box.center.x + ',' + box.center.y + 'L' + ft.handle.disc.attrs.cx + ',' + ft.handle.disc.attrs.cy });
+				ft.handle.line.attr({ path: 'M' + ( box.center.x ) + ',' + ( box.center.y ) + 'L' + ft.handle.disc.attrs.cx + ',' + ft.handle.disc.attrs.cy });
 			}
 		}, function() {
 			var ft = this.freeTransform;
@@ -140,6 +140,9 @@ Raphael.fn.freeTransform = function(el, options) {
 			ft.ox = box.x;
 			ft.oy = box.y;
 
+			ft.ocx = box.center.x;
+			ft.ocy = box.center.y;
+
 			if ( ft.handle ) {
 				ft.handle.disc.ox = ft.handle.disc.attrs.cx;
 				ft.handle.disc.oy = ft.handle.disc.attrs.cy;
@@ -148,14 +151,17 @@ Raphael.fn.freeTransform = function(el, options) {
 	}
 
 	if ( ft.handle ) {
-		ft.handle.disc.drag(function(dx, dy, x, y) {
+		ft.handle.disc.drag(function(dx, dy) {
 			var ft = this.ft;
 
-			var box = ft.getBox();
+			var
+				box    = ft.getBox(),
+				matrix = ft.el.matrix.split()
+				;
 
 			var
-				cx = dx + ft.ox,
-				cy = dy + ft.oy
+				cx = dx + ft.handle.disc.ox,
+				cy = dy + ft.handle.disc.oy
 				;
 
 			if ( ft.opts.rotate ) {
@@ -188,8 +194,8 @@ Raphael.fn.freeTransform = function(el, options) {
 					};
 			} else {
 				var scale = {
-					x: ft.el._.sx,
-					y: ft.el._.sy
+					x: matrix.scalex,
+					y: matrix.scaley
 					};
 			}
 
@@ -200,8 +206,8 @@ Raphael.fn.freeTransform = function(el, options) {
 			var ft = this.ft;
 
 			// Offset values
-			ft.ox = this.attrs.cx;
-			ft.oy = this.attrs.cy;
+			ft.handle.disc.ox = this.attrs.cx;
+			ft.handle.disc.oy = this.attrs.cy;
 		});
 	}
 
