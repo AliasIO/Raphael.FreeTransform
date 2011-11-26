@@ -37,34 +37,14 @@ Raphael.fn.freeTransform = function(el, options) {
 	 * Get box size
 	 */
 	ft.getBox = function() {
-		var
-			attrs = this.el.attrs
-			bbox  = this.el.getBBox(true);
-			;
+		var bbox = this.el.getBBox(true);
 
-		if ( attrs.width ) {
-			return {
-				center: {
-					x: attrs.x + attrs.width  / 2,
-					y: attrs.y + attrs.height / 2
-					},
-				x:      attrs.x,
-			 	y:      attrs.y,
-				width:  attrs.width,
-				height: attrs.height
-				};
-		} else {
-			return {
-				center: {
-					x: bbox.x + bbox.width  / 2,
-					y: bbox.y + bbox.height / 2
-					},
-				x:      bbox.x,
-			 	y:      bbox.y,
-				width:  bbox.width,
-				height: bbox.height
-				};
-		}
+		bbox.center = {
+			x: bbox.x + bbox.width  / 2,
+			y: bbox.y + bbox.height / 2
+			};
+
+		return bbox;
 	}
 
 	if ( ft.opts.rotate || ft.opts.scale ) {
@@ -110,7 +90,7 @@ Raphael.fn.freeTransform = function(el, options) {
 
 		if ( !ft.handle ) return;
 
-		var box = this.getBox();
+		var box = ft.getBox();
 
 		var center = {
 			x: ft.handle.line.attrs.path[0][1],
@@ -154,7 +134,7 @@ Raphael.fn.freeTransform = function(el, options) {
 		}, function() {
 			var ft = this.freeTransform;
 
-			var box = this.getBox();
+			var box = ft.getBox();
 
 			// Offset values
 			ft.ox = box.x;
