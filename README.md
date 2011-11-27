@@ -40,7 +40,7 @@ Limits the drag area of the handle (default: dimensions of the paper).
 
 `color: hex`
 
-Sets the color of the handle (default: `#f00`.
+Sets the color of the handle (default: `#f00`).
 
 `drag: true|false`
 
@@ -56,7 +56,7 @@ Enables/disables scaling (default: `true`).
 
 `size: int`
 
-Sets the size of the handle (n times height, default: .6).
+Sets the size of the handle (n times height, default: `.6`).
 
 
 Functions
