@@ -197,16 +197,6 @@ Raphael.fn.freeTransform = function(el, options) {
 
 			ft.el.transform('S' + scale.x + ',' + scale.y + 'R' + deg + 'T' + ft.o.translate.x + ',' + ft.o.translate.y);
 
-			/*
-			ft.o.transform.rotate = deg;
-
-			ft.o.width  = ft.o.width  * scale.x;
-			ft.o.height = ft.o.height * scale.y;
-
-			ft.o.center.x = ft.o.x + ft.o.translate.x + ft.o.width / 2;
-			ft.o.center.y = ft.o.y + ft.o.translate.y + ft.o.height / 2;
-			*/
-
 			ft.updateHandle();
 		}, function() {
 			var ft = this.ft;

@@ -1,7 +1,7 @@
 Raphael.FreeTransform
 ====================
 
-  Free transform tool for [Raphaël](http://raphaeljs.com/) elements with many options.
+  Free transform tool for [Raphaël](http://raphaeljs.com/) elements with many options. Supports dragging, scaling and rotating.
 
   ![Screenshot](https://github.com/ElbertF/Raphael.FreeTransform/raw/master/screenshot.png)
 
@@ -34,17 +34,29 @@ Example
 Options
 -------
 
-`boundary`
+`boundary: { x: int, y: int, width: int, height: int }`
 
-`color`
+Limits the drag area of the handle (default: dimensions of the paper).
 
-`drag`
+`color: hex`
 
-`rotate`
+Sets the color of the handle (default: `#f00`.
 
-`scale`
+`drag: true|false`
 
-`size`
+Enables/disables dragging (default: `true`).
+
+`rotate: true|false`
+
+Enables/disables rotating (default: `true`).
+
+`scale: int`
+
+Enables/disables scaling (default: `true`).
+
+`size: int`
+
+Sets the size of the handle (n times height, default: .6).
 
 
 Functions
@@ -52,4 +64,8 @@ Functions
 
 `unplug()`
 
+Removes handle and deletes all values set by the plugin.
+
 `updateHandle()`
+
+Updates handle to reflect the element's properties.
