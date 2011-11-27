@@ -6,7 +6,7 @@
 
 Raphael.fn.freeTransform = function(el, options) {
 	// Enable method chaining
-	if ( el.freeTransform ) { console.log('x'); return el.freeTransform; }
+	if ( el.freeTransform ) return el.freeTransform;
 
 	var paper = this;
 
