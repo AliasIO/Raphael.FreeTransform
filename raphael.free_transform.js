@@ -6,7 +6,7 @@
 
 Raphael.fn.freeTransform = function(el, options) {
 	// Enable method chaining
-	if ( el.freeTransform ) return el.freeTransform;
+	if ( el.freeTransform ) { console.log('x'); return el.freeTransform; }
 
 	var paper = this;
 
@@ -94,7 +94,7 @@ Raphael.fn.freeTransform = function(el, options) {
 		if ( ft.opts.drag ) ft.el.undrag();
 
 		// Goodbye
-		delete this;
+		delete ft.el.freeTransform;
 	};
 
 	/**
