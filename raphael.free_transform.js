@@ -11,6 +11,7 @@ Raphael.fn.freeTransform = function(el, options) {
 	var paper = this;
 
 	var ft = el.freeTransform = {
+		axes: [ 'x', 'y'],
 		el: el,
 		handle: false,
 		opts: {
@@ -44,7 +45,7 @@ Raphael.fn.freeTransform = function(el, options) {
 		thing.translate = { x: 0, y: 0 };
 
 		for ( var i in el._.transform ) {
-			if ( el._.transform[i][0] == 't' || el._.transform[i][0] == 'T' ) {
+			if ( el._.transform[i][0] && el._.transform[i][0].toUpperCase() == 'T' ) {
 				thing.translate.x = el._.transform[i][1];
 				thing.translate.y = el._.transform[i][2];
 
@@ -63,21 +64,26 @@ Raphael.fn.freeTransform = function(el, options) {
 	}
 
 	if ( ft.opts.rotate || ft.opts.scale ) {
-		ft.handle = new Object;
+		ft.handle = {
+			x: new Object,
+			y: new Object
+			};
 
 		var thing = ft.getThing();
 
-		ft.handle.line = paper
-			.path('M' + thing.center.x + ',' + thing.center.y)
-			.attr({ stroke: ft.opts.color, opacity: .2 })
-			;
+		ft.axes.map(function(axis) {
+			ft.handle[axis].disc = paper
+				.circle(thing.center.x, thing.center.y, 5)
+				.attr({ fill: ft.opts.color, stroke: 'none' })
+				;
 
-		ft.handle.disc = paper
-			.circle(thing.center.x, thing.center.y, 5)
-			.attr({ fill: ft.opts.color, stroke: 'none' })
-			;
+			ft.handle[axis].line = paper
+				.path('M' + thing.center.x + ',' + thing.center.y)
+				.attr({ stroke: ft.opts.color, opacity: .2 })
+				;
 
-		ft.handle.disc.ft = ft;
+			ft.handle[axis].disc.ft = ft;
+		});
 	}
 
 	/**
@@ -87,8 +93,11 @@ Raphael.fn.freeTransform = function(el, options) {
 		var ft = this;
 
 		if ( ft.handle ) {
-			ft.handle.disc.remove();
-			ft.handle.line.remove();
+			ft.handle.x.disc.remove();
+			ft.handle.y.disc.remove();
+
+			ft.handle.x.line.remove();
+			ft.handle.y.line.remove();
 		}
 
 		if ( ft.opts.drag ) ft.el.undrag();
@@ -107,22 +116,37 @@ Raphael.fn.freeTransform = function(el, options) {
 
 		if ( !thing ) var thing = ft.getThing();
 
-		var ratio = thing.width / thing.height;
-
 		// Get the element's rotation
-		var rad = ( thing.transform.rotate + 90 ) * Math.PI / 180;
+		var rad = thing.transform.rotate * Math.PI / 180;
 
 		var
-			cx = thing.center.x + ( thing.width  * thing.transform.scalex * ft.opts.size ) * Math.cos(rad) / ratio,
+			cx = thing.center.x + ( thing.width  * thing.transform.scalex * ft.opts.size ) * Math.cos(rad),
 			cy = thing.center.y + ( thing.height * thing.transform.scaley * ft.opts.size ) * Math.sin(rad)
 			;
 
-		ft.handle.disc.attr({
-			cx: Math.max(Math.min(cx || 0, ft.opts.boundary.x + ft.opts.boundary.width),  ft.opts.boundary.x),
-			cy: Math.max(Math.min(cy || 0, ft.opts.boundary.y + ft.opts.boundary.height), ft.opts.boundary.y)
-			});
+		ft.axes.map(function(axis) {
+			ft.handle[axis].disc.attr({
+				cx: Math.max(Math.min(cx || 0, ft.opts.boundary.x + ft.opts.boundary.width),  ft.opts.boundary.x),
+				cy: Math.max(Math.min(cy || 0, ft.opts.boundary.y + ft.opts.boundary.height), ft.opts.boundary.y)
+				});
 
-		ft.handle.line.attr({ path: 'M' + thing.center.x + ',' + thing.center.y + 'L' + ft.handle.disc.attrs.cx + ',' + ft.handle.disc.attrs.cy });
+			ft.handle[axis].line.attr({ path: 'M' + thing.center.x + ',' + thing.center.y + 'L' + ft.handle[axis].disc.attrs.cx + ',' + ft.handle[axis].disc.attrs.cy });
+
+			rad += ( axis == 'y' ? 90 : 0 ) * Math.PI / 180;
+
+			var
+				cx = thing.center.x + ( thing.width  * thing.transform.scalex * ft.opts.size ) * Math.cos(rad),
+				cy = thing.center.y + ( thing.height * thing.transform.scaley * ft.opts.size ) * Math.sin(rad)
+				;
+
+			// Keep handle within boundaries
+			ft.handle[axis].disc.attr({
+				cx: Math.max(Math.min(cx || 0, ft.opts.boundary.x + ft.opts.boundary.width),  ft.opts.boundary.x),
+				cy: Math.max(Math.min(cy || 0, ft.opts.boundary.y + ft.opts.boundary.height), ft.opts.boundary.y)
+				});
+
+			ft.handle[axis].line.attr({ path: 'M' + thing.center.x + ',' + thing.center.y + 'L' + ft.handle[axis].disc.attrs.cx + ',' + ft.handle[axis].disc.attrs.cy });
+		});
 	}
 
 	if ( ft.opts.drag ) {
@@ -130,13 +154,15 @@ Raphael.fn.freeTransform = function(el, options) {
 			var ft = this.freeTransform;
 
 			ft.el
-				.transform('S' + ft.o.transform.scalex + ',' + ft.o.transform.scaley + 'R' + ft.o.transform.rotate + 'T' + ( dx + ft.o.translate.x ) + ',' + ( dy + ft.o.translate.y ))
+				.transform('R' + ft.o.transform.rotate + 'S' + ft.o.transform.scalex + ',' + ft.o.transform.scaley + 'T' + ( dx + ft.o.translate.x ) + ',' + ( dy + ft.o.translate.y ))
 				;
 
 			if ( ft.handle ) {
-				ft.handle.disc.attr({ cx: dx + ft.handle.disc.ox, cy: dy + ft.handle.disc.oy });
+				ft.axes.map(function(axis) {
+					ft.handle[axis].disc.attr({ cx: dx + ft.handle[axis].disc.ox, cy: dy + ft.handle[axis].disc.oy });
 
-				ft.handle.line.attr({ path: 'M' + ( ft.o.center.x + dx ) + ',' + ( ft.o.center.y + dy ) + 'L' + ft.handle.disc.attrs.cx + ',' + ft.handle.disc.attrs.cy });
+					ft.handle[axis].line.attr({ path: 'M' + ( ft.o.center.x + dx ) + ',' + ( ft.o.center.y + dy ) + 'L' + ft.handle[axis].disc.attrs.cx + ',' + ft.handle[axis].disc.attrs.cy });
+				});
 			}
 		}, function() {
 			var ft = this.freeTransform;
@@ -145,65 +171,83 @@ Raphael.fn.freeTransform = function(el, options) {
 			ft.o = ft.getThing();
 
 			if ( ft.handle ) {
-				ft.handle.disc.ox = ft.handle.disc.attrs.cx;
-				ft.handle.disc.oy = ft.handle.disc.attrs.cy;
+				ft.axes.map(function(axis) {
+					ft.handle[axis].disc.ox = ft.handle[axis].disc.attrs.cx;
+					ft.handle[axis].disc.oy = ft.handle[axis].disc.attrs.cy;
+				});
 			}
 		});
 	}
 
 	if ( ft.handle ) {
-		ft.handle.disc.drag(function(dx, dy) {
-			var ft = this.ft;
+		ft.axes.map(function(axis) {
+			ft.handle[axis].disc.drag(function(dx, dy) {
+				var ft = this.ft;
 
-			var
-				cx = dx + ft.handle.disc.ox,
-				cy = dy + ft.handle.disc.oy
-				;
-
-			if ( ft.opts.rotate ) {
 				var
-					rad = Math.atan2(cy - ft.o.center.y, cx - ft.o.center.x)
-					deg = rad * 180 / Math.PI - 90
+					cx = dx + ft.handle[axis].disc.ox,
+					cy = dy + ft.handle[axis].disc.oy
 					;
 
-				// Keep line at length if scaling is disabled
-				if ( !ft.opts.scale ) {
-					cx = ft.o.center.x + ( ft.o.height / ft.opts.size ) * Math.cos(rad);
-					cy = ft.o.center.y + ( ft.o.height / ft.opts.size ) * Math.sin(rad);
+				if ( ft.opts.rotate ) {
+					var
+						rad = Math.atan2(cy - ft.o.center.y, cx - ft.o.center.x),
+						deg = rad * 180 / Math.PI - ( axis == 'y' ? 90 : 0 )
+						;
+
+					// Keep line at length if scaling is disabled
+					if ( !ft.opts.scale ) {
+						cx = ft.o.center.x + ( ft.o.height / ft.opts.size ) * Math.cos(rad);
+						cy = ft.o.center.y + ( ft.o.height / ft.opts.size ) * Math.sin(rad);
+					}
+				} else {
+					var deg = ft.o.transform.rotate;
 				}
-			} else {
-				var deg = ft.o.transform.rotate;
-			}
 
-			// Keep handle within boundaries
-			cx = Math.max(Math.min(cx, ft.opts.boundary.x + ft.opts.boundary.width),  ft.opts.boundary.x);
-			cy = Math.max(Math.min(cy, ft.opts.boundary.y + ft.opts.boundary.height), ft.opts.boundary.y);
+				// Keep handle within boundaries
+				cx = Math.max(Math.min(cx, ft.opts.boundary.x + ft.opts.boundary.width),  ft.opts.boundary.x);
+				cy = Math.max(Math.min(cy, ft.opts.boundary.y + ft.opts.boundary.height), ft.opts.boundary.y);
 
-			var length = Math.sqrt(Math.pow(cx - ft.o.center.x, 2) + Math.pow(cy - ft.o.center.y, 2));
+				var length = Math.sqrt(Math.pow(cx - ft.o.center.x, 2) + Math.pow(cy - ft.o.center.y, 2));
 
-			if ( ft.opts.scale ) {
-				var scale = {
-					x: length / ( ft.o.width  * ft.opts.size ),
-					y: length / ( ft.o.height * ft.opts.size )
-					};
-			} else {
-				var scale = {
-					x: ft.o.transform.scalex,
-					y: ft.o.transform.scaley
-					};
-			}
+				if ( ft.opts.scale ) {
+					var scale = {
+						x: axis == 'x' ? length / ( ft.o.width  * ft.opts.size ) : ft.o.transform.scalex,
+						y: axis == 'y' ? length / ( ft.o.height * ft.opts.size ) : ft.o.transform.scaley,
+						};
+				} else {
+					var scale = {
+						x: ft.o.transform.scalex,
+						y: ft.o.transform.scaley
+						};
+				}
 
-			ft.el.transform('S' + scale.x + ',' + scale.y + 'R' + deg + 'T' + ft.o.translate.x + ',' + ft.o.translate.y);
+				ft.el.transform('R' + deg + 'S' + scale.x + ',' + scale.y + 'T' + ft.o.translate.x + ',' + ft.o.translate.y);
 
-			ft.updateHandle();
-		}, function() {
-			var ft = this.ft;
+				/* */
+				var thing = ft.o;
 
-			// Offset values
-			ft.o = ft.getThing();
+				thing.translate.x = ft.o.translate.x;
+				thing.translate.y = ft.o.translate.y;
 
-			ft.handle.disc.ox = this.attrs.cx;
-			ft.handle.disc.oy = this.attrs.cy;
+				/*
+				thing.transform.scalex = scale.x;
+				thing.transform.scaley = scale.y;
+				*/
+
+				thing.transform.rotate = deg;
+				/* */
+
+				ft.updateHandle();
+			}, function() {
+				var ft = this.ft;
+
+				// Offset values
+				ft.o = ft.getThing();
+
+				ft.handle[axis].disc.ox = this.attrs.cx;
+				ft.handle[axis].disc.oy = this.attrs.cy;
+			});
 		});
 	}
 
