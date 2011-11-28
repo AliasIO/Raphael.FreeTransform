@@ -94,7 +94,7 @@ Raphael.fn.freeTransform = function(el, options) {
 		if ( ft.opts.drag ) ft.el.undrag();
 
 		// Goodbye
-		delete this;
+		delete ft.el.freeTransform;
 	};
 
 	/**
