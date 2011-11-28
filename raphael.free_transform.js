@@ -179,13 +179,11 @@ Raphael.fn.freeTransform = function(el, options) {
 			cx = Math.max(Math.min(cx, ft.opts.boundary.x + ft.opts.boundary.width),  ft.opts.boundary.x);
 			cy = Math.max(Math.min(cy, ft.opts.boundary.y + ft.opts.boundary.height), ft.opts.boundary.y);
 
-			var ratio = ft.o.width / ft.o.height;
-
 			var length = Math.sqrt(Math.pow(cx - ft.o.center.x, 2) + Math.pow(cy - ft.o.center.y, 2));
 
 			if ( ft.opts.scale ) {
 				var scale = {
-					x: length / ( ft.o.width  * ft.opts.size ) * ratio,
+					x: length / ( ft.o.width  * ft.opts.size ),
 					y: length / ( ft.o.height * ft.opts.size )
 					};
 			} else {
