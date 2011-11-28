@@ -63,21 +63,35 @@ Raphael.fn.freeTransform = function(el, options) {
 	}
 
 	if ( ft.opts.rotate || ft.opts.scale ) {
-		ft.handle = new Object;
+		ft.handle = {
+			x: new Object,
+			y: new Object
+			};
 
 		var thing = ft.getThing();
 
-		ft.handle.line = paper
+		ft.handle.x.line = paper
 			.path('M' + thing.center.x + ',' + thing.center.y)
 			.attr({ stroke: ft.opts.color, opacity: .2 })
 			;
 
-		ft.handle.disc = paper
+		ft.handle.y.line = paper
+			.path('M' + thing.center.x + ',' + thing.center.y)
+			.attr({ stroke: ft.opts.color, opacity: .2 })
+			;
+
+		ft.handle.x.disc = paper
 			.circle(thing.center.x, thing.center.y, 5)
 			.attr({ fill: ft.opts.color, stroke: 'none' })
 			;
 
-		ft.handle.disc.ft = ft;
+		ft.handle.y.disc = paper
+			.circle(thing.center.x, thing.center.y, 5)
+			.attr({ fill: ft.opts.color, stroke: 'none' })
+			;
+
+		ft.handle.x.disc.ft = ft;
+		ft.handle.y.disc.ft = ft;
 	}
 
 	/**
@@ -87,8 +101,11 @@ Raphael.fn.freeTransform = function(el, options) {
 		var ft = this;
 
 		if ( ft.handle ) {
-			ft.handle.disc.remove();
-			ft.handle.line.remove();
+			ft.handle.x.disc.remove();
+			ft.handle.y.disc.remove();
+
+			ft.handle.x.line.remove();
+			ft.handle.y.line.remove();
 		}
 
 		if ( ft.opts.drag ) ft.el.undrag();
@@ -110,6 +127,20 @@ Raphael.fn.freeTransform = function(el, options) {
 		var ratio = thing.width / thing.height;
 
 		// Get the element's rotation
+		var rad = ( thing.transform.rotate ) * Math.PI / 180;
+
+		var
+			cx = thing.center.x + ( thing.width  * thing.transform.scalex * ft.opts.size ) * Math.cos(rad) / ratio,
+			cy = thing.center.y + ( thing.height * thing.transform.scaley * ft.opts.size ) * Math.sin(rad)
+			;
+
+		ft.handle.x.disc.attr({
+			cx: Math.max(Math.min(cx || 0, ft.opts.boundary.x + ft.opts.boundary.width),  ft.opts.boundary.x),
+			cy: Math.max(Math.min(cy || 0, ft.opts.boundary.y + ft.opts.boundary.height), ft.opts.boundary.y)
+			});
+
+		ft.handle.x.line.attr({ path: 'M' + thing.center.x + ',' + thing.center.y + 'L' + ft.handle.x.disc.attrs.cx + ',' + ft.handle.x.disc.attrs.cy });
+
 		var rad = ( thing.transform.rotate + 90 ) * Math.PI / 180;
 
 		var
@@ -117,12 +148,12 @@ Raphael.fn.freeTransform = function(el, options) {
 			cy = thing.center.y + ( thing.height * thing.transform.scaley * ft.opts.size ) * Math.sin(rad)
 			;
 
-		ft.handle.disc.attr({
+		ft.handle.y.disc.attr({
 			cx: Math.max(Math.min(cx || 0, ft.opts.boundary.x + ft.opts.boundary.width),  ft.opts.boundary.x),
 			cy: Math.max(Math.min(cy || 0, ft.opts.boundary.y + ft.opts.boundary.height), ft.opts.boundary.y)
 			});
 
-		ft.handle.line.attr({ path: 'M' + thing.center.x + ',' + thing.center.y + 'L' + ft.handle.disc.attrs.cx + ',' + ft.handle.disc.attrs.cy });
+		ft.handle.y.line.attr({ path: 'M' + thing.center.x + ',' + thing.center.y + 'L' + ft.handle.y.disc.attrs.cx + ',' + ft.handle.y.disc.attrs.cy });
 	}
 
 	if ( ft.opts.drag ) {
@@ -130,13 +161,13 @@ Raphael.fn.freeTransform = function(el, options) {
 			var ft = this.freeTransform;
 
 			ft.el
-				.transform('S' + ft.o.transform.scalex + ',' + ft.o.transform.scaley + 'R' + ft.o.transform.rotate + 'T' + ( dx + ft.o.translate.x ) + ',' + ( dy + ft.o.translate.y ))
+				.transform('R' + ft.o.transform.rotate + 'S' + ft.o.transform.scalex + ',' + ft.o.transform.scaley + 'T' + ( dx + ft.o.translate.x ) + ',' + ( dy + ft.o.translate.y ))
 				;
 
 			if ( ft.handle ) {
-				ft.handle.disc.attr({ cx: dx + ft.handle.disc.ox, cy: dy + ft.handle.disc.oy });
+				ft.handle.y.disc.attr({ cx: dx + ft.handle.y.disc.ox, cy: dy + ft.handle.y.disc.oy });
 
-				ft.handle.line.attr({ path: 'M' + ( ft.o.center.x + dx ) + ',' + ( ft.o.center.y + dy ) + 'L' + ft.handle.disc.attrs.cx + ',' + ft.handle.disc.attrs.cy });
+				ft.handle.y.line.attr({ path: 'M' + ( ft.o.center.x + dx ) + ',' + ( ft.o.center.y + dy ) + 'L' + ft.handle.y.disc.attrs.cx + ',' + ft.handle.y.disc.attrs.cy });
 			}
 		}, function() {
 			var ft = this.freeTransform;
@@ -145,19 +176,19 @@ Raphael.fn.freeTransform = function(el, options) {
 			ft.o = ft.getThing();
 
 			if ( ft.handle ) {
-				ft.handle.disc.ox = ft.handle.disc.attrs.cx;
-				ft.handle.disc.oy = ft.handle.disc.attrs.cy;
+				ft.handle.y.disc.ox = ft.handle.y.disc.attrs.cx;
+				ft.handle.y.disc.oy = ft.handle.y.disc.attrs.cy;
 			}
 		});
 	}
 
 	if ( ft.handle ) {
-		ft.handle.disc.drag(function(dx, dy) {
+		ft.handle.y.disc.drag(function(dx, dy) {
 			var ft = this.ft;
 
 			var
-				cx = dx + ft.handle.disc.ox,
-				cy = dy + ft.handle.disc.oy
+				cx = dx + ft.handle.y.disc.ox,
+				cy = dy + ft.handle.y.disc.oy
 				;
 
 			if ( ft.opts.rotate ) {
@@ -185,7 +216,7 @@ Raphael.fn.freeTransform = function(el, options) {
 
 			if ( ft.opts.scale ) {
 				var scale = {
-					x: length / ( ft.o.width  * ft.opts.size ) * ratio,
+					x: ft.o.transform.scalex,//length / ( ft.o.width  * ft.opts.size ) * ratio,
 					y: length / ( ft.o.height * ft.opts.size )
 					};
 			} else {
@@ -195,7 +226,7 @@ Raphael.fn.freeTransform = function(el, options) {
 					};
 			}
 
-			ft.el.transform('S' + scale.x + ',' + scale.y + 'R' + deg + 'T' + ft.o.translate.x + ',' + ft.o.translate.y);
+			ft.el.transform('R' + deg + 'S' + scale.x + ',' + scale.y + 'T' + ft.o.translate.x + ',' + ft.o.translate.y);
 
 			ft.updateHandle();
 		}, function() {
@@ -204,8 +235,8 @@ Raphael.fn.freeTransform = function(el, options) {
 			// Offset values
 			ft.o = ft.getThing();
 
-			ft.handle.disc.ox = this.attrs.cx;
-			ft.handle.disc.oy = this.attrs.cy;
+			ft.handle.y.disc.ox = this.attrs.cx;
+			ft.handle.y.disc.oy = this.attrs.cy;
 		});
 	}
 
