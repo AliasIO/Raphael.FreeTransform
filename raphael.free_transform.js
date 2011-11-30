@@ -227,18 +227,13 @@ Raphael.fn.freeTransform = function(el, options) {
 				/* */
 				var thing = ft.o;
 
-				thing.translate.x = ft.o.translate.x;
-				thing.translate.y = ft.o.translate.y;
-
-				/*
 				thing.transform.scalex = scale.x;
 				thing.transform.scaley = scale.y;
-				*/
 
 				thing.transform.rotate = deg;
 				/* */
 
-				ft.updateHandle();
+				ft.updateHandle(thing);
 			}, function() {
 				var ft = this.ft;
 
