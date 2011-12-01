@@ -23,9 +23,10 @@ Raphael.fn.freeTransform = function(el, options) {
 				},
 			color: '#000',
 			drag: true,
+			keepRatio: false,
 			rotate: true,
 			scale: true,
-			size: .6
+			size: 1.2
 			},
 		};
 
@@ -34,7 +35,13 @@ Raphael.fn.freeTransform = function(el, options) {
 		el.freeTransform.opts[i] = options[i];
 	}
 
-	var foo = false;
+	if ( !ft.opts.scale ) {
+		ft.opts.keepRatio = true;
+	}
+
+	if ( ft.opts.keepRatio ) {
+		ft.axes = [ 'y' ];
+	}
 
 	/**
 	 * Get what we need to know about the element
@@ -141,8 +148,8 @@ Raphael.fn.freeTransform = function(el, options) {
 			rad += ( axis == 'y' ? 90 : 0 ) * Math.PI / 180;
 
 			var
-				cx = thing.center.x + ( thing.size[axis]  * thing.scale[axis] * ft.opts.size ) * Math.cos(rad),
-				cy = thing.center.y + ( thing.size[axis] * thing.scale[axis] * ft.opts.size ) * Math.sin(rad)
+				cx = thing.center.x + ( thing.size[axis] / 2 * thing.scale[axis] * ft.opts.size ) * Math.cos(rad),
+				cy = thing.center.y + ( thing.size[axis] / 2 * thing.scale[axis] * ft.opts.size ) * Math.sin(rad)
 				;
 
 			// Keep handle within boundaries
@@ -200,12 +207,6 @@ Raphael.fn.freeTransform = function(el, options) {
 						rad = Math.atan2(cy - ft.o.center.y, cx - ft.o.center.x),
 						deg = rad * 180 / Math.PI - ( axis == 'y' ? 90 : 0 )
 						;
-
-					// Keep line at length if scaling is disabled
-					if ( !ft.opts.scale ) {
-						cx = ft.o.center.x + ( ft.o.height / ft.opts.size ) * Math.cos(rad);
-						cy = ft.o.center.y + ( ft.o.height / ft.opts.size ) * Math.sin(rad);
-					}
 				} else {
 					var deg = ft.o.rotate;
 				}
@@ -218,9 +219,13 @@ Raphael.fn.freeTransform = function(el, options) {
 
 				if ( ft.opts.scale ) {
 					var scale = {
-						x: axis == 'x' ? length / ( ft.o.size.x * ft.opts.size ) : ft.o.scale.x,
-						y: axis == 'y' ? length / ( ft.o.size.y * ft.opts.size ) : ft.o.scale.y
+						x: axis == 'x' ? length / ( ft.o.size.x / 2 * ft.opts.size ) : ft.o.scale.x,
+						y: axis == 'y' ? length / ( ft.o.size.y / 2 * ft.opts.size ) : ft.o.scale.y
 						};
+
+					if ( ft.opts.keepRatio ) {
+						scale.x = scale.y;
+					}
 				} else {
 					var scale = {
 						x: ft.o.scale.x,

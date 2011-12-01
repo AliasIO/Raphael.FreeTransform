@@ -46,6 +46,10 @@ Sets the color of the handle (default: `#f00`).
 
 Enables/disables dragging (default: `true`).
 
+`keepRatio: true|false`
+
+Scale axes together or individually (default: `false`)
+
 `rotate: true|false`
 
 Enables/disables rotating (default: `true`).
