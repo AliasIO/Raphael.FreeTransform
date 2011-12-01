@@ -13,7 +13,7 @@ Example
 <script type="text/javascript" src="raphael-min.js"></script>
 <script type="text/javascript" src="raphael.free_transform.js"></script>
 
-<div id="foo"></div>
+<div id="holder"></div>
 
 <script type="text/javascript">
 	var paper = Raphael(0, 0, 500, 500);
