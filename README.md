@@ -60,7 +60,7 @@ Enables/disables scaling (default: `true`).
 
 `size: int`
 
-Sets the size of the handle (n times height, default: `.6`).
+Sets the size of the handle (n times radius, default: `1.2`).
 
 
 Functions
