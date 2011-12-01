@@ -30,6 +30,11 @@ Raphael.fn.freeTransform = function(el, options) {
 			},
 		};
 
+	// Nothing to do here
+	if ( !ft.opts.rotate && !ft.opts.scale && !ft.opts.drag ) {
+		return ft;
+	}
+
 	// Override defaults
 	for ( var i in options ) {
 		el.freeTransform.opts[i] = options[i];
@@ -258,5 +263,5 @@ Raphael.fn.freeTransform = function(el, options) {
 	if ( ft.handle ) ft.updateHandle();
 
 	// Enable method chaining
-	return el.freeTransform;
+	return ft;
 };
