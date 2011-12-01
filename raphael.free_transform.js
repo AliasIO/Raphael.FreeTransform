@@ -34,6 +34,8 @@ Raphael.fn.freeTransform = function(el, options) {
 		el.freeTransform.opts[i] = options[i];
 	}
 
+	var foo = false;
+
 	/**
 	 * Get what we need to know about the element
 	 */
@@ -59,6 +61,19 @@ Raphael.fn.freeTransform = function(el, options) {
 			x: thing.x + thing.translate.x + thing.width  / 2,
 			y: thing.y + thing.translate.y + thing.height / 2
 			};
+
+		if ( foo.remove ) foo.remove();
+		foo = ft.el.paper.path(
+			'M' +   thing.x                 + ',' +   thing.y +
+			'L' + ( thing.x + thing.width ) + ',' +   thing.y +
+			'L' + ( thing.x + thing.width ) + ',' + ( thing.y + thing.height ) +
+			'L' +   thing.x                 + ',' + ( thing.y + thing.height ) +
+			'L' +   thing.x                 + ',' +   thing.y
+			)
+			.translate(thing.translate.x, thing.translate.y)
+			.rotate(thing.transform.rotate)
+			.scale(thing.transform.scalex, thing.transform.scaley)
+			;
 
 		return thing;
 	}
@@ -114,24 +129,13 @@ Raphael.fn.freeTransform = function(el, options) {
 
 		if ( !ft.handle ) return;
 
-		if ( !thing ) var thing = ft.getThing();
+		//if ( !thing ) var thing = ft.getThing();
+		thing = ft.getThing();
 
 		// Get the element's rotation
 		var rad = thing.transform.rotate * Math.PI / 180;
 
-		var
-			cx = thing.center.x + ( thing.width  * thing.transform.scalex * ft.opts.size ) * Math.cos(rad),
-			cy = thing.center.y + ( thing.height * thing.transform.scaley * ft.opts.size ) * Math.sin(rad)
-			;
-
 		ft.axes.map(function(axis) {
-			ft.handle[axis].disc.attr({
-				cx: Math.max(Math.min(cx || 0, ft.opts.boundary.x + ft.opts.boundary.width),  ft.opts.boundary.x),
-				cy: Math.max(Math.min(cy || 0, ft.opts.boundary.y + ft.opts.boundary.height), ft.opts.boundary.y)
-				});
-
-			ft.handle[axis].line.attr({ path: 'M' + thing.center.x + ',' + thing.center.y + 'L' + ft.handle[axis].disc.attrs.cx + ',' + ft.handle[axis].disc.attrs.cy });
-
 			rad += ( axis == 'y' ? 90 : 0 ) * Math.PI / 180;
 
 			var
@@ -213,7 +217,7 @@ Raphael.fn.freeTransform = function(el, options) {
 				if ( ft.opts.scale ) {
 					var scale = {
 						x: axis == 'x' ? length / ( ft.o.width  * ft.opts.size ) : ft.o.transform.scalex,
-						y: axis == 'y' ? length / ( ft.o.height * ft.opts.size ) : ft.o.transform.scaley,
+						y: axis == 'y' ? length / ( ft.o.height * ft.opts.size ) : ft.o.transform.scaley
 						};
 				} else {
 					var scale = {
@@ -222,18 +226,20 @@ Raphael.fn.freeTransform = function(el, options) {
 						};
 				}
 
-				ft.el.transform('R' + deg + 'S' + scale.x + ',' + scale.y + 'T' + ft.o.translate.x + ',' + ft.o.translate.y);
+				ft.el.transform('r' + deg + 'S' + scale.x + ',' + scale.y + 'T' + ft.o.translate.x + ',' + ft.o.translate.y);
 
 				/* */
+				/*
 				var thing = ft.o;
 
 				thing.transform.scalex = scale.x;
 				thing.transform.scaley = scale.y;
 
 				thing.transform.rotate = deg;
+				*/
 				/* */
 
-				ft.updateHandle(thing);
+				ft.updateHandle();
 			}, function() {
 				var ft = this.ft;
 
