@@ -24,7 +24,7 @@ Example
 		;
 
 	// Add free transform handle
-	paper.freeTransform(rect);
+	paper.freeTransform(rect, { keepRatio: true });
 
 	// Remove free transform handle
 	// paper.freeTransform(rect).unplug();
