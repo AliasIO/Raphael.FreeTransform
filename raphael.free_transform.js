@@ -186,7 +186,12 @@ Raphael.fn.freeTransform = function(el, options, callback) {
 				});
 			}
 
-			if ( ft.callback ) ft.callback(ft.o);
+			var thing = cloneObj(ft.o);
+
+			thing.translate.x += dx;
+			thing.translate.y += dy;
+
+			if ( ft.callback ) ft.callback(thing);
 		}, function() {
 			var ft = this.freeTransform;
 
@@ -247,7 +252,7 @@ Raphael.fn.freeTransform = function(el, options, callback) {
 					ft.el.transform('R' + deg + 'S' + scale.x + ',' + scale.y + 'T' + ft.o.translate.x + ',' + ft.o.translate.y);
 				}
 
-				var thing = ft.o;
+				var thing = cloneObj(ft.o);
 
 				thing.scale.x = scale.x;
 				thing.scale.y = scale.y;
@@ -265,6 +270,17 @@ Raphael.fn.freeTransform = function(el, options, callback) {
 				ft.handle[axis].disc.oy = this.attrs.cy;
 			});
 		});
+	}
+
+	// Recursive copy of object
+	function cloneObj(obj) {
+		var clone = new Object;
+
+		for ( var i in obj ) {
+			clone[i] = typeof obj[i] == 'object' ? cloneObj(obj[i]) : obj[i];
+		}
+
+		return clone;
 	}
 
 	if ( ft.handle ) ft.updateHandle();
