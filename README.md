@@ -50,7 +50,7 @@ Limits the drag area of the handle (default: dimensions of the paper).
 
 `color: hex`
 
-Sets the color of the handle (default: `#f00`).
+Sets the color of the handle (default: `#000`).
 
 `drag: true|false`
 
@@ -64,11 +64,15 @@ Scale axes together or individually (default: `false`)
 
 Enables/disables rotating (default: `true`).
 
-`scale: int`
+`rotateSnap`: num|false
+
+Rotate with n degree increments (default: `false`).
+
+`scale: num`
 
 Enables/disables scaling (default: `true`).
 
-`size: int`
+`size: num`
 
 Sets the size of the handle (n times radius, default: `1.2`).
 

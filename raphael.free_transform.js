@@ -26,6 +26,7 @@ Raphael.fn.freeTransform = function(el, options, callback) {
 			drag: true,
 			keepRatio: false,
 			rotate: true,
+			rotateSnap: 20,
 			scale: true,
 			size: 1.2
 			},
@@ -246,6 +247,11 @@ Raphael.fn.freeTransform = function(el, options, callback) {
 						x: ft.o.scale.x,
 						y: ft.o.scale.y
 						};
+				}
+
+				// Rotate with increments
+				if ( ft.opts.rotateSnap ) {
+					deg = Math.round(deg / ft.opts.rotateSnap) * ft.opts.rotateSnap;
 				}
 
 				if ( scale.x && scale.y ) {
