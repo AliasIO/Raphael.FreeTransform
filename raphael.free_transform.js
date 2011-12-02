@@ -26,7 +26,7 @@ Raphael.fn.freeTransform = function(el, options, callback) {
 			drag: true,
 			keepRatio: false,
 			rotate: true,
-			rotateSnap: 20,
+			rotateSnap: false,
 			scale: true,
 			size: 1.2
 			},
