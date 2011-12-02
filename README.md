@@ -24,10 +24,20 @@ Example
 		;
 
 	// Add free transform handle
+	paper.freeTransform(rect);
+
+	/*
+	// Add free transform handle with options
 	paper.freeTransform(rect, { keepRatio: true });
 
+	// Add free transform handle with options and callback
+	paper.freeTransform(rect, { keepRatio: true }, function(thing) {
+		console.log(thing);
+	});
+
 	// Remove free transform handle
-	// paper.freeTransform(rect).unplug();
+	paper.freeTransform(rect).unplug();
+	*/
 </script>
 ```
 

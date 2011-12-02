@@ -4,7 +4,7 @@
  *
  */
 
-Raphael.fn.freeTransform = function(el, options) {
+Raphael.fn.freeTransform = function(el, options, callback) {
 	// Enable method chaining
 	if ( el.freeTransform ) return el.freeTransform;
 
@@ -12,6 +12,7 @@ Raphael.fn.freeTransform = function(el, options) {
 
 	var ft = el.freeTransform = {
 		axes: [ 'x', 'y'],
+		callback: ( typeof callback == 'function' ? callback : false ),
 		el: el,
 		handle: false,
 		opts: {
@@ -165,6 +166,8 @@ Raphael.fn.freeTransform = function(el, options) {
 
 			ft.handle[axis].line.attr({ path: 'M' + thing.center.x + ',' + thing.center.y + 'L' + ft.handle[axis].disc.attrs.cx + ',' + ft.handle[axis].disc.attrs.cy });
 		});
+
+		if ( ft.callback ) ft.callback(thing);
 	}
 
 	if ( ft.opts.drag ) {
@@ -182,6 +185,8 @@ Raphael.fn.freeTransform = function(el, options) {
 					ft.handle[axis].line.attr({ path: 'M' + ( ft.o.center.x + dx ) + ',' + ( ft.o.center.y + dy ) + 'L' + ft.handle[axis].disc.attrs.cx + ',' + ft.handle[axis].disc.attrs.cy });
 				});
 			}
+
+			if ( ft.callback ) ft.callback(ft.o);
 		}, function() {
 			var ft = this.freeTransform;
 
