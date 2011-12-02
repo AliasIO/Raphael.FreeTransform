@@ -243,7 +243,9 @@ Raphael.fn.freeTransform = function(el, options, callback) {
 						};
 				}
 
-				ft.el.transform('R' + deg + 'S' + scale.x + ',' + scale.y + 'T' + ft.o.translate.x + ',' + ft.o.translate.y);
+				if ( scale.x && scale.y ) {
+					ft.el.transform('R' + deg + 'S' + scale.x + ',' + scale.y + 'T' + ft.o.translate.x + ',' + ft.o.translate.y);
+				}
 
 				var thing = ft.o;
 
