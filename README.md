@@ -5,6 +5,10 @@ Raphael.FreeTransform
 
   ![Screenshot](https://github.com/ElbertF/Raphael.FreeTransform/raw/master/screenshot.png)
 
+Demo
+----
+
+  http://elbertf.com/raphael/free_transform/
 
 Example
 -------

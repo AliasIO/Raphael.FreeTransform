@@ -124,13 +124,13 @@ Raphael.fn.freeTransform = function(el, options, callback) {
 	ft.unplug = function() {
 		var ft = this;
 
-		if ( ft.handle ) {
-			ft.handle.x.disc.remove();
-			ft.handle.y.disc.remove();
+		ft.axes.map(function(axis) {
+			if ( ft.handle[axis] ) {
+				ft.handle[axis].disc.remove();
 
-			ft.handle.x.line.remove();
-			ft.handle.y.line.remove();
-		}
+				ft.handle[axis].line.remove();
+			}
+		});
 
 		if ( ft.opts.drag ) ft.el.undrag();
 
@@ -147,6 +147,8 @@ Raphael.fn.freeTransform = function(el, options, callback) {
 		if ( !ft.handle ) return;
 
 		if ( !thing ) var thing = ft.getThing();
+
+		asyncCallback(thing);
 
 		// Get the element's rotation
 		var rad = thing.rotate * Math.PI / 180;
@@ -167,32 +169,23 @@ Raphael.fn.freeTransform = function(el, options, callback) {
 
 			ft.handle[axis].line.attr({ path: 'M' + thing.center.x + ',' + thing.center.y + 'L' + ft.handle[axis].disc.attrs.cx + ',' + ft.handle[axis].disc.attrs.cy });
 		});
-
-		if ( ft.callback ) ft.callback(thing);
 	}
 
 	if ( ft.opts.drag ) {
 		el.drag(function(dx, dy) {
 			var ft = this.freeTransform;
 
-			ft.el
-				.transform('R' + ft.o.rotate + 'S' + ft.o.scale.x + ',' + ft.o.scale.y + 'T' + ( dx + ft.o.translate.x ) + ',' + ( dy + ft.o.translate.y ))
-				;
-
-			if ( ft.handle ) {
-				ft.axes.map(function(axis) {
-					ft.handle[axis].disc.attr({ cx: dx + ft.handle[axis].disc.ox, cy: dy + ft.handle[axis].disc.oy });
-
-					ft.handle[axis].line.attr({ path: 'M' + ( ft.o.center.x + dx ) + ',' + ( ft.o.center.y + dy ) + 'L' + ft.handle[axis].disc.attrs.cx + ',' + ft.handle[axis].disc.attrs.cy });
-				});
-			}
+			ft.el.transform('R' + ft.o.rotate + 'S' + ft.o.scale.x + ',' + ft.o.scale.y + 'T' + ( dx + ft.o.translate.x ) + ',' + ( dy + ft.o.translate.y ));
 
 			var thing = cloneObj(ft.o);
+
+			thing.center.x += dx;
+			thing.center.y += dy;
 
 			thing.translate.x += dx;
 			thing.translate.y += dy;
 
-			if ( ft.callback ) ft.callback(thing);
+			ft.updateHandle(thing);
 		}, function() {
 			var ft = this.freeTransform;
 
@@ -287,6 +280,17 @@ Raphael.fn.freeTransform = function(el, options, callback) {
 		}
 
 		return clone;
+	}
+
+	// Call callback asynchronously for better performance
+	var timeout = false;
+
+	function asyncCallback(thing) {
+		if ( ft.callback ) {
+			clearTimeout(timeout);
+
+			setTimeout(function() { ft.callback(thing); }, 1);
+		}
 	}
 
 	if ( ft.handle ) ft.updateHandle();
