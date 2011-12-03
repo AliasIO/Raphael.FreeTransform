@@ -24,6 +24,8 @@ Raphael.fn.freeTransform = function(el, options, callback) {
 				},
 			color: '#000',
 			drag: true,
+			grid: false,
+			gridSnap: 0,
 			keepRatio: false,
 			rotate: true,
 			rotateSnap: false,
@@ -48,6 +50,10 @@ Raphael.fn.freeTransform = function(el, options, callback) {
 
 	if ( ft.opts.keepRatio ) {
 		ft.axes = [ 'y' ];
+	}
+
+	if ( !ft.opts.gridSnap ) {
+		ft.opts.gridSnap = ft.opts.grid;
 	}
 
 	/**
@@ -175,15 +181,29 @@ Raphael.fn.freeTransform = function(el, options, callback) {
 		el.drag(function(dx, dy) {
 			var ft = this.freeTransform;
 
-			ft.el.transform('R' + ft.o.rotate + 'S' + ft.o.scale.x + ',' + ft.o.scale.y + 'T' + ( dx + ft.o.translate.x ) + ',' + ( dy + ft.o.translate.y ));
+			var
+				dist = { x: 0, y: 0 },
+				snap = { x: 0, y: 0 }
+				;
+
+			// Snap to grid
+			if ( ft.opts.grid ) {
+				dist.x = dx + ft.o.bbox.x - Math.round(( dx + ft.o.bbox.x ) / ft.opts.grid) * ft.opts.grid;
+				dist.y = dy + ft.o.bbox.y - Math.round(( dy + ft.o.bbox.y ) / ft.opts.grid) * ft.opts.grid;
+
+				if ( Math.abs(dist.x) < ft.opts.gridSnap ) snap.x = dist.x;
+				if ( Math.abs(dist.y) < ft.opts.gridSnap ) snap.y = dist.y;
+			}
+
+			ft.el.transform('R' + ft.o.rotate + 'S' + ft.o.scale.x + ',' + ft.o.scale.y + 'T' + ( dx + ft.o.translate.x - snap.x ) + ',' + ( dy + ft.o.translate.y - snap.y ));
 
 			var thing = cloneObj(ft.o);
 
-			thing.center.x += dx;
-			thing.center.y += dy;
+			thing.center.x += dx - snap.x;
+			thing.center.y += dy - snap.y;
 
-			thing.translate.x += dx;
-			thing.translate.y += dy;
+			thing.translate.x += dx - snap.x;
+			thing.translate.y += dy - snap.y;
 
 			ft.updateHandle(thing);
 		}, function() {
@@ -191,6 +211,8 @@ Raphael.fn.freeTransform = function(el, options, callback) {
 
 			// Offset values
 			ft.o = ft.getThing();
+
+			if ( ft.opts.grid ) ft.o.bbox = ft.el.getBBox();
 
 			if ( ft.handle ) {
 				ft.axes.map(function(axis) {

@@ -60,6 +60,14 @@ Sets the color of the handle (default: `#000`).
 
 Enables/disables dragging (default: `true`).
 
+`grid: num|false`
+
+Set grid size for aligning elements (default: `false`).
+
+`gridSnap: num`
+
+Snap edges to grid when `num` pixels away from grid (default: value of `grid`).
+
 `keepRatio: true|false`
 
 Scale axes together or individually (default: `false`)
@@ -78,7 +86,7 @@ Enables/disables scaling (default: `true`).
 
 `size: num`
 
-Sets the size of the handle (n times radius, default: `1.2`).
+Sets the size of the handle (`num` times radius, default: `1.2`).
 
 
 Functions
