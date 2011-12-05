@@ -8,6 +8,19 @@ Raphael.fn.freeTransform = function(el, options, callback) {
 	// Enable method chaining
 	if ( el.freeTransform ) return el.freeTransform;
 
+	// Add Array.map if the browser doesn't support it
+	if ( !( 'map' in Array.prototype ) ) {
+		Array.prototype.map = function(mapper, that) {
+			var mapped = new Array(this.length);
+
+			for ( var i in this ) {
+				mapped[i] = mapper.call(that, this[i], i, this);
+			}
+
+			return mapped;
+		};
+	}
+
 	var paper = this;
 
 	var ft = el.freeTransform = {
@@ -31,7 +44,7 @@ Raphael.fn.freeTransform = function(el, options, callback) {
 			rotateSnap: false,
 			scale: true,
 			size: 1.2
-			},
+			}
 		};
 
 	// Nothing to do here
@@ -60,9 +73,7 @@ Raphael.fn.freeTransform = function(el, options, callback) {
 	 * Get what we need to know about the element
 	 */
 	ft.getThing = function() {
-		var el = this.el;
-
-		var bbox = el.getBBox(true);
+		var bbox = ft.el.getBBox(true);
 
 		var thing = {
 			center:    { x: 0, y: 0 },
@@ -71,24 +82,25 @@ Raphael.fn.freeTransform = function(el, options, callback) {
 			size:      { x: bbox.width, y: bbox.height },
 			translate: { x: 0, y: 0 },
 			x:         bbox.x,
-			y:         bbox.y,
+			y:         bbox.y
 			};
 
-		for ( var i in el._.transform ) {
-			if ( el._.transform[i][0] ) {
-				switch ( el._.transform[i][0].toUpperCase() ) {
+		for ( var i in ft.el._.transform ) {
+			if ( ft.el._.transform[i][0] ) {
+				switch ( ft.el._.transform[i][0].toUpperCase() ) {
 					case 'T':
-						thing.translate.x = el._.transform[i][1];
-						thing.translate.y = el._.transform[i][2];
+						thing.translate.x = ft.el._.transform[i][1];
+						thing.translate.y = ft.el._.transform[i][2];
 
 						break;
+
 					case 'S':
-						thing.scale.x = el._.transform[i][1];
-						thing.scale.y = el._.transform[i][2];
+						thing.scale.x = ft.el._.transform[i][1];
+						thing.scale.y = ft.el._.transform[i][2];
 
 						break;
 					case 'R':
-						thing.rotate = el._.transform[i][1];
+						thing.rotate = ft.el._.transform[i][1];
 
 						break;
 				}
@@ -128,8 +140,6 @@ Raphael.fn.freeTransform = function(el, options, callback) {
 	 * Remove handle
 	 */
 	ft.unplug = function() {
-		var ft = this;
-
 		ft.axes.map(function(axis) {
 			if ( ft.handle[axis] ) {
 				ft.handle[axis].disc.remove();
@@ -148,8 +158,6 @@ Raphael.fn.freeTransform = function(el, options, callback) {
 	 * Draw handle based on the elements attributes
 	 */
 	ft.updateHandle = function(thing) {
-		var ft = this;
-
 		if ( !ft.handle ) return;
 
 		if ( !thing ) var thing = ft.getThing();
@@ -179,12 +187,15 @@ Raphael.fn.freeTransform = function(el, options, callback) {
 
 	if ( ft.opts.drag ) {
 		el.drag(function(dx, dy) {
-			var ft = this.freeTransform;
-
 			var
 				dist = { x: 0, y: 0 },
 				snap = { x: 0, y: 0 }
 				;
+
+			if ( ft.o.viewBoxRatio ) {
+				dx *= ft.o.viewBoxRatio.x;
+				dy *= ft.o.viewBoxRatio.y;
+			}
 
 			// Snap to grid
 			if ( ft.opts.grid ) {
@@ -207,12 +218,17 @@ Raphael.fn.freeTransform = function(el, options, callback) {
 
 			ft.updateHandle(thing);
 		}, function() {
-			var ft = this.freeTransform;
-
 			// Offset values
 			ft.o = ft.getThing();
 
 			if ( ft.opts.grid ) ft.o.bbox = ft.el.getBBox();
+
+			if ( ft.el.paper._viewBox ) {
+				ft.o.viewBoxRatio = {
+					x: ft.el.paper._viewBox[2] / ft.el.paper.width,
+					y: ft.el.paper._viewBox[3] / ft.el.paper.height
+					};
+			}
 
 			if ( ft.handle ) {
 				ft.axes.map(function(axis) {
@@ -226,7 +242,10 @@ Raphael.fn.freeTransform = function(el, options, callback) {
 	if ( ft.handle ) {
 		ft.axes.map(function(axis) {
 			ft.handle[axis].disc.drag(function(dx, dy) {
-				var ft = this.ft;
+				if ( ft.o.viewBoxRatio ) {
+					dx *= ft.o.viewBoxRatio.x;
+					dy *= ft.o.viewBoxRatio.y;
+				}
 
 				var
 					cx = dx + ft.handle[axis].disc.ox,
@@ -282,10 +301,15 @@ Raphael.fn.freeTransform = function(el, options, callback) {
 
 				ft.updateHandle(thing);
 			}, function() {
-				var ft = this.ft;
-
 				// Offset values
 				ft.o = ft.getThing();
+
+				if ( ft.el.paper._viewBox ) {
+					ft.o.viewBoxRatio = {
+						x: ft.el.paper._viewBox[2] / ft.el.paper.width,
+						y: ft.el.paper._viewBox[3] / ft.el.paper.height
+						};
+				}
 
 				ft.handle[axis].disc.ox = this.attrs.cx;
 				ft.handle[axis].disc.oy = this.attrs.cy;
