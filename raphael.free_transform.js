@@ -10,11 +10,13 @@ Raphael.fn.freeTransform = function(el, options, callback) {
 
 	// Add Array.map if the browser doesn't support it
 	if ( !( 'map' in Array.prototype ) ) {
-		Array.prototype.map = function(mapper, that) {
-			var mapped = new Array(this.length);
+		Array.prototype.map = function(callback, arg) {
+			var mapped = new Array();
 
 			for ( var i in this ) {
-				mapped[i] = mapper.call(that, this[i], i, this);
+				if ( this.hasOwnProperty(i) ) {
+					mapped[i] = callback.call(arg, this[i], i, this);
+				}
 			}
 
 			return mapped;
@@ -30,8 +32,8 @@ Raphael.fn.freeTransform = function(el, options, callback) {
 		handle: false,
 		opts: {
 			boundary: {
-				x: paper._left,
-				y: paper._top,
+				x: paper._left ? paper._left : 0,
+				y: paper._top  ? paper._top  : 0,
 				width: paper.width,
 				height: paper.height
 				},
