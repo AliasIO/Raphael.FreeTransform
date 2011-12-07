@@ -4,9 +4,9 @@
  *
  */
 
-Raphael.fn.freeTransform = function(el, options, callback) {
+Raphael.fn.freeTransform = function(subject, options, callback) {
 	// Enable method chaining
-	if ( el.freeTransform ) return el.freeTransform;
+	if ( subject.freeTransform ) return subject.freeTransform;
 
 	// Add Array.map if the browser doesn't support it
 	if ( !( 'map' in Array.prototype ) ) {
@@ -25,10 +25,10 @@ Raphael.fn.freeTransform = function(el, options, callback) {
 
 	var paper = this;
 
-	var ft = el.freeTransform = {
+	var ft = subject.freeTransform = {
 		axes: [ 'x', 'y'],
 		callback: ( typeof callback == 'function' ? callback : false ),
-		el: el,
+		items: subject.type == 'set' ? subject.items : [ subject ],
 		handles: false,
 		opts: {
 			attrs: {
@@ -50,7 +50,7 @@ Raphael.fn.freeTransform = function(el, options, callback) {
 			scale: true,
 			size: 1.2
 			},
-		// Keep track of transformations in case we can't access ft.el._.transform
+		// Keep track of transformations in case we can't access item._.transform
 		transform: {
 			rotate: 0,
 			scale:     { x: 1, y: 1 },
@@ -60,7 +60,7 @@ Raphael.fn.freeTransform = function(el, options, callback) {
 
 	// Override defaults
 	for ( var i in options ) {
-		el.freeTransform.opts[i] = options[i];
+		subject.freeTransform.opts[i] = options[i];
 	}
 
 	// Nothing to do here
@@ -84,54 +84,58 @@ Raphael.fn.freeTransform = function(el, options, callback) {
 	 * Get what we need to know about the element
 	 */
 	ft.getThing = function() {
-		var bbox = ft.el.getBBox(true);
+		for ( var i in ft.items ) {
+			var item = ft.items[i];
 
-		var thing = {
-			x: bbox.x,
-			y: bbox.y,
-			size: {
-				x: bbox.width,
-				y: bbox.height
-			},
-			center:{
-				x: bbox.x + bbox.width  / 2,
-				y: bbox.y + bbox.height / 2
+			var bbox = item.getBBox(true);
+
+			var thing = {
+				x: bbox.x,
+				y: bbox.y,
+				size: {
+					x: bbox.width,
+					y: bbox.height
 				},
-			rotate:    ft.transform.rotate,
-			scale:     ft.transform.scale,
-			translate: ft.transform.translate
-			};
+				center:{
+					x: bbox.x + bbox.width  / 2,
+					y: bbox.y + bbox.height / 2
+					},
+				rotate:    ft.transform.rotate,
+				scale:     ft.transform.scale,
+				translate: ft.transform.translate
+				};
 
-		// Get the current transform values if we can access them
-		if ( ft.el._ && ft.el._.transform ) {
-			for ( var i in ft.el._.transform ) {
-				if ( ft.el._.transform[i][0] ) {
-					switch ( ft.el._.transform[i][0].toUpperCase() ) {
-						case 'T':
-							thing.translate.x = ft.el._.transform[i][1];
-							thing.translate.y = ft.el._.transform[i][2];
+			// Get the current transform values if we can access them
+			if ( item._ && item._.transform ) {
+				for ( var i in item._.transform ) {
+					if ( item._.transform[i][0] ) {
+						switch ( item._.transform[i][0].toUpperCase() ) {
+							case 'T':
+								thing.translate.x = item._.transform[i][1];
+								thing.translate.y = item._.transform[i][2];
 
-							break;
+								break;
 
-						case 'S':
-							thing.scale.x = ft.el._.transform[i][1];
-							thing.scale.y = ft.el._.transform[i][2];
+							case 'S':
+								thing.scale.x = item._.transform[i][1];
+								thing.scale.y = item._.transform[i][2];
 
-							break;
-						case 'R':
-							thing.rotate = ft.el._.transform[i][1];
+								break;
+							case 'R':
+								thing.rotate = item._.transform[i][1];
 
-							break;
+								break;
+						}
 					}
 				}
 			}
+
+			thing.x += thing.translate.x;
+			thing.y += thing.translate.y;
+
+			thing.center.x += thing.translate.x;
+			thing.center.y += thing.translate.y;
 		}
-
-		thing.x += thing.translate.x;
-		thing.y += thing.translate.y;
-
-		thing.center.x += thing.translate.x;
-		thing.center.y += thing.translate.y;
 
 		return thing;
 	}
@@ -177,10 +181,14 @@ Raphael.fn.freeTransform = function(el, options, callback) {
 			}
 		});
 
-		if ( ft.opts.drag ) ft.el.undrag();
+		if ( ft.opts.drag ) {
+			for ( var i in ft.items ) {
+				ft.items[i].undrag();
+			}
+		}
 
 		// Goodbye
-		delete ft.el.freeTransform;
+		delete subject.freeTransform;
 	};
 
 	/**
@@ -190,7 +198,7 @@ Raphael.fn.freeTransform = function(el, options, callback) {
 		if ( !ft.handles ) return;
 
 		if ( thing ) {
-			// Keep track of transformations in case we can't access ft.el._.transform
+			// Keep track of transformations in case we can't access item._.transform
 			ft.transform = {
 				rotate:    thing.rotate,
 				scale:     { x: thing.scale.x,     y: thing.scale.y     },
@@ -225,63 +233,69 @@ Raphael.fn.freeTransform = function(el, options, callback) {
 
 	// Drag element
 	if ( ft.opts.drag ) {
-		el.drag(function(dx, dy) {
-			var
-				dist = { x: 0, y: 0 },
-				snap = { x: 0, y: 0 }
-				;
+		for ( var i in ft.items ) {
+			var item = ft.items[i];
 
-			// viewBox might be zoomed in/out
-			if ( ft.o.viewBoxRatio ) {
-				dx *= ft.o.viewBoxRatio.x;
-				dy *= ft.o.viewBoxRatio.y;
-			}
+			item.drag(function(dx, dy) {
+				var
+					dist = { x: 0, y: 0 },
+					snap = { x: 0, y: 0 }
+					;
 
-			// Snap to grid
-			if ( ft.opts.grid ) {
-				dist.x = dx + ft.o.bbox.x - Math.round(( dx + ft.o.bbox.x ) / ft.opts.grid) * ft.opts.grid;
-				dist.y = dy + ft.o.bbox.y - Math.round(( dy + ft.o.bbox.y ) / ft.opts.grid) * ft.opts.grid;
+				// viewBox might be zoomed in/out
+				if ( ft.o.viewBoxRatio ) {
+					dx *= ft.o.viewBoxRatio.x;
+					dy *= ft.o.viewBoxRatio.y;
+				}
 
-				if ( Math.abs(dist.x) < ft.opts.gridSnap ) snap.x = dist.x;
-				if ( Math.abs(dist.y) < ft.opts.gridSnap ) snap.y = dist.y;
-			}
+				// Snap to grid
+				if ( ft.opts.grid ) {
+					dist.x = dx + ft.o.bbox.x - Math.round(( dx + ft.o.bbox.x ) / ft.opts.grid) * ft.opts.grid;
+					dist.y = dy + ft.o.bbox.y - Math.round(( dy + ft.o.bbox.y ) / ft.opts.grid) * ft.opts.grid;
 
-			ft.el.transform('R' + ft.o.rotate + 'S' + ft.o.scale.x + ',' + ft.o.scale.y + 'T' + ( dx + ft.o.translate.x - snap.x ) + ',' + ( dy + ft.o.translate.y - snap.y ));
+					if ( Math.abs(dist.x) < ft.opts.gridSnap ) snap.x = dist.x;
+					if ( Math.abs(dist.y) < ft.opts.gridSnap ) snap.y = dist.y;
+				}
 
-			// Recycle ft.o so we don't have to call ft.getThing() many times
-			var thing = cloneObj(ft.o);
+				for ( var i in ft.items ) {
+					ft.items[i].transform('R' + ft.o.rotate + 'S' + ft.o.scale.x + ',' + ft.o.scale.y + 'T' + ( dx + ft.o.translate.x - snap.x ) + ',' + ( dy + ft.o.translate.y - snap.y ));
+				}
 
-			thing.x += dx - snap.x;
-			thing.y += dy - snap.y;
+				// Recycle ft.o so we don't have to call ft.getThing() many times
+				var thing = cloneObj(ft.o);
 
-			thing.center.x += dx - snap.x;
-			thing.center.y += dy - snap.y;
+				thing.x += dx - snap.x;
+				thing.y += dy - snap.y;
 
-			thing.translate.x += dx - snap.x;
-			thing.translate.y += dy - snap.y;
+				thing.center.x += dx - snap.x;
+				thing.center.y += dy - snap.y;
 
-			ft.updateHandles(thing);
-		}, function() {
-			// Offset values
-			ft.o = ft.getThing();
+				thing.translate.x += dx - snap.x;
+				thing.translate.y += dy - snap.y;
 
-			if ( ft.opts.grid ) ft.o.bbox = ft.el.getBBox();
+				ft.updateHandles(thing);
+			}, function() {
+				// Offset values
+				ft.o = ft.getThing();
 
-			// viewBox might be zoomed in/out
-			if ( ft.el.paper._viewBox ) {
-				ft.o.viewBoxRatio = {
-					x: ft.el.paper._viewBox[2] / ft.el.paper.width,
-					y: ft.el.paper._viewBox[3] / ft.el.paper.height
-					};
-			}
+				if ( ft.opts.grid ) ft.o.bbox = item.getBBox();
 
-			if ( ft.handles ) {
-				ft.axes.map(function(axis) {
-					ft.handles[axis].disc.ox = ft.handles[axis].disc.attrs.cx;
-					ft.handles[axis].disc.oy = ft.handles[axis].disc.attrs.cy;
-				});
-			}
-		});
+				// viewBox might be zoomed in/out
+				if ( paper._viewBox ) {
+					ft.o.viewBoxRatio = {
+						x: paper._viewBox[2] / paper.width,
+						y: paper._viewBox[3] / paper.height
+						};
+				}
+
+				if ( ft.handles ) {
+					ft.axes.map(function(axis) {
+						ft.handles[axis].disc.ox = ft.handles[axis].disc.attrs.cx;
+						ft.handles[axis].disc.oy = ft.handles[axis].disc.attrs.cy;
+					});
+				}
+			});
+		}
 	}
 
 	// Drag handles
@@ -335,7 +349,9 @@ Raphael.fn.freeTransform = function(el, options, callback) {
 				}
 
 				if ( scale.x && scale.y ) {
-					ft.el.transform('R' + deg + 'S' + scale.x + ',' + scale.y + 'T' + ft.o.translate.x + ',' + ft.o.translate.y);
+					for ( var i in ft.items ) {
+						ft.items[i].transform('R' + deg + 'S' + scale.x + ',' + scale.y + 'T' + ft.o.translate.x + ',' + ft.o.translate.y);
+					}
 				}
 
 				// Recycle ft.o so we don't have to call ft.getThing() many times
@@ -351,10 +367,10 @@ Raphael.fn.freeTransform = function(el, options, callback) {
 				// Offset values
 				ft.o = ft.getThing();
 
-				if ( ft.el.paper._viewBox ) {
+				if ( paper._viewBox ) {
 					ft.o.viewBoxRatio = {
-						x: ft.el.paper._viewBox[2] / ft.el.paper.width,
-						y: ft.el.paper._viewBox[3] / ft.el.paper.height
+						x: paper._viewBox[2] / paper.width,
+						y: paper._viewBox[3] / paper.height
 						};
 				}
 
