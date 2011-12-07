@@ -31,13 +31,16 @@ Raphael.fn.freeTransform = function(el, options, callback) {
 		el: el,
 		handle: false,
 		opts: {
+			attrs: {
+				fill: '#000',
+				stroke: '#000'
+				},
 			boundary: {
 				x: paper._left ? paper._left : 0,
 				y: paper._top  ? paper._top  : 0,
 				width: paper.width,
 				height: paper.height
 				},
-			color: '#000',
 			drag: true,
 			grid: false,
 			gridSnap: 0,
@@ -124,14 +127,14 @@ Raphael.fn.freeTransform = function(el, options, callback) {
 		var thing = ft.getThing();
 
 		ft.axes.map(function(axis) {
-			ft.handle[axis].disc = paper
-				.circle(thing.center.x, thing.center.y, 5)
-				.attr({ fill: ft.opts.color, stroke: 'none' })
-				;
-
 			ft.handle[axis].line = paper
 				.path('M' + thing.center.x + ',' + thing.center.y)
-				.attr({ stroke: ft.opts.color, opacity: .2 })
+				.attr({ stroke: ft.opts.attrs.stroke, opacity: .2 })
+				;
+
+			ft.handle[axis].disc = paper
+				.circle(thing.center.x, thing.center.y, 5)
+				.attr(ft.opts.attrs)
 				;
 
 			ft.handle[axis].disc.ft = ft;

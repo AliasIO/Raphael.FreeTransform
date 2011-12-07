@@ -48,13 +48,13 @@ Example
 Options
 -------
 
+`attrs: { fill: hex, stroke: hex }`
+
+Sets the attributes of the handle (default: `{ fill: '#000', stroke: '#000' }`).
+
 `boundary: { x: int, y: int, width: int, height: int }`
 
 Limits the drag area of the handle (default: dimensions of the paper).
-
-`color: hex`
-
-Sets the color of the handle (default: `#000`).
 
 `drag: true|false`
 
