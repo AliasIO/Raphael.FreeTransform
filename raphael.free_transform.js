@@ -84,12 +84,12 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 	 * Get what we need to know about the element
 	 */
 	ft.getThing = function() {
-		for ( var i in ft.items ) {
-			var item = ft.items[i];
-
+		var thing;
+		
+		ft.items.map(function(item) {
 			var bbox = item.getBBox(true);
 
-			var thing = {
+			thing = {
 				x: bbox.x,
 				y: bbox.y,
 				size: {
@@ -135,7 +135,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 
 			thing.center.x += thing.translate.x;
 			thing.center.y += thing.translate.y;
-		}
+		});
 
 		return thing;
 	}
@@ -254,9 +254,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 	if ( ft.opts.drag ) {
 		var items = ft.opts.drag ? ft.items.concat([ ft.handles.center.disc ]) : ft.items;
 
-		for ( var i in items ) {
-			var item = items[i];
-
+		items.map(function(item) { 
 			item.drag(function(dx, dy) {
 				var
 					dist = { x: 0, y: 0 },
@@ -278,9 +276,9 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 					if ( Math.abs(dist.y) < ft.opts.gridSnap ) snap.y = dist.y;
 				}
 
-				for ( var i in ft.items ) {
-					ft.items[i].transform('R' + ft.o.rotate + 'S' + ft.o.scale.x + ',' + ft.o.scale.y + 'T' + ( dx + ft.o.translate.x - snap.x ) + ',' + ( dy + ft.o.translate.y - snap.y ));
-				}
+				ft.items.map(function(item) {
+					item.transform('R' + ft.o.rotate + 'S' + ft.o.scale.x + ',' + ft.o.scale.y + 'T' + ( dx + ft.o.translate.x - snap.x ) + ',' + ( dy + ft.o.translate.y - snap.y ));
+				});
 
 				// Recycle ft.o so we don't have to call ft.getThing() many times
 				var thing = cloneObj(ft.o);
@@ -316,7 +314,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 					});
 				}
 			});
-		}
+		});
 	}
 
 	// Drag x, y handles
@@ -370,9 +368,12 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 				}
 
 				if ( scale.x && scale.y ) {
-					for ( var i in ft.items ) {
-						ft.items[i].transform('R' + deg + 'S' + scale.x + ',' + scale.y + 'T' + ft.o.translate.x + ',' + ft.o.translate.y);
-					}
+					ft.items.map(function(item) {
+						item.transform([
+							'R', deg,
+							'S', scale.x, scale.y,
+							'T', ft.o.translate.x, ft.o.translate.y]);
+					});
 				}
 
 				// Recycle ft.o so we don't have to call ft.getThing() many times
