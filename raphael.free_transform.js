@@ -250,10 +250,12 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 		}
 	}
 
-	// Drag element
+	// Drag element and center handle
 	if ( ft.opts.drag ) {
-		for ( var i in ft.items ) {
-			var item = ft.items[i];
+		var items = ft.opts.drag ? ft.items.concat([ ft.handles.center.disc ]) : ft.items;
+
+		for ( var i in items ) {
+			var item = items[i];
 
 			item.drag(function(dx, dy) {
 				var
