@@ -141,14 +141,22 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 	}
 
 	// Draw handles
+	ft.handles = {
+		center: new Object,
+		x:      new Object,
+		y:      new Object
+		};
+
+	var thing = ft.getThing();
+
+	if ( ft.opts.drag ) {
+		ft.handles.center.disc = paper
+			.circle(thing.center.x, thing.center.y, 5)
+			.attr(ft.opts.attrs)
+			;
+	}
+
 	if ( ft.opts.rotate || ft.opts.scale ) {
-		ft.handles = {
-			x: new Object,
-			y: new Object
-			};
-
-		var thing = ft.getThing();
-
 		ft.axes.map(function(axis) {
 			ft.handles[axis].line = paper
 				.path('M' + thing.center.x + ',' + thing.center.y)
@@ -168,23 +176,27 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 	 * Remove handles, commit suicide
 	 */
 	ft.unplug = function() {
-		ft.axes.map(function(axis) {
-			if ( ft.handles[axis] ) {
-				ft.handles[axis].disc.remove();
-
-			ft.transform.translate = {
-				x: thing.x,
-				y: thing.y
-				};
-
-				ft.handles[axis].line.remove();
-			}
-		});
-
 		if ( ft.opts.drag ) {
+			ft.handles.center.disc.remove();
+
 			for ( var i in ft.items ) {
 				ft.items[i].undrag();
 			}
+		}
+
+		if ( ft.opts.rotate || ft.opts.scale ) {
+			ft.axes.map(function(axis) {
+				if ( ft.handles[axis] ) {
+					ft.handles[axis].disc.remove();
+
+				ft.transform.translate = {
+					x: thing.x,
+					y: thing.y
+					};
+
+					ft.handles[axis].line.remove();
+				}
+			});
 		}
 
 		// Goodbye
@@ -195,8 +207,6 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 	 * Update handles based on the element's transformations
 	 */
 	ft.updateHandles = function(thing) {
-		if ( !ft.handles ) return;
-
 		if ( thing ) {
 			// Keep track of transformations in case we can't access item._.transform
 			ft.transform = {
@@ -213,22 +223,31 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 		// Get the element's rotation
 		var rad = thing.rotate * Math.PI / 180;
 
-		ft.axes.map(function(axis) {
-			rad += ( axis == 'y' ? 90 : 0 ) * Math.PI / 180;
-
-			var
-				cx = thing.center.x + ( thing.size[axis] / 2 * thing.scale[axis] * ft.opts.size ) * Math.cos(rad),
-				cy = thing.center.y + ( thing.size[axis] / 2 * thing.scale[axis] * ft.opts.size ) * Math.sin(rad)
-				;
-
-			// Keep handle within boundaries
-			ft.handles[axis].disc.attr({
-				cx: Math.max(Math.min(cx || 0, ft.opts.boundary.x + ft.opts.boundary.width),  ft.opts.boundary.x),
-				cy: Math.max(Math.min(cy || 0, ft.opts.boundary.y + ft.opts.boundary.height), ft.opts.boundary.y)
+		if ( ft.opts.drag ) {
+			ft.handles.center.disc.attr({
+				cx: Math.max(Math.min(thing.center.x || 0, ft.opts.boundary.x + ft.opts.boundary.width),  ft.opts.boundary.x),
+				cy: Math.max(Math.min(thing.center.y || 0, ft.opts.boundary.y + ft.opts.boundary.height), ft.opts.boundary.y)
 				});
+		}
 
-			ft.handles[axis].line.attr({ path: 'M' + thing.center.x + ',' + thing.center.y + 'L' + ft.handles[axis].disc.attrs.cx + ',' + ft.handles[axis].disc.attrs.cy });
-		});
+		if ( ft.opts.rotate || ft.opts.scale ) {
+			ft.axes.map(function(axis) {
+				rad += ( axis == 'y' ? 90 : 0 ) * Math.PI / 180;
+
+				var
+					cx = thing.center.x + ( thing.size[axis] / 2 * thing.scale[axis] * ft.opts.size ) * Math.cos(rad),
+					cy = thing.center.y + ( thing.size[axis] / 2 * thing.scale[axis] * ft.opts.size ) * Math.sin(rad)
+					;
+
+				// Keep handle within boundaries
+				ft.handles[axis].disc.attr({
+					cx: Math.max(Math.min(cx || 0, ft.opts.boundary.x + ft.opts.boundary.width),  ft.opts.boundary.x),
+					cy: Math.max(Math.min(cy || 0, ft.opts.boundary.y + ft.opts.boundary.height), ft.opts.boundary.y)
+					});
+
+				ft.handles[axis].line.attr({ path: 'M' + thing.center.x + ',' + thing.center.y + 'L' + ft.handles[axis].disc.attrs.cx + ',' + ft.handles[axis].disc.attrs.cy });
+			});
+		}
 	}
 
 	// Drag element
@@ -288,7 +307,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 						};
 				}
 
-				if ( ft.handles ) {
+				if ( ft.opts.rotate || ft.opts.scale ) {
 					ft.axes.map(function(axis) {
 						ft.handles[axis].disc.ox = ft.handles[axis].disc.attrs.cx;
 						ft.handles[axis].disc.oy = ft.handles[axis].disc.attrs.cy;
@@ -298,8 +317,8 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 		}
 	}
 
-	// Drag handles
-	if ( ft.handles ) {
+	// Drag x, y handles
+	if ( ft.opts.rotate || ft.opts.scale ) {
 		ft.axes.map(function(axis) {
 			ft.handles[axis].disc.drag(function(dx, dy) {
 				if ( ft.o.viewBoxRatio ) {
@@ -402,7 +421,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 		}
 	}
 
-	if ( ft.handles ) ft.updateHandles();
+	ft.updateHandles();
 
 	// Enable method chaining
 	return ft;
