@@ -149,13 +149,6 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 
 	var thing = ft.getThing();
 
-	if ( ft.opts.drag ) {
-		ft.handles.center.disc = paper
-			.circle(thing.center.x, thing.center.y, 5)
-			.attr(ft.opts.attrs)
-			;
-	}
-
 	if ( ft.opts.rotate || ft.opts.scale ) {
 		ft.axes.map(function(axis) {
 			ft.handles[axis].line = paper
@@ -170,6 +163,13 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 
 			ft.handles[axis].disc.ft = ft;
 		});
+	}
+
+	if ( ft.opts.drag ) {
+		ft.handles.center.disc = paper
+			.circle(thing.center.x, thing.center.y, 5)
+			.attr(ft.opts.attrs)
+			;
 	}
 
 	/**
