@@ -96,6 +96,6 @@ Functions
 
 Removes handle and deletes all values set by the plugin.
 
-`updateHandle()`
+`updateHandles()`
 
-Updates handle to reflect the element's properties.
+Updates handles to reflect the element's transformations.
