@@ -107,11 +107,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			};
 
 		ft.items.map(function(item, i) {
-			thing.items[i] = {
-				rotate:    ft.transform.rotate,
-				scale:     ft.transform.scale,
-				translate: ft.transform.translate
-				};
+			thing.items[i] = cloneObj(ft.transform);
 
 			// Get the current transform values if we can access them
 			if ( item._ && item._.transform ) {
@@ -318,11 +314,11 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 					if ( Math.abs(dist.y) < ft.opts.gridSnap ) snap.y = dist.y;
 				}
 
-				ft.items.map(function(item) {
+				ft.items.map(function(item, i) {
 					item.transform([
 						'R', ft.o.rotate,
 						'S', ft.o.scale.x, ft.o.scale.y,
-						'T', dx + ft.o.translate.x - snap.x, dy + ft.o.translate.y - snap.y
+						'T', dx + ft.o.items[i].translate.x - snap.x, dy + ft.o.items[i].translate.y - snap.y
 						]);
 				});
 
@@ -409,11 +405,11 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 				}
 
 				if ( scale.x && scale.y ) {
-					ft.items.map(function(item) {
+					ft.items.map(function(item, i) {
 						item.transform([
 							'R', deg, ft.o.center.x, ft.o.center.y,
 							'S', scale.x, scale.y, ft.o.center.x, ft.o.center.y,
-							'T', ft.o.translate.x, ft.o.translate.y
+							'T', ft.o.items[i].translate.x, ft.o.items[i].translate.y
 							]);
 					});
 				}
