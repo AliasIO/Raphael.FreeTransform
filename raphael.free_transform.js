@@ -411,8 +411,8 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 				if ( scale.x && scale.y ) {
 					ft.items.map(function(item) {
 						item.transform([
-							'R', deg,
-							'S', scale.x, scale.y,
+							'R', deg, ft.o.center.x, ft.o.center.y,
+							'S', scale.x, scale.y, ft.o.center.x, ft.o.center.y,
 							'T', ft.o.translate.x, ft.o.translate.y
 							]);
 					});
