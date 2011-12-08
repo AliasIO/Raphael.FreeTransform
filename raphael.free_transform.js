@@ -48,6 +48,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			rotate: true,
 			rotateSnap: false,
 			scale: true,
+			showBBox: false,
 			size: 1.2
 			},
 		// Keep track of transformations in case we can't access item._.transform
@@ -172,6 +173,13 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			;
 	}
 
+	if ( ft.opts.showBBox ) {
+		ft.bbox = paper
+			.rect('')
+			.attr({ stroke: ft.opts.attrs.stroke, opacity: .2 })
+			;
+	}
+
 	/**
 	 * Remove handles, commit suicide
 	 */
@@ -247,6 +255,16 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 
 				ft.handles[axis].line.attr({ path: 'M' + thing.center.x + ',' + thing.center.y + 'L' + ft.handles[axis].disc.attrs.cx + ',' + ft.handles[axis].disc.attrs.cy });
 			});
+		}
+
+		if ( ft.opts.showBBox ) {
+			ft.bbox.attr({
+				x:      thing.x,
+				y:      thing.y,
+				width:  thing.size.x,
+				height: thing.size.y
+				})
+				.transform('R' + thing.rotate + 'S' + thing.scale.x + ',' + thing.scale.y);
 		}
 	}
 
