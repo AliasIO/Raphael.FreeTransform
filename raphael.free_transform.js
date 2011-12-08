@@ -419,7 +419,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 		if ( ft.callback ) {
 			clearTimeout(timeout);
 
-			setTimeout(function() { ft.callback(thing); }, 1);
+			setTimeout(function() { ft.callback(thing, subject); }, 1);
 		}
 	}
 
