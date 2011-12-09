@@ -64,11 +64,6 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 		subject.freeTransform.opts[i] = options[i];
 	}
 
-	// Nothing to do here
-	if ( !ft.opts.rotate && !ft.opts.scale && !ft.opts.drag ) {
-		return ft;
-	}
-
 	if ( !ft.opts.scale ) {
 		ft.opts.keepRatio = true;
 	}
@@ -85,9 +80,10 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 	 * Get what we need to know about the subject
 	 */
 	ft.getThing = function() {
-		var thing;
-
-		var bbox = subject.getBBox(true);
+		var
+			thing,
+			bbox = subject.getBBox(true)
+			;
 
 		thing = {
 			x: bbox.x,
@@ -139,6 +135,8 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			thing.rotate    = thing.items[0].rotate;
 			thing.scale     = thing.items[0].scale;
 			thing.translate = thing.items[0].translate;
+
+			thing.items[0] = cloneObj(ft.transform);
 		}
 
 		return thing;
@@ -182,10 +180,11 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 
 	if ( ft.opts.showBBox ) {
 		ft.bbox = paper
-			.rect('')
+			.path('')
 			.attr({
 				stroke: ft.opts.attrs.stroke,
-				opacity: .2
+				'stroke-dasharray': '- ',
+				opacity: .3
 				})
 			;
 	}
@@ -197,29 +196,21 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 		if ( ft.opts.drag ) {
 			ft.handles.center.disc.remove();
 
-			for ( var i in ft.items ) {
-				ft.items[i].undrag();
-			}
+			ft.items.map(function(item) {
+				item.undrag();
+			});
 		}
 
 		if ( ft.opts.rotate || ft.opts.scale ) {
 			ft.axes.map(function(axis) {
 				if ( ft.handles[axis] ) {
 					ft.handles[axis].disc.remove();
-
-				ft.transform.translate = {
-					x: thing.x,
-					y: thing.y
-					};
-
 					ft.handles[axis].line.remove();
 				}
 			});
 		}
 
-		if ( ft.opts.showBBox) {
-			ft.bbox.remove();
-		}
+		if ( ft.opts.showBBox) ft.bbox.remove();
 
 		// Goodbye
 		delete subject.freeTransform;
@@ -231,19 +222,18 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 	ft.updateHandles = function(thing) {
 		if ( thing ) {
 			// Keep track of transformations in case we can't access item._.transform
+			/*
 			ft.transform = {
 				rotate:    thing.rotate,
 				scale:     { x: thing.scale.x,     y: thing.scale.y     },
 				translate: { x: thing.translate.x, y: thing.translate.y }
 				};
+				*/
 		} else {
 			thing = ft.getThing();
 		}
 
 		asyncCallback(thing);
-
-		// Get the element's rotation
-		var rad = thing.rotate * Math.PI / 180;
 
 		if ( ft.opts.drag ) {
 			ft.handles.center.disc.attr({
@@ -252,13 +242,22 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 				});
 		}
 
+		// Get the element's rotation
+		var rad = {
+			x: ( thing.rotate      ) * Math.PI / 180,
+			y: ( thing.rotate + 90 ) * Math.PI / 180
+			};
+
+		var radius = {
+			x: thing.size.x / 2 * thing.scale.x,
+			y: thing.size.y / 2 * thing.scale.y
+			};
+
 		if ( ft.opts.rotate || ft.opts.scale ) {
 			ft.axes.map(function(axis) {
-				rad += ( axis == 'y' ? 90 : 0 ) * Math.PI / 180;
-
 				var
-					cx = thing.center.x + thing.translate.x + ( thing.size[axis] / 2 * thing.scale[axis] * ft.opts.size ) * Math.cos(rad),
-					cy = thing.center.y + thing.translate.y + ( thing.size[axis] / 2 * thing.scale[axis] * ft.opts.size ) * Math.sin(rad)
+					cx = thing.center.x + thing.translate.x + radius[axis] * ft.opts.size * Math.cos(rad[axis]),
+					cy = thing.center.y + thing.translate.y + radius[axis] * ft.opts.size * Math.sin(rad[axis])
 					;
 
 				// Keep handle within boundaries
@@ -274,17 +273,27 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 		}
 
 		if ( ft.opts.showBBox ) {
-			// TODO: Don't use scaling on the bounding box, get the actual coordinates
+			var
+				corners = new Array,
+				signs   = [ { x: 1, y: 1 }, { x: -1, y: 1 }, { x: -1, y: -1 }, { x: 1, y: -1 } ]
+				;
+
+			signs.map(function(sign) {
+				corners.push({
+					x: ( thing.center.x + thing.translate.x + sign.x * radius.x * Math.cos(rad.x) ) + sign.y * radius.y * Math.cos(rad.y),
+					y: ( thing.center.y + thing.translate.y + sign.x * radius.x * Math.sin(rad.x) ) + sign.y * radius.y * Math.sin(rad.y)
+					});
+			});
+
 			ft.bbox.attr({
-				x:      thing.x + thing.translate.x,
-				y:      thing.y + thing.translate.y,
-				width:  thing.size.x,
-				height: thing.size.y
-				})
-				.transform([
-					'R', thing.rotate,
-					'S', thing.scale.x, thing.scale.y
-					]);
+				path: [
+					[ 'M', corners[0].x, corners[0].y ],
+					[ 'L', corners[1].x, corners[1].y ],
+					[ 'L', corners[2].x, corners[2].y ],
+					[ 'L', corners[3].x, corners[3].y ],
+					[ 'L', corners[0].x, corners[0].y ]
+					]
+				});
 		}
 	}
 
@@ -316,9 +325,9 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 
 				ft.items.map(function(item, i) {
 					item.transform([
-						'R', ft.o.rotate,
-						'S', ft.o.scale.x, ft.o.scale.y,
-						'T', dx + ft.o.items[i].translate.x - snap.x, dy + ft.o.items[i].translate.y - snap.y
+						'R', ft.o.rotate + ft.o.items[i].rotate, ft.o.center.x - ft.o.items[i].translate.x, ft.o.center.y - ft.o.items[i].translate.y,
+						'S', ft.o.scale.x * ft.o.items[i].scale.x, ft.o.scale.y * ft.o.items[i].scale.y, ft.o.center.x - ft.o.items[i].translate.x, ft.o.center.y - ft.o.items[i].translate.y,
+						'T', dx + ft.o.translate.x + ft.o.items[i].translate.x - snap.x, dy + ft.o.translate.y + ft.o.items[i].translate.y - snap.y
 						]);
 				});
 
@@ -407,9 +416,9 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 				if ( scale.x && scale.y ) {
 					ft.items.map(function(item, i) {
 						item.transform([
-							'R', deg, ft.o.center.x, ft.o.center.y,
-							'S', scale.x, scale.y, ft.o.center.x, ft.o.center.y,
-							'T', ft.o.items[i].translate.x, ft.o.items[i].translate.y
+							'R', deg + ft.o.items[i].rotate, ft.o.center.x - ft.o.items[i].translate.x, ft.o.center.y - ft.o.items[i].translate.y,
+							'S', scale.x * ft.o.items[i].scale.x, scale.y * ft.o.items[i].scale.y, ft.o.center.x - ft.o.items[i].translate.x, ft.o.center.y - ft.o.items[i].translate.y,
+							'T', ft.o.translate.x + ft.o.items[i].translate.x, ft.o.translate.y + ft.o.items[i].translate.y
 							]);
 					});
 				}
