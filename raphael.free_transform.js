@@ -71,6 +71,37 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 		   }
 		};
 
+	/**
+	 * Remove handles, commit suicide
+	 */
+	ft.unplug = function() {
+		if ( ft.opts.drag ) {
+			ft.handles.center.disc.remove();
+
+			ft.items.map(function(item) {
+				item.el.undrag();
+			});
+		}
+
+		if ( ft.opts.rotate || ft.opts.scale ) {
+			ft.axes.map(function(axis) {
+				if ( ft.handles[axis] ) {
+					ft.handles[axis].disc.remove();
+					ft.handles[axis].line.remove();
+				}
+			});
+		}
+
+		if ( ft.opts.showBBox) ft.bbox.remove();
+
+		var attrs = ft.attrs;
+
+		// Goodbye
+		delete subject.freeTransform;
+
+		return attrs;
+	};
+
 	// Override defaults
 	for ( var i in options ) {
 		subject.freeTransform.opts[i] = options[i];
@@ -107,18 +138,18 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 				if ( transform[0] ) {
 					switch ( transform[0].toUpperCase() ) {
 						case 'T':
-							ft.items[i].attrs.translate.x = transform[1];
-							ft.items[i].attrs.translate.y = transform[2];
+							ft.items[i].attrs.translate.x += transform[1];
+							ft.items[i].attrs.translate.y += transform[2];
 
 							break;
 
 						case 'S':
-							ft.items[i].attrs.scale.x = transform[1];
-							ft.items[i].attrs.scale.y = transform[2];
+							ft.items[i].attrs.scale.x *= transform[1];
+							ft.items[i].attrs.scale.y *= transform[2];
 
 							break;
 						case 'R':
-							ft.items[i].attrs.rotate = transform[1];
+							ft.items[i].attrs.rotate += transform[1];
 
 							break;
 					}
@@ -185,33 +216,6 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 	}
 
 	/**
-	 * Remove handles, commit suicide
-	 */
-	ft.unplug = function() {
-		if ( ft.opts.drag ) {
-			ft.handles.center.disc.remove();
-
-			ft.items.map(function(item) {
-				item.el.undrag();
-			});
-		}
-
-		if ( ft.opts.rotate || ft.opts.scale ) {
-			ft.axes.map(function(axis) {
-				if ( ft.handles[axis] ) {
-					ft.handles[axis].disc.remove();
-					ft.handles[axis].line.remove();
-				}
-			});
-		}
-
-		if ( ft.opts.showBBox) ft.bbox.remove();
-
-		// Goodbye
-		delete subject.freeTransform;
-	};
-
-	/**
 	 * Update handles based on the element's transformations
 	 */
 	ft.updateHandles = function() {
@@ -273,7 +277,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 	if ( ft.opts.rotate || ft.opts.scale ) {
 		ft.axes.map(function(axis) {
 			ft.handles[axis].disc.drag(function(dx, dy) {
-				// viewBox might be zoomed in/out
+				// viewBox might be scaled
 				if ( ft.o.viewBoxRatio ) {
 					dx *= ft.o.viewBoxRatio.x;
 					dy *= ft.o.viewBoxRatio.y;
@@ -319,13 +323,17 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 
 				if ( ft.attrs.scale.x && ft.attrs.scale.y ) {
 					ft.items.map(function(item, i) {
-						// Correct scale for rotation
-						//var corners = getBBox();
+						var pivot = {
+							x: ft.attrs.center.x - ft.items[i].attrs.translate.x,
+							y: ft.attrs.center.y - ft.items[i].attrs.translate.y
+							};
 
 						item.el.transform([
-							'R', ft.attrs.rotate      + ft.items[i].attrs.rotate,      ft.attrs.center.x    - ft.items[i].attrs.translate.x, ft.attrs.center.y - ft.items[i].attrs.translate.y,
-							'S', ft.attrs.scale.x     * ft.items[i].attrs.scale.x,     ft.attrs.scale.y     * ft.items[i].attrs.scale.y,     ft.attrs.center.x - ft.items[i].attrs.translate.x, ft.attrs.center.y - ft.items[i].attrs.translate.y,
-							'T', ft.attrs.translate.x + ft.items[i].attrs.translate.x, ft.attrs.translate.y + ft.items[i].attrs.translate.y
+							'R', ft.attrs.rotate, pivot.x, pivot.y,
+							'S', ft.attrs.scale.x, ft.attrs.scale.y, pivot.x, pivot.y,
+							'T', ft.attrs.translate.x + ft.items[i].attrs.translate.x, ft.attrs.translate.y + ft.items[i].attrs.translate.y,
+							'r', ft.items[i].attrs.rotate,
+							's', ft.items[i].attrs.scale.x, ft.items[i].attrs.scale.y
 							]);
 					});
 				}
@@ -359,7 +367,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 					snap = { x: 0, y: 0 }
 					;
 
-				// viewBox might be zoomed in/out
+				// viewBox might be scaled
 				if ( ft.o.viewBoxRatio ) {
 					dx *= ft.o.viewBoxRatio.x;
 					dy *= ft.o.viewBoxRatio.y;
@@ -378,10 +386,17 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 				ft.attrs.translate.y = ft.o.translate.y + dy - snap.y;
 
 				ft.items.map(function(item, i) {
+					var pivot = {
+						x: ft.attrs.center.x - ft.items[i].attrs.translate.x,
+						y: ft.attrs.center.y - ft.items[i].attrs.translate.y
+						};
+
 					item.el.transform([
-						'R', ft.attrs.rotate      + ft.items[i].attrs.rotate,      ft.attrs.center.x    - ft.items[i].attrs.translate.x, ft.attrs.center.y - ft.items[i].attrs.translate.y,
-						'S', ft.attrs.scale.x     * ft.items[i].attrs.scale.x,     ft.attrs.scale.y     * ft.items[i].attrs.scale.y,     ft.attrs.center.x - ft.items[i].attrs.translate.x, ft.attrs.center.y - ft.items[i].attrs.translate.y,
-						'T', ft.attrs.translate.x + ft.items[i].attrs.translate.x, ft.attrs.translate.y + ft.items[i].attrs.translate.y
+						'R', ft.attrs.rotate, pivot.x, pivot.y,
+						'S', ft.attrs.scale.x, ft.attrs.scale.y, pivot.x, pivot.y,
+						'T', ft.attrs.translate.x + ft.items[i].attrs.translate.x, ft.attrs.translate.y + ft.items[i].attrs.translate.y,
+						'r', ft.items[i].attrs.rotate,
+						's', ft.items[i].attrs.scale.x, ft.items[i].attrs.scale.y
 						]);
 				});
 
@@ -392,7 +407,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 
 				if ( ft.opts.grid ) ft.o.bbox = subject.getBBox();
 
-				// viewBox might be zoomed in/out
+				// viewBox might be scaled
 				if ( paper._viewBox ) {
 					ft.o.viewBoxRatio = {
 						x: paper._viewBox[2] / paper.width,
