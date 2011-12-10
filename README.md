@@ -92,6 +92,10 @@ Sets the size of the handle (`num` times radius, default: `1.2`).
 Functions
 ---------
 
+`setOpts()`
+
+Update options.
+
 `unplug()`
 
 Removes handle and deletes all values set by the plugin.
