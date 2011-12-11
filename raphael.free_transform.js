@@ -153,7 +153,8 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 				rotate:    0,
 				scale:     { x: 1, y: 1 },
 				translate: { x: 0, y: 0 }
-				}
+				},
+			transformString: item.matrix.toTransformString()
 			});
 	});
 
@@ -194,7 +195,9 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			rotate:    0,
 			scale:     { x: 1, y: 1 },
 			translate: { x: 0, y: 0 }
-		}
+			};
+
+		ft.items[0].transformString = '';
 	}
 
 	/**
@@ -294,18 +297,11 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 
 				if ( ft.attrs.scale.x && ft.attrs.scale.y ) {
 					ft.items.map(function(item, i) {
-						var pivot = {
-							x: ft.attrs.center.x - ft.items[i].attrs.translate.x,
-							y: ft.attrs.center.y - ft.items[i].attrs.translate.y
-							};
-
 						item.el.transform([
-							'R', ft.attrs.rotate, pivot.x, pivot.y,
-							'S', ft.attrs.scale.x, ft.attrs.scale.y, pivot.x, pivot.y,
-							'T', ft.attrs.translate.x + ft.items[i].attrs.translate.x, ft.attrs.translate.y + ft.items[i].attrs.translate.y,
-							'r', ft.items[i].attrs.rotate,
-							's', ft.items[i].attrs.scale.x, ft.items[i].attrs.scale.y
-							]);
+							'R', ft.attrs.rotate, ft.attrs.center.x, ft.attrs.center.y,
+							'S', ft.attrs.scale.x, ft.attrs.scale.y, ft.attrs.center.x, ft.attrs.center.y,
+							'T', ft.attrs.translate.x, ft.attrs.translate.y
+							] + ft.items[i].transformString);
 					});
 				}
 
@@ -356,18 +352,11 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 					ft.attrs.translate.y = ft.o.translate.y + dy - snap.y;
 
 					ft.items.map(function(item, i) {
-						var pivot = {
-							x: ft.attrs.center.x - ft.items[i].attrs.translate.x,
-							y: ft.attrs.center.y - ft.items[i].attrs.translate.y
-							};
-
 						item.el.transform([
-							'R', ft.attrs.rotate, pivot.x, pivot.y,
-							'S', ft.attrs.scale.x, ft.attrs.scale.y, pivot.x, pivot.y,
-							'T', ft.attrs.translate.x + ft.items[i].attrs.translate.x, ft.attrs.translate.y + ft.items[i].attrs.translate.y,
-							'r', ft.items[i].attrs.rotate,
-							's', ft.items[i].attrs.scale.x, ft.items[i].attrs.scale.y
-							]);
+							'R', ft.attrs.rotate, ft.attrs.center.x, ft.attrs.center.y,
+							'S', ft.attrs.scale.x, ft.attrs.scale.y, ft.attrs.center.x, ft.attrs.center.y,
+							'T', ft.attrs.translate.x, ft.attrs.translate.y
+							] + ft.items[i].transformString);
 					});
 
 					ft.updateHandles(ft.attrs);

@@ -1,7 +1,7 @@
 Raphael.FreeTransform
 ====================
 
-  Free transform tool for [Raphaël](http://raphaeljs.com/) elements with many options. Supports dragging, scaling and rotating.
+  Free transform tool for [Raphaël](http://raphaeljs.com/) elements and sets with many options. Supports dragging, scaling and rotating.
 
   ![Screenshot](https://github.com/ElbertF/Raphael.FreeTransform/raw/master/screenshot.png)
 
@@ -30,18 +30,16 @@ Example
 	// Add free transform handle
 	paper.freeTransform(rect);
 
-	/*
-	// Add free transform handle with options
-	paper.freeTransform(rect, { keepRatio: true });
-
-	// Add free transform handle with options and callback
-	paper.freeTransform(rect, { keepRatio: true }, function(thing) {
-		console.log(thing);
-	});
-
 	// Remove free transform handle
 	paper.freeTransform(rect).unplug();
-	*/
+
+	// Add free transform handle with options and callback
+	paper.freeTransform(rect, { keepRatio: true }, function(ft) {
+		console.log(ft.attrs);
+	});
+
+	// Change options on the fly
+	paper.freeTransform(rect).setOpts({ keepRatio: false })
 </script>
 ```
 
@@ -89,12 +87,18 @@ Enables/disables scaling (default: `true`).
 Sets the size of the handle (`num` times radius, default: `1.2`).
 
 
+Callback
+--------
+
+A callback function can be specified to capture changes.
+
+
 Functions
 ---------
 
-`setOpts()`
+`setOpts( object, function )`
 
-Update options.
+Update options and callback.
 
 `unplug()`
 
