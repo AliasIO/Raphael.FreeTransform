@@ -5,6 +5,8 @@ Raphael.FreeTransform
 
   ![Screenshot](https://github.com/ElbertF/Raphael.FreeTransform/raw/master/screenshot.png)
 
+  *Licensed under the [MIT license](http://www.opensource.org/licenses/mit-license.php).*
+
 Demo
 ----
 
