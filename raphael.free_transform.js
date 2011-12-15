@@ -35,11 +35,12 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			attrs: { fill: '#000', stroke: '#000' },
 			boundary: { x: paper._left ? paper._left : 0, y: paper._top  ? paper._top  : 0, width: paper.width, height: paper.height },
 			drag: true,
+			dragRotate: false,
+			dragScale: false,
 			grid: false,
 			gridSnap: 0,
 			keepRatio: false,
 			rotate: true,
-			rotateDrag: false,
 			rotateRange: [ 0, 360 ],
 			rotateSnap: false,
 			scale: true,
@@ -101,7 +102,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			}
 		});
 
-		if ( ft.opts.showBBox || ft.opts.rotateDrag ) {
+		if ( ft.opts.showBBox || ft.opts.dragRotate ) {
 			var corners = getBBox();
 		}
 
@@ -117,7 +118,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 				});
 		}
 
-		if ( ft.opts.rotateDrag ) {
+		if ( ft.opts.dragRotate ) {
 			var radius = Math.max(
 				Math.sqrt(Math.pow(corners[1].x - corners[0].x, 2) + Math.pow(corners[1].y - corners[0].y, 2)),
 				Math.sqrt(Math.pow(corners[2].x - corners[1].x, 2) + Math.pow(corners[2].y - corners[1].y, 2))
@@ -268,7 +269,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 				;
 		}
 
-		if ( ft.opts.rotateDrag ) {
+		if ( ft.opts.dragRotate ) {
 			ft.circle = paper
 				.circle(0, 0, 0)
 				.attr({
@@ -359,7 +360,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 		if ( ft.opts.drag ) {
 			var draggables = new Array;
 
-			if ( !ft.opts.rotateDrag ) draggables.push(subject);
+			if ( !ft.opts.dragRotate ) draggables.push(subject);
 
 			if ( ft.handles.center ) draggables.push(ft.handles.center.disc);
 
@@ -421,7 +422,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			});
 		}
 
-		if ( ft.opts.rotateDrag ) {
+		if ( ft.opts.dragRotate ) {
 			subject.drag(function(dx, dy, x, y) {
 				// viewBox might be scaled
 				if ( ft.o.viewBoxRatio ) {

@@ -60,6 +60,10 @@ Limits the drag area of the handle (default: dimensions of the paper).
 
 Enables/disables dragging (default: `true`).
 
+`dragRotate: true|false`
+
+Rotate the subject by dragging (default: `false`).
+
 `grid: num|false`
 
 Set grid size for aligning elements (default: `false`).
@@ -75,10 +79,6 @@ Scale axes together or individually (default: `false`)
 `rotate: true|false`
 
 Enables/disables rotating (default: `true`).
-
-`rotateDrag: true|false`
-
-Rotate the subject by dragging (default: `false`).
 
 `rotateSnap`: num|false
 
