@@ -92,7 +92,7 @@ Limit the range of rotation (default: `[ -180, 180 ]`)
 
 Rotate with n degree increments (default: `false`).
 
-`scale: num`
+`scale: true|false`
 
 Enables/disables scaling (default: `true`).
 
