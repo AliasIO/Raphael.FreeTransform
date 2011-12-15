@@ -41,7 +41,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			gridSnap: 0,
 			keepRatio: false,
 			rotate: true,
-			rotateRange: [ 0, 360 ],
+			rotateRange: [ -180, 180 ],
 			rotateSnap: false,
 			scale: true,
 			showBBox: false,
@@ -269,7 +269,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 				;
 		}
 
-		if ( ft.opts.dragRotate ) {
+		if ( ft.opts.dragRotate || ft.opts.dragScale ) {
 			ft.circle = paper
 				.circle(0, 0, 0)
 				.attr({
@@ -303,31 +303,20 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 				}
 
 				// Keep handle within boundaries
+				// TODO: Move to applyLimits?
 				cx = Math.max(Math.min(cx, ft.opts.boundary.x + ft.opts.boundary.width),  ft.opts.boundary.x);
 				cy = Math.max(Math.min(cy, ft.opts.boundary.y + ft.opts.boundary.height), ft.opts.boundary.y);
 
-				var length = Math.sqrt(Math.pow(cx - ft.o.center.x - ft.o.translate.x, 2) + Math.pow(cy - ft.o.center.y - ft.o.translate.y, 2));
+				var radius = Math.sqrt(Math.pow(cx - ft.o.center.x - ft.o.translate.x, 2) + Math.pow(cy - ft.o.center.y - ft.o.translate.y, 2));
 
 				if ( ft.opts.scale ) {
 					ft.attrs.scale = {
-						x: axis == 'x' ? length / ( ft.o.size.x / 2 * ft.opts.size ) : ft.o.scale.x,
-						y: axis == 'y' ? length / ( ft.o.size.y / 2 * ft.opts.size ) : ft.o.scale.y
-						};
-
-					if ( ft.opts.keepRatio ) {
-						ft.attrs.scale.x = ft.attrs.scale.y;
-					}
-				} else {
-					ft.attrs.scale = {
-						x: ft.o.scale.x,
-						y: ft.o.scale.y
+						x: axis == 'x' ? radius / ( ft.o.size.x / 2 * ft.opts.size ) : ft.o.scale.x,
+						y: axis == 'y' ? radius / ( ft.o.size.y / 2 * ft.opts.size ) : ft.o.scale.y
 						};
 				}
 
-				// Rotate with increments
-				if ( ft.opts.rotateSnap ) {
-					ft.attrs.rotate = Math.round(ft.attrs.rotate / ft.opts.rotateSnap) * ft.opts.rotateSnap;
-				}
+				applyLimits();
 
 				if ( ft.attrs.scale.x && ft.attrs.scale.y ) {
 					ft.items.map(function(item, i) {
@@ -360,17 +349,12 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 		if ( ft.opts.drag ) {
 			var draggables = new Array;
 
-			if ( !ft.opts.dragRotate ) draggables.push(subject);
+			if ( !ft.opts.dragRotate && !ft.opts.dragScale ) draggables.push(subject);
 
 			if ( ft.handles.center ) draggables.push(ft.handles.center.disc);
 
 			draggables.map(function(draggable) {
 				draggable.drag(function(dx, dy) {
-					var
-						dist = { x: 0, y: 0 },
-						snap = { x: 0, y: 0 }
-						;
-
 					// viewBox might be scaled
 					if ( ft.o.viewBoxRatio ) {
 						dx *= ft.o.viewBoxRatio.x;
@@ -378,6 +362,12 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 					}
 
 					// Snap to grid
+					// TODO: Move this to applyLimits?
+					var
+						dist = { x: 0, y: 0 },
+						snap = { x: 0, y: 0 }
+						;
+
 					if ( ft.opts.grid ) {
 						dist.x = dx + ft.o.bbox.x - Math.round(( dx + ft.o.bbox.x ) / ft.opts.grid) * ft.opts.grid;
 						dist.y = dy + ft.o.bbox.y - Math.round(( dy + ft.o.bbox.y ) / ft.opts.grid) * ft.opts.grid;
@@ -388,6 +378,8 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 
 					ft.attrs.translate.x = ft.o.translate.x + dx - snap.x;
 					ft.attrs.translate.y = ft.o.translate.y + dy - snap.y;
+
+					applyLimits();
 
 					ft.items.map(function(item, i) {
 						item.el.transform([
@@ -422,17 +414,21 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			});
 		}
 
-		if ( ft.opts.dragRotate ) {
+		if ( ft.opts.dragRotate || ft.opts.dragScale ) {
 			subject.drag(function(dx, dy, x, y) {
-				// viewBox might be scaled
-				if ( ft.o.viewBoxRatio ) {
-					dx *= ft.o.viewBoxRatio.x;
-					dy *= ft.o.viewBoxRatio.y;
+				if ( ft.opts.dragRotate ) {
+					var rad = Math.atan2(y - ft.o.center.y - ft.o.translate.y, x - ft.o.center.x - ft.o.translate.x);
+
+					ft.attrs.rotate = ft.o.rotate + ( rad * 180 / Math.PI ) - ft.o.deg;
 				}
 
-				var rad = Math.atan2(dy + y - ft.o.center.y - ft.o.translate.y, dx + x - ft.o.center.x - ft.o.translate.x);
+				if ( ft.opts.dragScale ) {
+					var radius = Math.sqrt(Math.pow(x - ft.o.center.x - ft.o.translate.x, 2) + Math.pow(y - ft.o.center.y - ft.o.translate.y, 2));
 
-				ft.attrs.rotate = ft.o.rotate + ( rad * 180 / Math.PI ) - ft.o.deg;
+					ft.attrs.scale.x = ft.attrs.scale.y = ft.o.scale.x + ( radius - ft.o.radius ) / ( ft.o.size.x / 2 );
+				}
+
+				applyLimits();
 
 				ft.items.map(function(item, i) {
 					item.el.transform([
@@ -448,6 +444,8 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 				ft.o = cloneObj(ft.attrs);
 
 				ft.o.deg = Math.atan2(y - ft.o.center.y - ft.o.translate.y, x - ft.o.center.x - ft.o.translate.x) * 180 / Math.PI;
+
+				ft.o.radius = Math.sqrt(Math.pow(x - ft.o.center.x - ft.o.translate.x, 2) + Math.pow(y - ft.o.center.y - ft.o.translate.y, 2));
 
 				// viewBox might be scaled
 				if ( paper._viewBox ) {
@@ -498,7 +496,9 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 		}
 	};
 
-	// Get rotated bounding box
+	/**
+	 * Get rotated bounding box
+	 */
 	function getBBox() {
 		var rad = {
 			x: ( ft.attrs.rotate      ) * Math.PI / 180,
@@ -525,7 +525,34 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 		return corners;
 	}
 
-	// Recursive copy of object
+	/**
+	 * Apply limits
+	 */
+	function applyLimits() {
+		// Maintain aspect ratio when scaling
+		if ( ft.opts.keepRatio ) {
+			ft.attrs.scale.x = ft.attrs.scale.y;
+		}
+
+		// Rotate with increments
+		if ( ft.opts.rotateSnap ) {
+			ft.attrs.rotate = Math.round(ft.attrs.rotate / ft.opts.rotateSnap) * ft.opts.rotateSnap;
+		}
+
+		// Limit range of rotation
+		var deg = ( 360 + ft.attrs.rotate ) % 360;
+
+		if ( deg > 180 ) deg = deg - 360;
+
+		if ( ft.opts.rotateRange ) {
+			if ( deg < ft.opts.rotateRange[0] ) ft.attrs.rotate += ft.opts.rotateRange[0] - deg;
+			if ( deg > ft.opts.rotateRange[1] ) ft.attrs.rotate += ft.opts.rotateRange[1] - deg;
+		}
+	}
+
+	/**
+	 * Recursive copy of object
+	 */
 	function cloneObj(obj) {
 		var clone = new Object;
 
@@ -536,9 +563,11 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 		return clone;
 	}
 
-	// Call callback asynchronously for better performance
 	var timeout = false;
 
+	/**
+	 * Call callback asynchronously for better performance
+	 */
 	function asyncCallback() {
 		if ( ft.callback ) {
 			clearTimeout(timeout);

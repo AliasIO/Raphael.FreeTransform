@@ -64,6 +64,10 @@ Enables/disables dragging (default: `true`).
 
 Rotate the subject by dragging (default: `false`).
 
+`dragScale: true|false`
+
+Scale the subject by dragging (default: `false`).
+
 `grid: num|false`
 
 Set grid size for aligning elements (default: `false`).
@@ -79,6 +83,10 @@ Scale axes together or individually (default: `false`)
 `rotate: true|false`
 
 Enables/disables rotating (default: `true`).
+
+`rotateRange: [ int, int ]`
+
+Limit the range of rotation (default: `[ -180, 180 ]`)
 
 `rotateSnap`: num|false
 
