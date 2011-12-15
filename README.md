@@ -1,7 +1,7 @@
 Raphael.FreeTransform
 ====================
 
-  Free transform tool for [Raphaël 2.0](http://raphaeljs.com/) elements and sets with many options. Supports snap-to-grid dragging, scaling and rotating using a specified interval and range.
+  Free transform tool for [Raphaël 2.0](http://raphaeljs.com/) elements and sets with many options. Supports snap-to-grid dragging, scaling and rotating with a specified interval and range.
 
   ![Screenshot](https://github.com/ElbertF/Raphael.FreeTransform/raw/master/screenshot.png)
 
