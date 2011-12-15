@@ -39,6 +39,8 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			gridSnap: 0,
 			keepRatio: false,
 			rotate: true,
+			rotateDrag: false,
+			rotateRange: [ 0, 360 ],
 			rotateSnap: false,
 			scale: true,
 			showBBox: false,
@@ -99,9 +101,11 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			}
 		});
 
-		if ( ft.opts.showBBox ) {
+		if ( ft.opts.showBBox || ft.opts.rotateDrag ) {
 			var corners = getBBox();
+		}
 
+		if ( ft.opts.showBBox ) {
 			ft.bbox.attr({
 				path: [
 					[ 'M', corners[0].x, corners[0].y ],
@@ -110,6 +114,19 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 					[ 'L', corners[3].x, corners[3].y ],
 					[ 'L', corners[0].x, corners[0].y ]
 					]
+				});
+		}
+
+		if ( ft.opts.rotateDrag ) {
+			var radius = Math.max(
+				Math.sqrt(Math.pow(corners[1].x - corners[0].x, 2) + Math.pow(corners[1].y - corners[0].y, 2)),
+				Math.sqrt(Math.pow(corners[2].x - corners[1].x, 2) + Math.pow(corners[2].y - corners[1].y, 2))
+				) / 2
+
+			ft.circle.attr({
+				cx: ft.attrs.center.x + ft.attrs.translate.x,
+				cy: ft.attrs.center.y + ft.attrs.translate.y,
+				r:  radius * ft.opts.size
 				});
 		}
 	};
@@ -125,6 +142,11 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 		ft.axes = ft.opts.keepRatio ? [ 'y' ] : [ 'x', 'y' ];
 
 		if ( !ft.opts.gridSnap ) ft.opts.gridSnap = ft.opts.grid;
+
+		ft.opts.rotateRange = [
+			parseInt(ft.opts.rotateRange[0]),
+			parseInt(ft.opts.rotateRange[1])
+			];
 
 		addHandles();
 	};
@@ -246,6 +268,17 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 				;
 		}
 
+		if ( ft.opts.rotateDrag ) {
+			ft.circle = paper
+				.circle(0, 0, 0)
+				.attr({
+					stroke: ft.opts.attrs.stroke,
+					'stroke-dasharray': '- ',
+					opacity: .3
+					})
+				;
+		}
+
 		// Drag x, y handles
 		ft.axes.map(function(axis) {
 			if ( !ft.handles[axis] ) return;
@@ -324,7 +357,11 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 
 		// Drag element and center handle
 		if ( ft.opts.drag ) {
-			var draggables = ft.handles.center ? [ subject, ft.handles.center.disc ] : [ subject ];
+			var draggables = new Array;
+
+			if ( !ft.opts.rotateDrag ) draggables.push(subject);
+
+			if ( ft.handles.center ) draggables.push(ft.handles.center.disc);
 
 			draggables.map(function(draggable) {
 				draggable.drag(function(dx, dy) {
@@ -384,6 +421,43 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			});
 		}
 
+		if ( ft.opts.rotateDrag ) {
+			subject.drag(function(dx, dy, x, y) {
+				// viewBox might be scaled
+				if ( ft.o.viewBoxRatio ) {
+					dx *= ft.o.viewBoxRatio.x;
+					dy *= ft.o.viewBoxRatio.y;
+				}
+
+				var rad = Math.atan2(dy + y - ft.o.center.y - ft.o.translate.y, dx + x - ft.o.center.x - ft.o.translate.x);
+
+				ft.attrs.rotate = ft.o.rotate + ( rad * 180 / Math.PI ) - ft.o.deg;
+
+				ft.items.map(function(item, i) {
+					item.el.transform([
+						'R', ft.attrs.rotate, ft.attrs.center.x, ft.attrs.center.y,
+						'S', ft.attrs.scale.x, ft.attrs.scale.y, ft.attrs.center.x, ft.attrs.center.y,
+						'T', ft.attrs.translate.x, ft.attrs.translate.y
+						] + ft.items[i].transformString);
+				});
+
+				ft.updateHandles(ft.attrs);
+			}, function(x, y) {
+				// Offset values
+				ft.o = cloneObj(ft.attrs);
+
+				ft.o.deg = Math.atan2(y - ft.o.center.y - ft.o.translate.y, x - ft.o.center.x - ft.o.translate.x) * 180 / Math.PI;
+
+				// viewBox might be scaled
+				if ( paper._viewBox ) {
+					ft.o.viewBoxRatio = {
+						x: paper._viewBox[2] / paper.width,
+						y: paper._viewBox[3] / paper.height
+						};
+				}
+			});
+		}
+
 		ft.updateHandles();
 	};
 
@@ -391,14 +465,14 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 	 * Remove handles
 	 */
 	function removeHandles() {
+		ft.items.map(function(item) {
+			item.el.undrag();
+		});
+
 		if ( ft.handles.center ) {
 			ft.handles.center.disc.remove();
 
 			ft.handles.center = null;
-
-			ft.items.map(function(item) {
-				item.el.undrag();
-			});
 		}
 
 		[ 'x', 'y' ].map(function(axis) {
@@ -414,6 +488,12 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			ft.bbox.remove();
 
 			ft.bbox = null;
+		}
+
+		if ( ft.circle ) {
+			ft.circle.remove();
+
+			ft.circle = null;
 		}
 	};
 

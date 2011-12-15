@@ -76,6 +76,10 @@ Scale axes together or individually (default: `false`)
 
 Enables/disables rotating (default: `true`).
 
+`rotateDrag: true|false`
+
+Rotate the subject by dragging (default: `false`).
+
 `rotateSnap`: num|false
 
 Rotate with n degree increments (default: `false`).
