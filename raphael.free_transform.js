@@ -26,6 +26,16 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 	var bbox = subject.getBBox(true);
 
 	var ft = subject.freeTransform = {
+		// Keep track of transformations
+		attrs: {
+			x: bbox.x,
+			y: bbox.y,
+			size: { x: bbox.width, y: bbox.height },
+			center: { x: bbox.x + bbox.width  / 2, y: bbox.y + bbox.height / 2 },
+			rotate: 0,
+			scale: { x: 1, y: 1 },
+			translate: { x: 0, y: 0 }
+		   },
 		axes: null,
 		bbox: null,
 		callback: null,
@@ -47,16 +57,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			showBBox: false,
 			size: 1.2
 			},
-		// Keep track of transformations
-		attrs: {
-			x: bbox.x,
-			y: bbox.y,
-			size: { x: bbox.width, y: bbox.height },
-			center: { x: bbox.x + bbox.width  / 2, y: bbox.y + bbox.height / 2 },
-			rotate: 0,
-			scale: { x: 1, y: 1 },
-			translate: { x: 0, y: 0 }
-		   }
+		subject: subject
 		};
 
 	/**
@@ -67,8 +68,8 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 
 		if ( ft.handles.center ) {
 			ft.handles.center.disc.attr({
-				cx: Math.max(Math.min(ft.attrs.center.x + ft.attrs.translate.x || 0, ft.opts.boundary.x + ft.opts.boundary.width),  ft.opts.boundary.x),
-				cy: Math.max(Math.min(ft.attrs.center.y + ft.attrs.translate.y || 0, ft.opts.boundary.y + ft.opts.boundary.height), ft.opts.boundary.y)
+				cx: ft.attrs.center.x + ft.attrs.translate.x,
+				cy: ft.attrs.center.y + ft.attrs.translate.y
 				});
 		}
 
@@ -91,10 +92,12 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 					;
 
 				// Keep handle within boundaries
-				ft.handles[axis].disc.attr({
-					cx: Math.max(Math.min(cx || 0, ft.opts.boundary.x + ft.opts.boundary.width),  ft.opts.boundary.x),
-					cy: Math.max(Math.min(cy || 0, ft.opts.boundary.y + ft.opts.boundary.height), ft.opts.boundary.y)
-					});
+				if ( ft.opts.boundary ) {
+					cx = Math.max(Math.min(cx, ft.opts.boundary.x + ft.opts.boundary.width),  ft.opts.boundary.x),
+					cy = Math.max(Math.min(cy, ft.opts.boundary.y + ft.opts.boundary.height), ft.opts.boundary.y)
+				}
+
+				ft.handles[axis].disc.attr({ cx: cx, cy: cy });
 
 				ft.handles[axis].line.attr({
 					path: [ [ 'M', ft.attrs.center.x + ft.attrs.translate.x, ft.attrs.center.y + ft.attrs.translate.y ], [ 'L', ft.handles[axis].disc.attrs.cx, ft.handles[axis].disc.attrs.cy ] ]
@@ -303,9 +306,10 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 				}
 
 				// Keep handle within boundaries
-				// TODO: Move to applyLimits?
-				cx = Math.max(Math.min(cx, ft.opts.boundary.x + ft.opts.boundary.width),  ft.opts.boundary.x);
-				cy = Math.max(Math.min(cy, ft.opts.boundary.y + ft.opts.boundary.height), ft.opts.boundary.y);
+				if ( ft.opts.boundary ) {
+					cx = Math.max(Math.min(cx, ft.opts.boundary.x + ft.opts.boundary.width),  ft.opts.boundary.x);
+					cy = Math.max(Math.min(cy, ft.opts.boundary.y + ft.opts.boundary.height), ft.opts.boundary.y);
+				}
 
 				var radius = Math.sqrt(Math.pow(cx - ft.o.center.x - ft.o.translate.x, 2) + Math.pow(cy - ft.o.center.y - ft.o.translate.y, 2));
 
@@ -528,7 +532,17 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 	/**
 	 * Apply limits
 	 */
-	function applyLimits() {
+	function applyLimits(bbox) {
+		// Keep center within boundaries
+		if ( ft.opts.boundary ) {
+			var b = ft.opts.boundary;
+
+			if ( ft.attrs.center.x + ft.attrs.translate.x < b.x            ) ft.attrs.translate.x += b.x -            ( ft.attrs.center.x + ft.attrs.translate.x );
+			if ( ft.attrs.center.y + ft.attrs.translate.y < b.y            ) ft.attrs.translate.y += b.y -            ( ft.attrs.center.y + ft.attrs.translate.y );
+			if ( ft.attrs.center.x + ft.attrs.translate.x > b.x + b.width  ) ft.attrs.translate.x += b.x + b.width  - ( ft.attrs.center.x + ft.attrs.translate.x );
+			if ( ft.attrs.center.y + ft.attrs.translate.y > b.y + b.height ) ft.attrs.translate.y += b.y + b.height - ( ft.attrs.center.y + ft.attrs.translate.y );
+		}
+
 		// Maintain aspect ratio when scaling
 		if ( ft.opts.keepRatio ) {
 			ft.attrs.scale.x = ft.attrs.scale.y;
