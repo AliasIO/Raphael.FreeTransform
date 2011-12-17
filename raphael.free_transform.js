@@ -369,25 +369,15 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 						dy *= ft.o.viewBoxRatio.y;
 					}
 
-					// Snap to grid
-					// TODO: Move this to applyLimits?
-					var
-						dist = { x: 0, y: 0 },
-						snap = { x: 0, y: 0 }
-						;
+					ft.attrs.translate.x = ft.o.translate.x + dx;
+					ft.attrs.translate.y = ft.o.translate.y + dy;
 
-					if ( ft.opts.grid ) {
-						dist.x = dx + ft.o.bbox.x - Math.round(( dx + ft.o.bbox.x ) / ft.opts.grid) * ft.opts.grid;
-						dist.y = dy + ft.o.bbox.y - Math.round(( dy + ft.o.bbox.y ) / ft.opts.grid) * ft.opts.grid;
+					var bbox = cloneObj(ft.o.bbox);
 
-						if ( Math.abs(dist.x) < ft.opts.gridSnap ) snap.x = dist.x;
-						if ( Math.abs(dist.y) < ft.opts.gridSnap ) snap.y = dist.y;
-					}
+					bbox.x += dx;
+					bbox.y += dy;
 
-					ft.attrs.translate.x = ft.o.translate.x + dx - snap.x;
-					ft.attrs.translate.y = ft.o.translate.y + dy - snap.y;
-
-					applyLimits();
+					applyLimits(bbox);
 
 					ft.items.map(function(item, i) {
 						item.el.transform([
@@ -549,6 +539,32 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 	 * Apply limits
 	 */
 	function applyLimits(bbox) {
+		// Snap to grid
+		if ( bbox && ft.opts.grid ) {
+			var
+				x    = bbox.x,
+				y    = bbox.y,
+				dist = { x: 0, y: 0 },
+				snap = { x: 0, y: 0 }
+				;
+
+			[ 0, 1 ].map(function() {
+				// Top and left sides first
+				dist.x = x - Math.round(x / ft.opts.grid) * ft.opts.grid;
+				dist.y = y - Math.round(y / ft.opts.grid) * ft.opts.grid;
+
+				if ( Math.abs(dist.x) <= ft.opts.gridSnap ) snap.x = dist.x;
+				if ( Math.abs(dist.y) <= ft.opts.gridSnap ) snap.y = dist.y;
+
+				// Repeat for bottom and right sides
+				x += bbox.width  - snap.x;
+				y += bbox.height - snap.y;
+			});
+
+			ft.attrs.translate.x -= snap.x;
+			ft.attrs.translate.y -= snap.y;
+		}
+
 		// Keep center within boundaries
 		if ( ft.opts.boundary ) {
 			var b = ft.opts.boundary;
@@ -560,21 +576,17 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 		}
 
 		// Maintain aspect ratio when scaling
-		if ( ft.opts.keepRatio ) {
-			ft.attrs.scale.x = ft.attrs.scale.y;
-		}
+		if ( ft.opts.keepRatio ) ft.attrs.scale.x = ft.attrs.scale.y;
 
 		// Rotate with increments
-		if ( ft.opts.rotateSnap ) {
-			ft.attrs.rotate = Math.round(ft.attrs.rotate / ft.opts.rotateSnap) * ft.opts.rotateSnap;
-		}
+		if ( ft.opts.rotateSnap ) ft.attrs.rotate = Math.round(ft.attrs.rotate / ft.opts.rotateSnap) * ft.opts.rotateSnap;
 
 		// Limit range of rotation
-		var deg = ( 360 + ft.attrs.rotate ) % 360;
-
-		if ( deg > 180 ) deg = deg - 360;
-
 		if ( ft.opts.rotateRange ) {
+			var deg = ( 360 + ft.attrs.rotate ) % 360;
+
+			if ( deg > 180 ) deg -= 360;
+
 			if ( deg < ft.opts.rotateRange[0] ) ft.attrs.rotate += ft.opts.rotateRange[0] - deg;
 			if ( deg > ft.opts.rotateRange[1] ) ft.attrs.rotate += ft.opts.rotateRange[1] - deg;
 		}

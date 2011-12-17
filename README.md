@@ -52,7 +52,7 @@ Options
 
 Sets the attributes of the handle (default: `{ fill: '#000', stroke: '#000' }`).
 
-`boundary: { x: int, y: int, width: int, height: int }`
+`boundary: { x: int, y: int, width: int, height: int }|false`
 
 Limits the drag area of the handle (default: dimensions of the paper).
 
