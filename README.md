@@ -36,7 +36,7 @@ Example
 	paper.freeTransform(rect).unplug();
 
 	// Add free transform handle with options and callback
-	paper.freeTransform(rect, { keepRatio: true }, function(ft) {
+	paper.freeTransform(rect, { keepRatio: true }, function(ft, events) {
 		console.log(ft.attrs);
 	});
 
@@ -104,7 +104,7 @@ Sets the size of the handle (`num` times radius, default: `1.2`).
 Callback
 --------
 
-A callback function can be specified to capture changes.
+A callback function can be specified to capture changes and events.
 
 
 Functions

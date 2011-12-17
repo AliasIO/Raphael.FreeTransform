@@ -64,8 +64,6 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 	 * Update handles based on the element's transformations
 	 */
 	ft.updateHandles = function() {
-		asyncCallback();
-
 		if ( ft.handles.center ) {
 			ft.handles.center.disc.attr({
 				cx: ft.attrs.center.x + ft.attrs.translate.x,
@@ -333,6 +331,8 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 				}
 
 				ft.updateHandles(ft.attrs);
+
+				asyncCallback([ ft.opts.rotate ? 'rotate' : null, ft.opts.scale ? 'scale' : null ]);
 			}, function() {
 				// Offset values
 				ft.o = cloneObj(ft.attrs);
@@ -346,6 +346,10 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 
 				ft.handles[axis].disc.ox = this.attrs.cx;
 				ft.handles[axis].disc.oy = this.attrs.cy;
+
+				asyncCallback([ ft.opts.rotate ? 'rotate start' : null, ft.opts.scale ? 'scale start' : null ]);
+			}, function() {
+				asyncCallback([ ft.opts.rotate ? 'rotate end'   : null, ft.opts.scale ? 'scale end'   : null ]);
 			});
 		});
 
@@ -394,6 +398,8 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 					});
 
 					ft.updateHandles(ft.attrs);
+
+					asyncCallback([ 'drag' ]);
 				}, function() {
 					// Offset values
 					ft.o = cloneObj(ft.attrs);
@@ -414,6 +420,10 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 							ft.handles[axis].disc.oy = ft.handles[axis].disc.attrs.cy;
 						}
 					});
+
+					asyncCallback([ 'drag start' ]);
+				}, function() {
+					asyncCallback([ 'drag end'   ]);
 				});
 			});
 		}
@@ -443,6 +453,8 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 				});
 
 				ft.updateHandles(ft.attrs);
+
+				asyncCallback([ ft.opts.dragRotate ? 'rotate' : null, ft.opts.dragScale ? 'scale' : null ]);
 			}, function(x, y) {
 				// Offset values
 				ft.o = cloneObj(ft.attrs);
@@ -458,6 +470,10 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 						y: paper._viewBox[3] / paper.height
 						};
 				}
+
+				asyncCallback([ ft.opts.dragRotate ? 'rotate start' : null, ft.opts.dragScale ? 'scale start' : null ]);
+			}, function() {
+				asyncCallback([ ft.opts.dragRotate ? 'rotate end'   : null, ft.opts.dragScale ? 'scale end'   : null ]);
 			});
 		}
 
@@ -582,11 +598,16 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 	/**
 	 * Call callback asynchronously for better performance
 	 */
-	function asyncCallback() {
+	function asyncCallback(e) {
 		if ( ft.callback ) {
+			// Remove empty values
+			var events = new Array();
+
+			e.map(function(event, i) { if ( event ) events.push(event); });
+
 			clearTimeout(timeout);
 
-			setTimeout(function() { ft.callback(ft); }, 1);
+			setTimeout(function() { ft.callback(ft, events); }, 1);
 		}
 	}
 
