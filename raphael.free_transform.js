@@ -151,6 +151,8 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			];
 
 		addHandles();
+
+		asyncCallback([ 'init' ]);
 	};
 
 	ft.setOpts(options, callback);
@@ -619,7 +621,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 
 			clearTimeout(timeout);
 
-			setTimeout(function() { ft.callback(ft, events); }, 1);
+			setTimeout(function() { if ( ft.callback ) ft.callback(ft, events); }, 1);
 		}
 	}
 
