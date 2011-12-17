@@ -54,6 +54,8 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			rotateRange: [ -180, 180 ],
 			rotateSnap: false,
 			scale: true,
+			scaleSnap: false,
+			scaleRange: false,
 			showBBox: false,
 			size: 1.2
 			},
@@ -583,6 +585,12 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 		// Rotate with increments
 		if ( ft.opts.rotateSnap ) ft.attrs.rotate = Math.round(ft.attrs.rotate / ft.opts.rotateSnap) * ft.opts.rotateSnap;
 
+		// Scale with increments
+		if ( ft.opts.scaleSnap ) {
+			ft.attrs.scale.x = Math.round(ft.attrs.scale.x * ft.attrs.size.x / ft.opts.scaleSnap) * ft.opts.scaleSnap / ft.attrs.size.x;
+			ft.attrs.scale.y = Math.round(ft.attrs.scale.y * ft.attrs.size.y / ft.opts.scaleSnap) * ft.opts.scaleSnap / ft.attrs.size.y;
+		}
+
 		// Limit range of rotation
 		if ( ft.opts.rotateRange ) {
 			var deg = ( 360 + ft.attrs.rotate ) % 360;
@@ -591,6 +599,11 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 
 			if ( deg < ft.opts.rotateRange[0] ) ft.attrs.rotate += ft.opts.rotateRange[0] - deg;
 			if ( deg > ft.opts.rotateRange[1] ) ft.attrs.rotate += ft.opts.rotateRange[1] - deg;
+		}
+
+		// Limit scale
+		if ( ft.opts.scaleRange ) {
+			//if ( ft.attrs.scale.x * ft.attrs.size.x > ft.opts.scaleRange[1] ) ft.attrs.scale.x *= ft.attrs.scale.x * ft.attrs.size.x / ( ft.opts.scaleRange[1] - ft.attrs.scale.x * ft.attrs.size.x )
 		}
 	}
 

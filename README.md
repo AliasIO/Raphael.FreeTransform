@@ -96,6 +96,14 @@ Rotate with n degree increments (default: `false`).
 
 Enables/disables scaling (default: `true`).
 
+`scaleSnap`: num|false
+
+Scale with n pixel increments (default: `false`).
+
+`scaleRange: [ int, int ]|false`
+
+Limit the minimum and maximum size of the object in pixels (default: `false`)
+
 `size: num`
 
 Sets the size of the handle (`num` times radius, default: `1.2`).
