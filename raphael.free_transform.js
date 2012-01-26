@@ -212,29 +212,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			});
 		}
 	});
-ft.flop = function() {
-       ft.attrs.scale.y = -1 * ft.attrs.scale.y;
-       ft.items.map(function(item, i) {
-           item.el.transform([
-               'R', ft.attrs.rotate, ft.attrs.center.x, ft.attrs.center.y,
-               'S', ft.attrs.scale.x, ft.attrs.scale.y, ft.attrs.center.x, ft.attrs.center.y,
-               'T', ft.attrs.translate.x, ft.attrs.translate.y
-           ] + ft.items[i].transformString);
-       });
-       ft.updateHandles(ft.attrs);
-};
 
-ft.flip = function() {
-       ft.attrs.scale.x = -1 * ft.attrs.scale.x;
-       ft.items.map(function(item, i) {
-           item.el.transform([
-               'R', ft.attrs.rotate, ft.attrs.center.x, ft.attrs.center.y,
-               'S', ft.attrs.scale.x, ft.attrs.scale.y, ft.attrs.center.x, ft.attrs.center.y,
-               'T', ft.attrs.translate.x, ft.attrs.translate.y
-           ] + ft.items[i].transformString);
-       });
-       ft.updateHandles(ft.attrs);
-}
 	// If subject is not of type set, the first item _is_ the subject
 	if ( subject.type != 'set' ) {
 		ft.attrs.rotate    = ft.items[0].attrs.rotate;
