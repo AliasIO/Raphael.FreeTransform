@@ -135,104 +135,11 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 		}
 	};
 
-	// Override defaults
-	ft.setOpts = function(options, callback) {
-		ft.callback = typeof callback == 'function' ? callback : false;
-
-		for ( var i in options ) ft.opts[i] = options[i];
-
-		if ( !ft.opts.scale ) ft.opts.keepRatio = true;
-
-		ft.axes = ft.opts.keepRatio ? [ 'y' ] : [ 'x', 'y' ];
-
-		if ( !ft.opts.gridSnap ) ft.opts.gridSnap = ft.opts.grid;
-
-		ft.opts.rotateRange = [
-			parseInt(ft.opts.rotateRange[0]),
-			parseInt(ft.opts.rotateRange[1])
-			];
-
-		addHandles();
-
-		asyncCallback([ 'init' ]);
-	};
-
-	ft.setOpts(options, callback);
-
-	/**
-	 * Clean exit
-	 */
-	ft.unplug = function() {
-		var attrs = ft.attrs;
-
-		removeHandles();
-
-		// Goodbye
-		delete subject.freeTransform;
-
-		return attrs;
-	};
-
-	// Store attributes for each item
-	( subject.type == 'set' ? subject.items : [ subject ] ).map(function(item) {
-		ft.items.push({
-			el: item,
-			attrs: {
-				rotate:    0,
-				scale:     { x: 1, y: 1 },
-				translate: { x: 0, y: 0 }
-				},
-			transformString: item.matrix.toTransformString()
-			});
-	});
-
-	// Get the current transform values for each item
-	ft.items.map(function(item, i) {
-		if ( item.el._ && item.el._.transform ) {
-			item.el._.transform.map(function(transform) {
-				if ( transform[0] ) {
-					switch ( transform[0].toUpperCase() ) {
-						case 'T':
-							ft.items[i].attrs.translate.x += transform[1];
-							ft.items[i].attrs.translate.y += transform[2];
-
-							break;
-
-						case 'S':
-							ft.items[i].attrs.scale.x *= transform[1];
-							ft.items[i].attrs.scale.y *= transform[2];
-
-							break;
-						case 'R':
-							ft.items[i].attrs.rotate += transform[1];
-
-							break;
-					}
-				}
-			});
-		}
-	});
-
-	// If subject is not of type set, the first item _is_ the subject
-	if ( subject.type != 'set' ) {
-		ft.attrs.rotate    = ft.items[0].attrs.rotate;
-		ft.attrs.scale     = ft.items[0].attrs.scale;
-		ft.attrs.translate = ft.items[0].attrs.translate;
-
-		ft.items[0].attrs = {
-			rotate:    0,
-			scale:     { x: 1, y: 1 },
-			translate: { x: 0, y: 0 }
-			};
-
-		ft.items[0].transformString = '';
-	}
-
 	/**
 	 * Add handles
 	 */
-	function addHandles() {
-		removeHandles();
+	ft.showHandles = function() {
+		ft.hideHandles();
 
 		if ( ft.opts.rotate || ft.opts.scale ) {
 			ft.axes.map(function(axis) {
@@ -243,7 +150,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 					.attr({
 						stroke: ft.opts.attrs.stroke,
 						'stroke-dasharray': '- ',
-						opacity: .3
+						opacity: .5
 						})
 					;
 
@@ -269,7 +176,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 				.attr({
 					stroke: ft.opts.attrs.stroke,
 					'stroke-dasharray': '- ',
-					opacity: .3
+					opacity: .5
 					})
 				;
 		}
@@ -494,7 +401,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 	/**
 	 * Remove handles
 	 */
-	function removeHandles() {
+	ft.hideHandles = function() {
 		ft.items.map(function(item) {
 			item.el.undrag();
 		});
@@ -526,6 +433,99 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			ft.circle = null;
 		}
 	};
+
+	// Override defaults
+	ft.setOpts = function(options, callback) {
+		ft.callback = typeof callback == 'function' ? callback : false;
+
+		for ( var i in options ) ft.opts[i] = options[i];
+
+		if ( !ft.opts.scale ) ft.opts.keepRatio = true;
+
+		ft.axes = ft.opts.keepRatio ? [ 'y' ] : [ 'x', 'y' ];
+
+		if ( !ft.opts.gridSnap ) ft.opts.gridSnap = ft.opts.grid;
+
+		ft.opts.rotateRange = [
+			parseInt(ft.opts.rotateRange[0]),
+			parseInt(ft.opts.rotateRange[1])
+			];
+
+		ft.showHandles();
+
+		asyncCallback([ 'init' ]);
+	};
+
+	ft.setOpts(options, callback);
+
+	/**
+	 * Clean exit
+	 */
+	ft.unplug = function() {
+		var attrs = ft.attrs;
+
+		ft.hideHandles();
+
+		// Goodbye
+		delete subject.freeTransform;
+
+		return attrs;
+	};
+
+	// Store attributes for each item
+	( subject.type == 'set' ? subject.items : [ subject ] ).map(function(item) {
+		ft.items.push({
+			el: item,
+			attrs: {
+				rotate:    0,
+				scale:     { x: 1, y: 1 },
+				translate: { x: 0, y: 0 }
+				},
+			transformString: item.matrix.toTransformString()
+			});
+	});
+
+	// Get the current transform values for each item
+	ft.items.map(function(item, i) {
+		if ( item.el._ && item.el._.transform ) {
+			item.el._.transform.map(function(transform) {
+				if ( transform[0] ) {
+					switch ( transform[0].toUpperCase() ) {
+						case 'T':
+							ft.items[i].attrs.translate.x += transform[1];
+							ft.items[i].attrs.translate.y += transform[2];
+
+							break;
+
+						case 'S':
+							ft.items[i].attrs.scale.x *= transform[1];
+							ft.items[i].attrs.scale.y *= transform[2];
+
+							break;
+						case 'R':
+							ft.items[i].attrs.rotate += transform[1];
+
+							break;
+					}
+				}
+			});
+		}
+	});
+
+	// If subject is not of type set, the first item _is_ the subject
+	if ( subject.type != 'set' ) {
+		ft.attrs.rotate    = ft.items[0].attrs.rotate;
+		ft.attrs.scale     = ft.items[0].attrs.scale;
+		ft.attrs.translate = ft.items[0].attrs.translate;
+
+		ft.items[0].attrs = {
+			rotate:    0,
+			scale:     { x: 1, y: 1 },
+			translate: { x: 0, y: 0 }
+			};
+
+		ft.items[0].transformString = '';
+	}
 
 	/**
 	 * Get rotated bounding box

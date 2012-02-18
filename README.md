@@ -118,6 +118,14 @@ A callback function can be specified to capture changes and events.
 Functions
 ---------
 
+`hideHandles()`
+
+Removes handles but keeps values set by the plugin in memory.
+
+`showHandles()`
+
+Shows handles hidden with `hideHandles()`.
+
 `setOpts( object, function )`
 
 Update options and callback.
