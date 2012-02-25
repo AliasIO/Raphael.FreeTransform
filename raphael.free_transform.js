@@ -496,7 +496,6 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 							ft.items[i].attrs.translate.y += transform[2];
 
 							break;
-
 						case 'S':
 							ft.items[i].attrs.scale.x *= transform[1];
 							ft.items[i].attrs.scale.y *= transform[2];
@@ -654,6 +653,8 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			setTimeout(function() { if ( ft.callback ) ft.callback(ft, events); }, 1);
 		}
 	}
+
+	ft.updateHandles();
 
 	// Enable method chaining
 	return ft;
