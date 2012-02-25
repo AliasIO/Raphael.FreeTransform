@@ -39,11 +39,9 @@ Examples
 	ft.showHandles();
 
 	// Apply transformations programmatically 
-	var attrs = ft.attrs;
+	ft.attrs.rotate = 45;
 
-	attrs.rotate = 45;
-
-	ft.apply(attrs);
+	ft.apply();
 
 	// Remove freeTransform completely
 	ft.unplug();
@@ -131,7 +129,7 @@ A callback function can be specified to capture changes and events.
 Functions
 ---------
 
-`apply(attrs)`
+`apply()`
 
 Programmatically apply transformations.
 

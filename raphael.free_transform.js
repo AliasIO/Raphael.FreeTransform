@@ -435,11 +435,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 	/**
 	 * Apply transformations, optionally update attributes manually
 	 */
-	ft.apply = function(attrs) {
-		if ( attrs ) {
-			for ( var i in attrs ) ft.attrs[i] = attrs[i];
-		}
-
+	ft.apply = function() {
 		ft.items.map(function(item, i) {
 			item.el.transform([
 				'R', ft.attrs.rotate, ft.attrs.center.x, ft.attrs.center.y,
