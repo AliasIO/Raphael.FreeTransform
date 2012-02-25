@@ -12,14 +12,14 @@ Demo
 
   http://elbertf.com/raphael/free_transform/
 
-Example
--------
+Examples
+--------
 
 ```html
 <script type="text/javascript" src="raphael-min.js"></script>
 <script type="text/javascript" src="raphael.free_transform.js"></script>
 
-<div id="holder"></div>
+<div id="holder" style="height: 100%;"></div>
 
 <script type="text/javascript">
 	var paper = Raphael(0, 0, 500, 500);
@@ -29,19 +29,32 @@ Example
 		.attr('fill', '#f00')
 		;
 
-	// Add free transform handle
-	paper.freeTransform(rect);
+	// Add freeTransform
+	var ft = paper.freeTransform(rect);
 
-	// Remove free transform handle
-	paper.freeTransform(rect).unplug();
+	// Hide freeTransform handles
+	ft.hideHandles();
 
-	// Add free transform handle with options and callback
-	paper.freeTransform(rect, { keepRatio: true }, function(ft, events) {
+	// Show hidden freeTransform handles
+	ft.showHandles();
+
+	// Apply transformations programmatically 
+	var attrs = ft.attrs;
+
+	attrs.rotate = 45;
+
+	ft.apply(attrs);
+
+	// Remove freeTransform completely
+	ft.unplug();
+
+	// Add freeTransform with options and callback
+	ft = paper.freeTransform(rect, { keepRatio: true }, function(ft, events) {
 		console.log(ft.attrs);
 	});
 
 	// Change options on the fly
-	paper.freeTransform(rect).setOpts({ keepRatio: false })
+	ft.setOpts({ keepRatio: false });
 </script>
 ```
 
@@ -117,6 +130,10 @@ A callback function can be specified to capture changes and events.
 
 Functions
 ---------
+
+`apply(attrs)`
+
+Programmatically apply transformations.
 
 `hideHandles()`
 

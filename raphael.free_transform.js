@@ -240,17 +240,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 
 				applyLimits();
 
-				if ( ft.attrs.scale.x && ft.attrs.scale.y ) {
-					ft.items.map(function(item, i) {
-						item.el.transform([
-							'R', ft.attrs.rotate, ft.attrs.center.x, ft.attrs.center.y,
-							'S', ft.attrs.scale.x, ft.attrs.scale.y, ft.attrs.center.x, ft.attrs.center.y,
-							'T', ft.attrs.translate.x, ft.attrs.translate.y
-							] + ft.items[i].transformString);
-					});
-				}
-
-				ft.updateHandles(ft.attrs);
+				if ( ft.attrs.scale.x && ft.attrs.scale.y ) ft.apply();
 
 				asyncCallback([ ft.opts.rotate ? 'rotate' : null, ft.opts.scale ? 'scale' : null ]);
 			}, function() {
@@ -299,15 +289,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 
 					applyLimits(bbox);
 
-					ft.items.map(function(item, i) {
-						item.el.transform([
-							'R', ft.attrs.rotate, ft.attrs.center.x, ft.attrs.center.y,
-							'S', ft.attrs.scale.x, ft.attrs.scale.y, ft.attrs.center.x, ft.attrs.center.y,
-							'T', ft.attrs.translate.x, ft.attrs.translate.y
-							] + ft.items[i].transformString);
-					});
-
-					ft.updateHandles(ft.attrs);
+					ft.apply();
 
 					asyncCallback([ 'drag' ]);
 				}, function() {
@@ -362,15 +344,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 
 				applyLimits();
 
-				ft.items.map(function(item, i) {
-					item.el.transform([
-						'R', ft.attrs.rotate, ft.attrs.center.x, ft.attrs.center.y,
-						'S', ft.attrs.scale.x, ft.attrs.scale.y, ft.attrs.center.x, ft.attrs.center.y,
-						'T', ft.attrs.translate.x, ft.attrs.translate.y
-						] + ft.items[i].transformString);
-				});
-
-				ft.updateHandles(ft.attrs);
+			   	ft.apply();
 
 				asyncCallback([ ft.opts.dragRotate ? 'rotate' : null, ft.opts.dragScale ? 'scale' : null ]);
 			}, function(x, y) {
@@ -457,6 +431,25 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 	};
 
 	ft.setOpts(options, callback);
+
+	/**
+	 * Apply transformations, optionally update attributes manually
+	 */
+	ft.apply = function(attrs) {
+		if ( attrs ) {
+			for ( var i in attrs ) ft.attrs[i] = attrs[i];
+		}
+
+		ft.items.map(function(item, i) {
+			item.el.transform([
+				'R', ft.attrs.rotate, ft.attrs.center.x, ft.attrs.center.y,
+				'S', ft.attrs.scale.x, ft.attrs.scale.y, ft.attrs.center.x, ft.attrs.center.y,
+				'T', ft.attrs.translate.x, ft.attrs.translate.y
+				] + ft.items[i].transformString);
+		});
+
+		ft.updateHandles();
+	}
 
 	/**
 	 * Clean exit
