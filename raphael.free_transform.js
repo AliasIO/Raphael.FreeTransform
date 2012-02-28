@@ -66,11 +66,8 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 	 * Update handles based on the element's transformations
 	 */
 	ft.updateHandles = function() {
-		if ( ft.handles.center ) {
-			ft.handles.center.disc.attr({
-				cx: ft.attrs.center.x + ft.attrs.translate.x,
-				cy: ft.attrs.center.y + ft.attrs.translate.y
-				});
+		if ( ft.opts.showBBox || ft.opts.dragRotate ) {
+			var corners = getBBox();
 		}
 
 		// Get the element's rotation
@@ -99,18 +96,23 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 
 				ft.handles[axis].disc.attr({ cx: cx, cy: cy });
 
-				ft.handles[axis].line.attr({
+				ft.handles[axis].line.toFront().attr({
 					path: [ [ 'M', ft.attrs.center.x + ft.attrs.translate.x, ft.attrs.center.y + ft.attrs.translate.y ], [ 'L', ft.handles[axis].disc.attrs.cx, ft.handles[axis].disc.attrs.cy ] ]
 					});
+
+				ft.handles[axis].disc.toFront();
 			}
 		});
 
-		if ( ft.opts.showBBox || ft.opts.dragRotate ) {
-			var corners = getBBox();
+		if ( ft.handles.center ) {
+			ft.handles.center.disc.toFront().attr({
+				cx: ft.attrs.center.x + ft.attrs.translate.x,
+				cy: ft.attrs.center.y + ft.attrs.translate.y
+				});
 		}
 
 		if ( ft.opts.showBBox ) {
-			ft.bbox.attr({
+			ft.bbox.toFront().attr({
 				path: [
 					[ 'M', corners[0].x, corners[0].y ],
 					[ 'L', corners[1].x, corners[1].y ],
