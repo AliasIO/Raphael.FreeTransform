@@ -61,11 +61,15 @@ Options
 
 `attrs: { fill: hex, stroke: hex }`
 
-Sets the attributes of the handle (default: `{ fill: '#000', stroke: '#000' }`).
+Sets the attributes of the handles (default: `{ fill: '#000', stroke: '#000' }`).
 
 `boundary: { x: int, y: int, width: int, height: int }|false`
 
-Limits the drag area of the handle (default: dimensions of the paper).
+Limits the drag area of the handles (default: dimensions of the paper).
+
+`distance: num`
+
+Sets the distance of the handles from the center of the element (`num` times radius, default: `1.2`).
 
 `drag: true|false`
 
@@ -117,7 +121,7 @@ Limit the minimum and maximum size of the object in pixels (default: `false`)
 
 `size: num`
 
-Sets the size of the handle (`num` times radius, default: `1.2`).
+Sets the radius of the handles in pixels (default: `5`).
 
 
 Callback
@@ -147,7 +151,7 @@ Update options and callback.
 
 `unplug()`
 
-Removes handle and deletes all values set by the plugin.
+Removes handles and deletes all values set by the plugin.
 
 `updateHandles()`
 

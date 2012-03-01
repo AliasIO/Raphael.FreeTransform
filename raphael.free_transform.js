@@ -44,6 +44,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 		opts: {
 			attrs: { fill: '#000', stroke: '#000' },
 			boundary: { x: paper._left ? paper._left : 0, y: paper._top  ? paper._top  : 0, width: paper.width, height: paper.height },
+			distance: 1.2,
 			drag: true,
 			dragRotate: false,
 			dragScale: false,
@@ -57,7 +58,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			scaleSnap: false,
 			scaleRange: false,
 			showBBox: false,
-			size: 1.2
+			size: 5
 			},
 		subject: subject
 		};
@@ -84,8 +85,8 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 		ft.axes.map(function(axis) {
 			if ( ft.handles[axis] ) {
 				var
-					cx = ft.attrs.center.x + ft.attrs.translate.x + radius[axis] * ft.opts.size * Math.cos(rad[axis]),
-					cy = ft.attrs.center.y + ft.attrs.translate.y + radius[axis] * ft.opts.size * Math.sin(rad[axis])
+					cx = ft.attrs.center.x + ft.attrs.translate.x + radius[axis] * ft.opts.distance * Math.cos(rad[axis]),
+					cy = ft.attrs.center.y + ft.attrs.translate.y + radius[axis] * ft.opts.distance * Math.sin(rad[axis])
 					;
 
 				// Keep handle within boundaries
@@ -132,7 +133,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			ft.circle.attr({
 				cx: ft.attrs.center.x + ft.attrs.translate.x,
 				cy: ft.attrs.center.y + ft.attrs.translate.y,
-				r:  radius * ft.opts.size
+				r:  radius * ft.opts.distance
 				});
 		}
 	};
@@ -157,7 +158,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 					;
 
 				ft.handles[axis].disc = paper
-					.circle(ft.attrs.center.x, ft.attrs.center.y, 5)
+					.circle(ft.attrs.center.x, ft.attrs.center.y, ft.opts.size)
 					.attr(ft.opts.attrs)
 					;
 			});
@@ -167,7 +168,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			ft.handles.center = new Object;
 
 			ft.handles.center.disc = paper
-				.circle(ft.attrs.center.x, ft.attrs.center.y, 5)
+				.circle(ft.attrs.center.x, ft.attrs.center.y, ft.opts.size)
 				.attr(ft.opts.attrs)
 				;
 		}
@@ -233,8 +234,8 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 
 				if ( ft.opts.scale ) {
 					ft.attrs.scale = {
-						x: axis == 'x' ? radius / ( ft.o.size.x / 2 * ft.opts.size ) : ft.o.scale.x,
-						y: axis == 'y' ? radius / ( ft.o.size.y / 2 * ft.opts.size ) : ft.o.scale.y
+						x: axis == 'x' ? radius / ( ft.o.size.x / 2 * ft.opts.distance ) : ft.o.scale.x,
+						y: axis == 'y' ? radius / ( ft.o.size.y / 2 * ft.opts.distance ) : ft.o.scale.y
 						};
 
 					if ( mirrored[axis] ) ft.attrs.scale[axis] *= -1;
