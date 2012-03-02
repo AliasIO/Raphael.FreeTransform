@@ -48,12 +48,13 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			drag: true,
 			dragRotate: false,
 			dragScale: false,
-			grid: false,
-			gridSnap: 0,
+			dragSnap: false,
+			dragSnapDist: 0,
 			keepRatio: false,
 			rotate: true,
 			rotateRange: [ -180, 180 ],
 			rotateSnap: false,
+			rotateSnapDist: 0,
 			scale: true,
 			scaleSnap: false,
 			scaleRange: false,
@@ -299,7 +300,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 					// Offset values
 					ft.o = cloneObj(ft.attrs);
 
-					if ( ft.opts.grid ) ft.o.bbox = subject.getBBox();
+					if ( ft.opts.dragSnap ) ft.o.bbox = subject.getBBox();
 
 					// viewBox might be scaled
 					if ( paper._viewBox ) {
@@ -421,7 +422,8 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 
 		ft.axes = ft.opts.keepRatio ? [ 'y' ] : [ 'x', 'y' ];
 
-		if ( !ft.opts.gridSnap ) ft.opts.gridSnap = ft.opts.grid;
+		if ( !ft.opts  .dragSnapDist ) ft.opts  .dragSnapDist = ft.opts  .dragSnap;
+		if ( !ft.opts.rotateSnapDist ) ft.opts.rotateSnapDist = ft.opts.rotateSnap;
 
 		ft.opts.rotateRange = [
 			parseInt(ft.opts.rotateRange[0]),
@@ -552,7 +554,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 	 */
 	function applyLimits(bbox) {
 		// Snap to grid
-		if ( bbox && ft.opts.grid ) {
+		if ( bbox && ft.opts.dragSnap ) {
 			var
 				x    = bbox.x,
 				y    = bbox.y,
@@ -562,11 +564,11 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 
 			[ 0, 1 ].map(function() {
 				// Top and left sides first
-				dist.x = x - Math.round(x / ft.opts.grid) * ft.opts.grid;
-				dist.y = y - Math.round(y / ft.opts.grid) * ft.opts.grid;
+				dist.x = x - Math.round(x / ft.opts.dragSnap) * ft.opts.dragSnap;
+				dist.y = y - Math.round(y / ft.opts.dragSnap) * ft.opts.dragSnap;
 
-				if ( Math.abs(dist.x) <= ft.opts.gridSnap ) snap.x = dist.x;
-				if ( Math.abs(dist.y) <= ft.opts.gridSnap ) snap.y = dist.y;
+				if ( Math.abs(dist.x) <= ft.opts.dragSnapDist ) snap.x = dist.x;
+				if ( Math.abs(dist.y) <= ft.opts.dragSnapDist ) snap.y = dist.y;
 
 				// Repeat for bottom and right sides
 				x += bbox.width  - snap.x;
@@ -590,8 +592,14 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 		// Maintain aspect ratio when scaling
 		if ( ft.opts.keepRatio ) ft.attrs.scale.x = ft.attrs.scale.y;
 
-		// Rotate with increments
-		if ( ft.opts.rotateSnap ) ft.attrs.rotate = Math.round(ft.attrs.rotate / ft.opts.rotateSnap) * ft.opts.rotateSnap;
+		// Snap to angle, rotate with increments
+		var dist = Math.abs(ft.attrs.rotate % ft.opts.rotateSnap);
+
+		dist = Math.min(dist, ft.opts.rotateSnap - dist);
+
+		if ( dist < ft.opts.rotateSnapDist ) {
+			ft.attrs.rotate = Math.round(ft.attrs.rotate / ft.opts.rotateSnap) * ft.opts.rotateSnap;
+		}
 
 		// Scale with increments
 		if ( ft.opts.scaleSnap ) {

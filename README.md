@@ -83,13 +83,13 @@ Rotate the subject by dragging (default: `false`).
 
 Scale the subject by dragging (default: `false`).
 
-`grid: num|false`
+`dragSnap: num|false`
 
 Set grid size for aligning elements (default: `false`).
 
-`gridSnap: num`
+`dragSnapDist: num`
 
-Snap edges to grid when `num` pixels away from grid (default: value of `grid`).
+Snap edges to grid when `num` pixels away from grid (default: value of `dragSnap`).
 
 `keepRatio: true|false`
 
@@ -106,6 +106,10 @@ Limit the range of rotation (default: `[ -180, 180 ]`)
 `rotateSnap`: num|false
 
 Rotate with n degree increments (default: `false`).
+
+`rotateSnapDist`: num
+
+Snap rotation when `num` degrees away from snap angle (default: value of `rotateSnap`).
 
 `scale: true|false`
 
