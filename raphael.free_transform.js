@@ -35,12 +35,17 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			rotate: 0,
 			scale: { x: 1, y: 1 },
 			translate: { x: 0, y: 0 }
-		   },
+			},
 		axes: null,
 		bbox: null,
 		callback: null,
 		items: new Array,
 		handles: { center: null, x: null, y: null },
+		offset: {
+			rotate: 0,
+			scale: { x: 1, y: 1 },
+			translate: { x: 0, y: 0 }
+			},
 		opts: {
 			attrs: { fill: '#000', stroke: '#000' },
 			boundary: { x: paper._left ? paper._left : 0, y: paper._top  ? paper._top  : 0, width: paper.width, height: paper.height },
@@ -442,10 +447,26 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 	 */
 	ft.apply = function() {
 		ft.items.map(function(item, i) {
+			// Take offset values into account
+			var
+				center = {
+					x: ft.attrs.center.x + ft.offset.translate.x,
+					y: ft.attrs.center.y + ft.offset.translate.y
+				},
+				rotate    = ft.attrs.rotate - ft.offset.rotate;
+				scale     = {
+					x: ft.attrs.scale.x / ft.offset.scale.x,
+					y: ft.attrs.scale.y / ft.offset.scale.y
+				},
+				translate = {
+					x: ft.attrs.translate.x - ft.offset.translate.x,
+					y: ft.attrs.translate.y - ft.offset.translate.y
+				};
+
 			item.el.transform([
-				'R', ft.attrs.rotate, ft.attrs.center.x, ft.attrs.center.y,
-				'S', ft.attrs.scale.x, ft.attrs.scale.y, ft.attrs.center.x, ft.attrs.center.y,
-				'T', ft.attrs.translate.x, ft.attrs.translate.y
+				'R', rotate, center.x, center.y,
+				'S', scale.x, scale.y, center.x, center.y,
+				'T', translate.x, translate.y
 				] + ft.items[i].transformString);
 		});
 
