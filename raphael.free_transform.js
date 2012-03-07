@@ -21,9 +21,17 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 		};
 	}
 
+    var bwidth = $(this.canvas).width();
+    var bheight = $(this.canvas).height();
+
 	var paper = this;
 
 	var bbox = subject.getBBox(true);
+
+    paper.width = bwidth;
+    paper.height = bheight;
+
+    var fix_scale = false;
 
 	var ft = subject.freeTransform = {
 		// Keep track of transformations
@@ -55,6 +63,8 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			dragScale: false,
 			dragSnap: false,
 			dragSnapDist: 0,
+            hideHandles: false,
+            hideHandlesInterval: 5000,
 			keepRatio: false,
 			rotate: true,
 			rotateRange: [ -180, 180 ],
@@ -68,6 +78,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			},
 		subject: subject
 		};
+
 
 	/**
 	 * Update handles based on the element's transformations
@@ -147,8 +158,8 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 	/**
 	 * Add handles
 	 */
-	ft.showHandles = function() {
-		ft.hideHandles();
+	ft.addHandles = function() {
+		ft.removeHandles();
 
 		if ( ft.opts.rotate || ft.opts.scale ) {
 			ft.axes.map(function(axis) {
@@ -158,8 +169,9 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 					.path([ 'M', ft.attrs.center.x, ft.attrs.center.y ])
 					.attr({
 						stroke: ft.opts.attrs.stroke,
-						'stroke-dasharray': '- ',
-						opacity: .5
+						'stroke-dasharray': '. ',
+                        'stroke-width': 3,
+						opacity: .3
 						})
 					;
 
@@ -195,7 +207,8 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 				.circle(0, 0, 0)
 				.attr({
 					stroke: ft.opts.attrs.stroke,
-					'stroke-dasharray': '- ',
+					'stroke-dasharray': '. ',
+                    'stroke-width': 3,
 					opacity: .3
 					})
 				;
@@ -384,7 +397,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 	/**
 	 * Remove handles
 	 */
-	ft.hideHandles = function() {
+	ft.removeHandles = function() {
 		ft.items.map(function(item) {
 			item.el.undrag();
 		});
@@ -435,7 +448,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			parseInt(ft.opts.rotateRange[1])
 			];
 
-		ft.showHandles();
+		ft.addHandles();
 
 		asyncCallback([ 'init' ]);
 	};
@@ -453,7 +466,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 					x: ft.attrs.center.x + ft.offset.translate.x,
 					y: ft.attrs.center.y + ft.offset.translate.y
 				},
-				rotate    = ft.attrs.rotate - ft.offset.rotate;
+				rotate    = ft.attrs.rotate - ft.offset.rotate,
 				scale     = {
 					x: ft.attrs.scale.x / ft.offset.scale.x,
 					y: ft.attrs.scale.y / ft.offset.scale.y
@@ -479,7 +492,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 	ft.unplug = function() {
 		var attrs = ft.attrs;
 
-		ft.hideHandles();
+		ft.removeHandles();
 
 		// Goodbye
 		delete subject.freeTransform;
@@ -658,6 +671,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 	}
 
 	var timeout = false;
+    var hideHandlesInterval_id = false;
 
 	/**
 	 * Call callback asynchronously for better performance
@@ -672,10 +686,94 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			clearTimeout(timeout);
 
 			setTimeout(function() { if ( ft.callback ) ft.callback(ft, events); }, 1);
-		}
+
+            if ( ft.opts.hideHandles ) {
+                clearTimeout(hideHandlesInterval_id);
+                if( intersect_safe(e, ['drag end', 'rotate end','scale end']).length > 0 ){
+                    hideHandlesInterval_id = window.setTimeout(function(){ft.hideHandles(); return false;}, ft.opts.hideHandlesInterval);
+                }
+            }
+        }
 	}
 
 	ft.updateHandles();
+
+    // Flip image with handlers
+    ft.flip = function() {
+        ft.offset.scale.x = -1 * ft.offset.scale.x;
+        ft.apply();
+        asyncCallback(['scale end']);
+        return false;
+    };
+
+    // Flop image with handlers
+    ft.flop = function() {
+        ft.offset.scale.y = -1 * ft.offset.scale.y;
+        ft.apply();
+        asyncCallback(['scale end']);
+        return false;
+    };
+
+    /**
+     * Hide handles
+     */
+    ft.hideHandles = function hideHandles() {
+        if( subject.freeTransform ){
+            if (ft.handles.center) {
+                ft.handles.center.disc.hide();
+            }
+            ;
+
+            [ 'x', 'y' ].map(function(axis) {
+                if (ft.handles[axis]) {
+                    ft.handles[axis].disc.hide();
+                    ft.handles[axis].line.hide();
+                }
+            });
+
+            if (ft.bbox) {
+                ft.bbox.hide();
+            }
+            ;
+
+            if (ft.circle) {
+                ft.circle.hide();
+            }
+            ;
+            return ft.handles;
+        }
+    };
+
+    /**
+     * Show handles
+     */
+    ft.showHandles = function showHandles() {
+        if( subject.freeTransform ){
+            if (ft.handles.center) {
+                ft.handles.center.disc.show();
+            }
+            ;
+
+            [ 'x', 'y' ].map(function(axis) {
+                if (ft.handles[axis]) {
+                    ft.handles[axis].disc.show();
+                    ft.handles[axis].line.show();
+                }
+            });
+
+            if (ft.bbox) {
+                ft.bbox.show();
+            }
+            ;
+
+            if (ft.circle) {
+                ft.circle.show();
+            }
+            ;
+
+            return ft.handles;
+        }
+    }
 
 	// Enable method chaining
 	return ft;
