@@ -50,7 +50,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			animate: false,
 			attrs: { fill: '#000', stroke: '#000' },
 			boundary: { x: paper._left ? paper._left : 0, y: paper._top  ? paper._top  : 0, width: paper.width, height: paper.height },
-			delay: 1000,
+			delay: 700,
 			distance: 1.2,
 			drag: true,
 			dragRotate: false,
@@ -91,7 +91,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			y: ft.attrs.size.y / 2 * ft.attrs.scale.y
 			};
 
-		if ( ft.opts.showBBox ) {
+		if ( ft.opts.showBBox && ft.bbox ) {
 			ft.bbox.toFront().attr({
 				path: [
 					[ 'M', corners[0].x, corners[0].y ],
@@ -519,6 +519,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 
 			ft.bbox = null;
 
+			/*
 			if ( ft.handles.bbox ) {
 				[ 0, 1, 2, 3 ].map(function(corner) {
 					ft.handles.bbox[corner].disc.remove();
@@ -526,6 +527,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 
 				ft.handles.bbox = null;
 			}
+			*/
 		}
 
 		if ( ft.circle ) {
@@ -563,7 +565,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 	/**
 	 * Apply transformations, optionally update attributes manually
 	 */
-	ft.apply = function(callback) {
+	ft.apply = function() {
 		ft.items.map(function(item, i) {
 			// Take offset values into account
 			var
@@ -581,27 +583,35 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 					y: ft.attrs.translate.y - ft.offset.translate.y
 				};
 
-			item.el.animate(
-				{ transform: [
-					'R', rotate, center.x, center.y,
-					'S', scale.x, scale.y, center.x, center.y,
-					'T', translate.x, translate.y
-					] + ft.items[i].transformString },
-				ft.opts.animate ? ft.opts.delay : 0,
-				ft.opts.easing
-			);
-		});
+			if ( ft.opts.animate ) {
+				asyncCallback([ 'animate start' ]);
 
-		if (ft.opts.animate) {
-			window.setTimeout(function () {
-				if (typeof callback == 'function')
-					callback(ft);
+				item.el.animate(
+					{ transform: [
+						'R', rotate, center.x, center.y,
+						'S', scale.x, scale.y, center.x, center.y,
+						'T', translate.x, translate.y
+						] + ft.items[i].transformString },
+					ft.opts.delay,
+					ft.opts.easing,
+					function() {
+						asyncCallback([ 'animate end' ]);
+
+						ft.updateHandles();
+					}
+				);
+			} else {
+				item.el.transform([
+						'R', rotate, center.x, center.y,
+						'S', scale.x, scale.y, center.x, center.y,
+						'T', translate.x, translate.y
+						] + ft.items[i].transformString);
+
+				asyncCallback([ 'apply' ]);
+
 				ft.updateHandles();
-			}, ft.opts.delay);
-		}
-		else
-			ft.updateHandles();
-
+			}
+		});
 	}
 
 	/**

@@ -162,69 +162,33 @@ Removes handles and deletes all values set by the plugin.
 Updates handles to reflect the element's transformations.
 
 
-Animate
--------
+Animation
+---------
 
-To use the animation, you have to set the 'animate' config ky to true, and/or change the following config keys :
+To use animation you have to set `animate` to `true`, and optionally configure the following options:
 
-* delay (default: 1000)
-* easing: (default: 'linear')
+`delay: [ int ]` (default: `700`)
 
-You can add a callback when you apply your transformation.
+Duration of the animation in microseconds.
 
-The previous example can be updated to :
+`easing: [ string ]`: (default: `linear`)
 
+Easing.
 
-```html
-<script type="text/javascript" src="raphael-min.js"></script>
-<script type="text/javascript" src="raphael.free_transform.js"></script>
-
-<div id="holder" style="height: 100%;"></div>
-
-<script type="text/javascript">
-	var paper = Raphael(0, 0, 500, 500);
-
-	var rect = paper
-		.rect(200, 200, 100, 100)
-		.attr('fill', '#f00')
-		;
-
-	// Add freeTransform
-	var ft = paper.freeTransform(rect, {
-		animate: true
-	});
-
-	// Hide freeTransform handles
-	ft.hideHandles();
-
-	// Apply transformations programmatically
-	ft.attrs.rotate = 45;
-
-	ft.apply(function (ft) {
-		alert('Animation DONE.');
-	});
-</script>
-```
+The previous example can be updated to:
 
 
-If you need manual transformation with the animated ones, you should enable the "animate" option only before your process it, and disable it in the callback. For example, if you use a callback :
+```javascript
+// Add freeTransform
+var ft = paper.freeTransform(rect, { animate: true }, function(ft, events) {
+	console.log(events); // animate start, animate end
+});
 
+// Hide freeTransform handles
+ft.hideHandles();
 
-```html
-	// Set your callback in a var, since it must be passed each time you change the options on the fly
-	var callback = function(ft, events) {
-		console.log(ft.attrs);
-	};
+// Apply transformations programmatically
+ft.attrs.rotate = 45;
 
-	// Apply transformations programmatically
-	ft.attrs.rotate = 45;
-
-	// Enable animations
-	ft.setOpts({ animate: true }, callback);
-
-	ft.apply(function (ft) {
-		ft.setOpts({ animate: false }, callback);
-		alert('Animation DONE.');
-	});
-</script>
+ft.apply();
 ```
