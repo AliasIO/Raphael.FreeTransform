@@ -88,6 +88,29 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			y: ft.attrs.size.y / 2 * ft.attrs.scale.y
 			};
 
+		if ( ft.opts.showBBox ) {
+			ft.bbox.toFront().attr({
+				path: [
+					[ 'M', corners[0].x, corners[0].y ],
+					[ 'L', corners[1].x, corners[1].y ],
+					[ 'L', corners[2].x, corners[2].y ],
+					[ 'L', corners[3].x, corners[3].y ],
+					[ 'L', corners[0].x, corners[0].y ]
+					]
+				});
+
+			/*
+			if ( ft.handles.bbox ) {
+				[ 0, 1, 2, 3 ].map(function(corner) {
+					ft.handles.bbox[corner].disc.toFront().attr({
+						cx: corners[corner].x,
+						cy: corners[corner].y
+					});
+				});
+			}
+			*/
+		}
+
 		ft.axes.map(function(axis) {
 			if ( ft.handles[axis] ) {
 				var
@@ -118,18 +141,6 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 				});
 		}
 
-		if ( ft.opts.showBBox ) {
-			ft.bbox.toFront().attr({
-				path: [
-					[ 'M', corners[0].x, corners[0].y ],
-					[ 'L', corners[1].x, corners[1].y ],
-					[ 'L', corners[2].x, corners[2].y ],
-					[ 'L', corners[3].x, corners[3].y ],
-					[ 'L', corners[0].x, corners[0].y ]
-					]
-				});
-		}
-
 		if ( ft.opts.dragRotate ) {
 			var radius = Math.max(
 				Math.sqrt(Math.pow(corners[1].x - corners[0].x, 2) + Math.pow(corners[1].y - corners[0].y, 2)),
@@ -150,6 +161,17 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 	ft.showHandles = function() {
 		ft.hideHandles();
 
+		if ( ft.opts.showBBox ) {
+			ft.bbox = paper
+				.path('')
+				.attr({
+					stroke: ft.opts.attrs.stroke,
+					'stroke-dasharray': '- ',
+					opacity: .5
+					})
+				;
+		}
+
 		if ( ft.opts.rotate || ft.opts.scale ) {
 			ft.axes.map(function(axis) {
 				ft.handles[axis] = new Object;
@@ -168,6 +190,23 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 					.attr(ft.opts.attrs)
 					;
 			});
+
+			if ( ft.opts.showBBox ) {
+				if ( ft.opts.scale ) {
+					ft.handles.bbox = new Array;
+
+					/*
+					[ 0, 1, 2, 3 ].map(function(corner) {
+						ft.handles.bbox[corner] = new Object;
+
+						ft.handles.bbox[corner].disc = paper
+							.circle(ft.attrs.center.x, ft.attrs.center.y, ft.opts.size)
+							.attr(ft.opts.attrs)
+							;
+					});
+					*/
+				}
+			}
 		}
 
 		if ( ft.opts.drag ) {
@@ -176,17 +215,6 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			ft.handles.center.disc = paper
 				.circle(ft.attrs.center.x, ft.attrs.center.y, ft.opts.size)
 				.attr(ft.opts.attrs)
-				;
-		}
-
-		if ( ft.opts.showBBox ) {
-			ft.bbox = paper
-				.path('')
-				.attr({
-					stroke: ft.opts.attrs.stroke,
-					'stroke-dasharray': '- ',
-					opacity: .5
-					})
 				;
 		}
 
@@ -271,6 +299,85 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 				asyncCallback([ ft.opts.rotate ? 'rotate end'   : null, ft.opts.scale ? 'scale end'   : null ]);
 			});
 		});
+
+		/*
+		// Drag bbox corner handles
+		if ( ft.handles.bbox ) {
+			[ 0, 1, 2, 3 ].map(function(corner) {
+				ft.handles.bbox[corner].disc.drag(function(dx, dy) {
+					// viewBox might be scaled
+					if ( ft.o.viewBoxRatio ) {
+						dx *= ft.o.viewBoxRatio.x;
+						dy *= ft.o.viewBoxRatio.y;
+					}
+
+					var
+						cx = dx + ft.handles.bbox[corner].disc.ox,
+						cy = dy + ft.handles.bbox[corner].disc.oy
+						;
+
+					var mirrored = {
+						x: ft.o.scale.x < 0,
+						y: ft.o.scale.y < 0
+						};
+
+					if ( ft.opts.rotate ) {
+						// var rad = {
+						// 	x: ( ft.attrs.rotate      ) * Math.PI / 180,
+						// 	y: ( ft.attrs.rotate + 90 ) * Math.PI / 180
+						// 	};
+
+						// signs.map(function(sign) {
+						// 	corners.push({
+						// 		x: ( ft.attrs.center.x + ft.attrs.translate.x + sign.x * radius.x * Math.cos(rad.x) ) + sign.y * radius.y * Math.cos(rad.y),
+						// 		y: ( ft.attrs.center.y + ft.attrs.translate.y + sign.x * radius.x * Math.sin(rad.x) ) + sign.y * radius.y * Math.sin(rad.y)
+						// 		});
+						// });
+
+						var rad = Math.atan2(cy - ft.o.center.y - ft.o.translate.y, cx - ft.o.center.x - ft.o.translate.x);
+
+						ft.attrs.rotate = rad * 180 / Math.PI;// - ( corner * 90 );
+
+						//if ( mirrored[axis] ) ft.attrs.rotate -= 180;
+					}
+
+					var radius = Math.sqrt(Math.pow(cx - ft.o.center.x - ft.o.translate.x, 2) + Math.pow(cy - ft.o.center.y - ft.o.translate.y, 2));
+
+					if ( ft.opts.scale ) {
+						ft.attrs.scale = {
+							x: radius / ( ft.o.size.x / 2 * ft.opts.distance ),
+							y: radius / ( ft.o.size.y / 2 * ft.opts.distance )
+							};
+
+						//if ( mirrored[axis] ) ft.attrs.scale[axis] *= -1;
+					}
+
+					applyLimits();
+
+					if ( ft.attrs.scale.x && ft.attrs.scale.y ) ft.apply();
+
+					asyncCallback([ ft.opts.rotate ? 'rotate' : null, ft.opts.scale ? 'scale' : null ]);
+				}, function() {
+					// Offset values
+					ft.o = cloneObj(ft.attrs);
+
+					if ( paper._viewBox ) {
+						ft.o.viewBoxRatio = {
+							x: paper._viewBox[2] / paper.width,
+							y: paper._viewBox[3] / paper.height
+							};
+					}
+
+					ft.handles.bbox[corner].disc.ox = this.attrs.cx;
+					ft.handles.bbox[corner].disc.oy = this.attrs.cy;
+
+					asyncCallback([ ft.opts.rotate ? 'rotate start' : null, ft.opts.scale ? 'scale start' : null ]);
+				}, function() {
+					asyncCallback([ ft.opts.rotate ? 'rotate end'   : null, ft.opts.scale ? 'scale end'   : null ]);
+				});
+			});
+		}
+		*/
 
 		// Drag element and center handle
 		if ( ft.opts.drag ) {
@@ -408,6 +515,14 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			ft.bbox.remove();
 
 			ft.bbox = null;
+
+			if ( ft.handles.bbox ) {
+				[ 0, 1, 2, 3 ].map(function(corner) {
+					ft.handles.bbox[corner].disc.remove();
+				});
+
+				ft.handles.bbox = null;
+			}
 		}
 
 		if ( ft.circle ) {
