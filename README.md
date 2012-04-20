@@ -115,6 +115,10 @@ Snap rotation when `num` degrees away from snap angle (default: value of `rotate
 
 Enables/disables scaling (default: `true`).
 
+`scaleText: true|false`
+
+Enables/disables scaling of text elements (default: `true`).
+
 `scaleSnap`: num|false
 
 Scale with n pixel increments (default: `false`).
