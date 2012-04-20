@@ -64,6 +64,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			rotateSnap: false,
 			rotateSnapDist: 0,
 			scale: true,
+			scaleText: true,
 			scaleSnap: false,
 			scaleRange: false,
 			showBBox: false,
@@ -575,8 +576,8 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 				},
 				rotate    = ft.attrs.rotate - ft.offset.rotate;
 				scale     = {
-					x: ft.attrs.scale.x / ft.offset.scale.x,
-					y: ft.attrs.scale.y / ft.offset.scale.y
+					x: (item.el.type != 'text' || ft.opts.scaleText) ? (ft.attrs.scale.x / ft.offset.scale.x) : 1.0,
+					y: (item.el.type != 'text' || ft.opts.scaleText) ? (ft.attrs.scale.y / ft.offset.scale.y) : 1.0
 				},
 				translate = {
 					x: ft.attrs.translate.x - ft.offset.translate.x,
