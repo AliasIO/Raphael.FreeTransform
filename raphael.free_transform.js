@@ -573,7 +573,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 					x: ft.attrs.center.x + ft.offset.translate.x,
 					y: ft.attrs.center.y + ft.offset.translate.y
 				},
-				rotate    = ft.attrs.rotate - ft.offset.rotate;
+				rotate    = ft.attrs.rotate - ft.offset.rotate,
 				scale     = {
 					x: ft.attrs.scale.x / ft.offset.scale.x,
 					y: ft.attrs.scale.y / ft.offset.scale.y
