@@ -351,6 +351,9 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 						y: Math.sin(handleAngle + elementRotation) < 0 ? -1 : 1,
 						r: Math.sin(elementRotation) * Math.cos(elementRotation) < 0 ? -1 : 1
 						};
+					// Account for negative scale:
+					if ( ft.o.scale.x < 0 ) ft.o.rotation.x *= -1;
+					if ( ft.o.scale.y < 0 ) ft.o.rotation.y *= -1;
 
 					if ( paper._viewBox ) {
 						ft.o.viewBoxRatio = {
