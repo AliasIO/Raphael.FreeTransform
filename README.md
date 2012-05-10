@@ -127,6 +127,9 @@ Limit the minimum and maximum size of the object in pixels (default: `false`)
 
 Sets the radius of the handles in pixels (default: `5`).
 
+`showXYHandles: true|false`
+
+Enables/disables the handles on the X/Y axes (default: `true`).
 
 Callback
 --------
