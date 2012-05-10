@@ -127,6 +127,9 @@ Limit the minimum and maximum size of the object in pixels (default: `false`)
 
 Sets the radius of the handles in pixels (default: `5`).
 
+`showBBoxHandles: true|false`
+
+Enables/disables resize drag handles at the corners of the object's bounding box (default: `false`).
 
 Callback
 --------
