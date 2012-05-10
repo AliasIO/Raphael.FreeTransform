@@ -68,6 +68,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			scaleRange: false,
 			showBBox: false,
 			showBBoxHandles: false,
+			showXYHandles: true,
 			size: 5
 			},
 		subject: subject
@@ -175,23 +176,25 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 		}
 
 		if ( ft.opts.rotate || ft.opts.scale ) {
-			ft.axes.map(function(axis) {
-				ft.handles[axis] = new Object;
+			if ( ft.opts.showXYHandles ) {
+				ft.axes.map(function(axis) {
+					ft.handles[axis] = new Object;
 
-				ft.handles[axis].line = paper
-					.path([ 'M', ft.attrs.center.x, ft.attrs.center.y ])
-					.attr({
-						stroke: ft.opts.attrs.stroke,
-						'stroke-dasharray': '- ',
-						opacity: .5
-						})
-					;
+					ft.handles[axis].line = paper
+						.path([ 'M', ft.attrs.center.x, ft.attrs.center.y ])
+						.attr({
+							stroke: ft.opts.attrs.stroke,
+							'stroke-dasharray': '- ',
+							opacity: .5
+							})
+						;
 
-				ft.handles[axis].disc = paper
-					.circle(ft.attrs.center.x, ft.attrs.center.y, ft.opts.size)
-					.attr(ft.opts.attrs)
-					;
-			});
+					ft.handles[axis].disc = paper
+						.circle(ft.attrs.center.x, ft.attrs.center.y, ft.opts.size)
+						.attr(ft.opts.attrs)
+						;
+				});
+			}
 
 			if ( ft.opts.showBBox && ft.opts.showBBoxHandles ) {
 				if ( ft.opts.scale ) {
