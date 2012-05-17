@@ -63,6 +63,10 @@ Options
 
 Sets the attributes of the handles (default: `{ fill: '#000', stroke: '#000' }`).
 
+`bboxScale: true|false`
+
+Enables resizing by dragging handles at the corners of the object's bounding box (if `showBBox` is set to `true`) (default: `false`).
+
 `boundary: { x: int, y: int, width: int, height: int }|false`
 
 Limits the drag area of the handles (default: dimensions of the paper).
@@ -123,10 +127,13 @@ Scale with n pixel increments (default: `false`).
 
 Limit the minimum and maximum size of the object in pixels (default: `false`)
 
+`showBBox: true|false`
+
+Show the bounding box (default: `false`)
+
 `size: num`
 
 Sets the radius of the handles in pixels (default: `5`).
-
 
 Callback
 --------
