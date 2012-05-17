@@ -103,12 +103,26 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 					]
 				});
 
+			// allowed x, y scaling directions for bbox handles
+			var bboxHandleDirection = [
+				[-1, -1], [1, -1], [1, 1], [-1, 1],
+				[0, -1], [1, 0], [0, 1], [-1, 0]];
+
 			if ( ft.handles.bbox ) {
-				[ 0, 1, 2, 3 ].map(function(corner) {
-					ft.handles.bbox[corner].disc.toFront().attr({
-						cx: corners[corner].x,
-						cy: corners[corner].y
-					});
+				ft.handles.bbox.map(function (handle, i) {
+					var cx, cy, j, k;
+					if (i < 4) {	// corner handles
+						cx = corners[i].x;
+						cy = corners[i].y;
+					} else {		// side handles
+						j = i % 4;
+						k = (j + 1) % corners.length;
+						cx = ( corners[j].x + corners[k].x ) / 2;
+						cy = ( corners[j].y + corners[k].y ) / 2;
+					};
+					handle.disc.toFront().attr({cx: cx, cy: cy});
+					handle.x = bboxHandleDirection[i][0];
+					handle.y = bboxHandleDirection[i][1];
 				});
 			}
 		}
@@ -197,14 +211,14 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 		if ( ft.opts.showBBox && ft.opts.bboxScale ) {
 			ft.handles.bbox = new Array;
 
-			[ 0, 1, 2, 3 ].map(function(corner) {
-				ft.handles.bbox[corner] = new Object;
+			for (var i = 0; i < (ft.opts.keepRatio ? 4 : 8); i++) {
+				ft.handles.bbox[i] = new Object;
 
-				ft.handles.bbox[corner].disc = paper
+				ft.handles.bbox[i].disc = paper
 					.circle(ft.attrs.center.x, ft.attrs.center.y, ft.opts.size)
 					.attr(ft.opts.attrs)
 					;
-			});
+			}
 		}
 
 		if ( ft.opts.drag ) {
@@ -300,17 +314,32 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 
 		// Drag bbox corner handles
 		if ( ft.handles.bbox ) {
-			[ 0, 1, 2, 3 ].map(function(corner) {
-				ft.handles.bbox[corner].disc.drag(function(dx, dy) {
+			ft.handles.bbox.map(function(handle) {
+				handle.disc.drag(function(dx, dy, x, y) {
+					var rx, ry, mx, my, sx, sy,
+						sin = ft.o.rotate.sin,
+						cos = ft.o.rotate.cos;
+
 					// viewBox might be scaled
 					if ( ft.o.viewBoxRatio ) {
 						dx *= ft.o.viewBoxRatio.x;
 						dy *= ft.o.viewBoxRatio.y;
+						x *= ft.o.viewBoxRatio.x;
+						y *= ft.o.viewBoxRatio.y;
 					}
 
-					if ( ft.opts.keepRatio ) dx = dy * ft.o.rotate.x * ft.o.rotate.y * ft.o.rotate.r;
-
 					if ( ft.opts.drag ) {
+						// first rotate dx, dy to element alignment
+						rx = dx * cos - dy * sin;
+						ry = dx * sin + dy * cos;
+						// then clip to scale restriction
+						if ( ft.opts.keepRatio ) rx = ry * ft.o.rotate.r;
+						rx *= Math.abs(ft.o.rotate.x);
+						ry *= Math.abs(ft.o.rotate.y);
+						// and finally rotate back to canvas alignment
+						dx = rx * cos + ry * sin;
+						dy = rx * -sin + ry * cos;
+						
 						ft.attrs.translate = {
 							x: ft.o.translate.x + dx / 2,
 							y: ft.o.translate.y + dy / 2
@@ -318,13 +347,19 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 					}
 
 					if ( ft.opts.bboxScale ) {
-						var
-							rdx = dx * ft.o.rotate.cos - dy * ft.o.rotate.sin,
-							rdy = dx * ft.o.rotate.sin + dy * ft.o.rotate.cos;
+						// mouse position, relative to element center after translation
+						mx = x - ft.attrs.center.x - ft.attrs.translate.x;
+						my = y - ft.attrs.center.y - ft.attrs.translate.y;
+						// position rotated to align with element
+						rx = mx * cos - my * sin;
+						ry = mx * sin + my * cos;
+						// scale element so that handle is at mouse position
+						sx = Math.abs(rx) * 2 * ft.o.rotate.x / ft.o.size.x;
+						sy = Math.abs(ry) * 2 * ft.o.rotate.y / ft.o.size.y;
 
 						ft.attrs.scale = {
-							x: ft.o.scale.x + rdx * ft.o.rotate.x / ft.o.size.x,
-							y: ft.o.scale.y + rdy * ft.o.rotate.y / ft.o.size.y
+							x: sx || ft.o.scale.x,
+							y: sy || ft.o.scale.y
 							};
 					}
 
@@ -334,12 +369,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 
 					asyncCallback([ 'scale' ]);
 				}, function() {
-					var
-						rotate = ft.attrs.rotate / 180 * Math.PI,
-						rad    = Math.atan2(
-							ft.attrs.cy - ft.attrs.center.y - ft.attrs.translate.y,
-							ft.attrs.cx - ft.attrs.center.x - ft.attrs.translate.x
-							);
+					var rotate = ((360 - ft.attrs.rotate) % 360) / 180 * Math.PI;
 
 					// Offset values
 					ft.o = cloneObj(ft.attrs);
@@ -349,17 +379,10 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 					ft.o.rotate = {
 						sin: Math.sin(rotate),
 						cos: Math.cos(rotate),
-						x:   Math.cos(rad + rotate) < 0 ? -1 : 1,
-						y:   Math.sin(rad + rotate) < 0 ? -1 : 1,
-						r:   Math.sin(rotate) * Math.cos(rotate) < 0 ? -1 : 1
+						x:   Math.abs(handle.x) * (ft.o.scale.x < 0 ? -1 : 1),
+						y:   Math.abs(handle.y) * (ft.o.scale.y < 0 ? -1 : 1),
+						r:   handle.x * handle.y < 0 ? -1 : 1
 						};
-					// Account for negative scale:
-					if ( ft.o.scale.x < 0 ) ft.o.rotation.x *= -1;
-					if ( ft.o.scale.y < 0 ) ft.o.rotation.y *= -1;
-
-					// Account for negative scale (mirrored)
-					if ( ft.o.scale.x < 0 ) ft.o.rotate.x *= -1;
-					if ( ft.o.scale.y < 0 ) ft.o.rotate.y *= -1;
 
 					if ( paper._viewBox ) {
 						ft.o.viewBoxRatio = {
@@ -513,8 +536,8 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			ft.bbox = null;
 
 			if ( ft.handles.bbox ) {
-				[ 0, 1, 2, 3 ].map(function(corner) {
-					ft.handles.bbox[corner].disc.remove();
+				ft.handles.bbox.map(function(handle) {
+					handle.disc.remove();
 				});
 
 				ft.handles.bbox = null;
