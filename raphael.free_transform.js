@@ -348,9 +348,10 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 						rx = dx * cos - dy * sin;
 						ry = dx * sin + dy * cos;
 						// then clip to scale restriction
-						if ( ft.opts.keepRatio ) rx = ry * ft.o.rotate.r;
-						rx *= Math.abs(ft.o.rotate.x);
-						ry *= Math.abs(ft.o.rotate.y);
+						if ( ft.opts.keepRatio )
+							rx = ry * ( handle.x * handle.y < 0 ? -1 : 1 );
+						rx *= Math.abs(handle.x);
+						ry *= Math.abs(handle.y);
 						// and finally rotate back to canvas alignment
 						dx = rx * cos + ry * sin;
 						dy = rx * -sin + ry * cos;
@@ -369,8 +370,8 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 						rx = mx * cos - my * sin;
 						ry = mx * sin + my * cos;
 						// scale element so that handle is at mouse position
-						sx = Math.abs(rx) * 2 * ft.o.rotate.x / ft.o.size.x;
-						sy = Math.abs(ry) * 2 * ft.o.rotate.y / ft.o.size.y;
+						sx = rx * 2 * handle.x / ft.o.size.x;
+						sy = ry * 2 * handle.y / ft.o.size.y;
 
 						ft.attrs.scale = {
 							x: sx || ft.o.scale.x,
@@ -390,13 +391,9 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 					ft.o = cloneObj(ft.attrs);
 
 					// Pre-compute rotation sin & cos for efficiency
-					// and record handle x/y direction
 					ft.o.rotate = {
 						sin: Math.sin(rotate),
 						cos: Math.cos(rotate),
-						x:   Math.abs(handle.x) * (ft.o.scale.x < 0 ? -1 : 1),
-						y:   Math.abs(handle.y) * (ft.o.scale.y < 0 ? -1 : 1),
-						r:   handle.x * handle.y < 0 ? -1 : 1
 						};
 
 					if ( paper._viewBox ) {
