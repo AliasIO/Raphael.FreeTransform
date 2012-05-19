@@ -50,7 +50,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			animate: false,
 			attrs: { fill: '#000', stroke: '#000' },
 			bboxScale: false,
-			boundary: { x: paper._left ? paper._left : 0, y: paper._top  ? paper._top  : 0, width: paper.width, height: paper.height },
+			boundary: { x: paper._left ? paper._left : 0, y: paper._top  ? paper._top : 0, width: paper.width, height: paper.height },
 			delay: 700,
 			distance: 1.2,
 			drag: true,
