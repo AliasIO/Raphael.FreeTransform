@@ -48,7 +48,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			translate: { x: 0, y: 0 }
 			},
 		opts: {
-			animate: { easing: 'linear', delay: 700 },
+			animate: false, // { easing: 'linear', delay: 700 },
 			attrs: { fill: '#000', stroke: '#fff' },
 			boundary: { x: paper._left || 0, y: paper._top || 0, width: paper.width, height: paper.height },
 			distance: 1.2,
@@ -57,7 +57,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			keepRatio: false,
 			range: { rotate: [ -180, 180 ], scale: [ 0, 99999 ] },
 			rotate:  [ 'axisX', 'axisY' ],
-			scale: [ 'axisX', 'axixY', 'bboxCorners', 'bboxSides' ],
+			scale: [ 'axisX', 'axisY', 'bboxCorners', 'bboxSides' ],
 			snap: { rotate: 0, scale: 0, drag: 20, distance: 7 },
 			snapDist: { rotate: 0, scale: 0, drag: 7 },
 			size: 5
@@ -69,7 +69,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 	 * Update handles based on the element's transformations
 	 */
 	ft.updateHandles = function() {
-		if ( ft.opts.showBBox || ft.opts.dragRotate ) {
+		if ( ft.handles.bbox || ft.opts.rotate.indexOf('self') >= 0 ) {
 			var corners = getBBox();
 		}
 
@@ -84,7 +84,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			y: ft.attrs.size.y / 2 * ft.attrs.scale.y
 			};
 
-		if ( ft.opts.showBBox && ft.bbox ) {
+		if ( ft.opts.draw.indexOf('bbox') ) {
 			ft.bbox.toFront().attr({
 				path: [
 					[ 'M', corners[0].x, corners[0].y ],
@@ -95,31 +95,34 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 					]
 				});
 
-			// allowed x, y scaling directions for bbox handles
+			// Allowed x, y scaling directions for bbox handles
 			var bboxHandleDirection = [
 				[-1, -1], [1, -1], [1, 1], [-1, 1],
-				[0, -1], [1, 0], [0, 1], [-1, 0]];
+				[ 0, -1], [1,  0], [0, 1], [-1, 0]
+				];
 
 			if ( ft.handles.bbox ) {
 				ft.handles.bbox.map(function (handle, i) {
 					var cx, cy, j, k;
+
 					if ( i < 4 ) {	// corner handles
 						cx = corners[i].x;
 						cy = corners[i].y;
 					} else {		// side handles
-						j = i % 4;
-						k = ( j + 1 ) % corners.length;
+						j  = i % 4;
+						k  = ( j + 1 ) % corners.length;
 						cx = ( corners[j].x + corners[k].x ) / 2;
 						cy = ( corners[j].y + corners[k].y ) / 2;
 					}
 
-					if ( handle.element.type === 'rect' ) {
-						handle.element.toFront()
-								.attr({ x: cx - ft.opts.size / 2, y: cy - ft.opts.size / 2 })
-								.transform('R' + ft.attrs.rotate);
-					} else {
-						handle.element.toFront().attr({ cx: cx, cy: cy });
-					}
+					handle.element.toFront()
+						.attr({
+							x: cx - ft.opts.size / 2,
+							y: cy - ft.opts.size / 2
+							})
+						.transform('R' + ft.attrs.rotate)
+						;
+
 					handle.x = bboxHandleDirection[i][0];
 					handle.y = bboxHandleDirection[i][1];
 				});
@@ -156,7 +159,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 				});
 		}
 
-		if ( ft.opts.dragRotate ) {
+		if ( ft.opts.rotate.indexOf('self') >= 0 ) {
 			radius = Math.max(
 				Math.sqrt(Math.pow(corners[1].x - corners[0].x, 2) + Math.pow(corners[1].y - corners[0].y, 2)),
 				Math.sqrt(Math.pow(corners[2].x - corners[1].x, 2) + Math.pow(corners[2].y - corners[1].y, 2))
@@ -208,11 +211,11 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 
 			var i;
 
-			for ( i = 0; i < ft.opts.keepRatio ? 4 : 8; i ++ ) {
+			for ( i = 0; i < ( ft.opts.keepRatio ? 4 : 8 ); i ++ ) {
 				ft.handles.bbox[i] = {};
 
 				ft.handles.bbox[i].element = paper
-					.rect(ft.attrs.center.x, ft.attrs.center.y, ft.opts.size, ft.opts.size)
+					.rect(ft.attrs.center.x, ft.attrs.center.y, 0, 0)
 					.attr(ft.opts.attrs)
 					;
 			}
@@ -315,7 +318,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 		});
 
 		// Drag bbox corner handles
-		if ( ft.opts.draw.indexOf('bbox') >= 0 && ft.opts.scale.indexOf('bbox') >= 0 ) {
+		if ( ft.opts.draw.indexOf('bbox') >= 0 && ( ft.opts.scale.indexOf('bboxCorners') >= 0 || ft.opts.scale.indexOf('bboxSides') >= 0 ) ) {
 			ft.handles.bbox.map(function(handle) {
 				handle.element.drag(function(dx, dy, x, y) {
 					var rx, ry, mx, my, sx, sy;
@@ -561,7 +564,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 
 		var i;
 
-		for ( i in options ) { ft.opts[i] = options[i]; }
+		//for ( i in options ) { ft.opts[i] = options[i]; }
 
 		if ( !ft.opts.scale ) { ft.opts.keepRatio = true; }
 
