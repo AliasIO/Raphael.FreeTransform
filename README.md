@@ -63,7 +63,7 @@ Options
 
 Sets the attributes of the handles (default: `{ fill: '#000', stroke: '#000' }`).
 
-`bboxScale: true|false`
+`bboxScale: true|false|"rect"`
 
 Enables resizing by dragging handles at the corners of the object's bounding box (if `showBBox` is set to `true`) (default: `false`).
 
@@ -130,6 +130,14 @@ Limit the minimum and maximum size of the object in pixels (default: `false`)
 `showBBox: true|false`
 
 Show the bounding box (default: `false`)
+
+`showAxisHandles: true|false`
+
+Show the two scale/rotate handles if `rotate` or `scale` are `true` (default: `true`).
+
+`showCenterHandle: true|false`
+
+Show the center drag handle if `drag` is also `true` (default: `true`).
 
 `size: num`
 
