@@ -55,7 +55,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			drag: true,
 			draw: false,
 			keepRatio: false,
-			range: { rotate: [ -180, 180 ], scale: [ 0, 99999 ] },
+			range: { rotate: [ -180, 180 ], scale: [ -99999, 99999 ] },
 			rotate: true,
 			scale: true,
 			snap: { rotate: 0, scale: 0, drag: 20 },
