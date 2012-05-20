@@ -59,6 +59,9 @@ Examples
 Options
 -------
 
+*Note: options have changed and this README has not yet been updated.*
+
+
 `attrs: { fill: hex, stroke: hex }`
 
 Sets the attributes of the handles (default: `{ fill: '#000', stroke: '#000' }`).
@@ -142,6 +145,7 @@ Show the center drag handle if `drag` is also `true` (default: `true`).
 `size: num`
 
 Sets the radius of the handles in pixels (default: `5`).
+
 
 Callback
 --------

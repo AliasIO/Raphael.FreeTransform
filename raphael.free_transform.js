@@ -605,15 +605,22 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			if ( !ft.opts.snapDist[option] ) ft.opts.snapDist[option] = ft.opts.snap[option];
 		});
 
+		// Force numbers
 		ft.opts.range = {
-			rotate: [
-				parseInt(ft.opts.range.rotate[0]),
-				parseInt(ft.opts.range.rotate[1])
-				],
-			scale: [
-				parseInt(ft.opts.range.scale[0]),
-				parseInt(ft.opts.range.scale[1])
-				]
+			rotate: [ parseFloat(ft.opts.range.rotate[0]), parseFloat(ft.opts.range.rotate[1]) ],
+			scale:  [ parseFloat(ft.opts.range.scale[0]),  parseFloat(ft.opts.range.scale[1])  ]
+			};
+
+		ft.opts.snap = {
+			drag:   parseFloat(ft.opts.snap.drag),
+			rotate: parseFloat(ft.opts.snap.rotate),
+			scale:  parseFloat(ft.opts.snap.scale),
+			};
+
+		ft.opts.snapDist = {
+			drag:   parseFloat(ft.opts.snapDist.drag),
+			rotate: parseFloat(ft.opts.snapDist.rotate),
+			scale:  parseFloat(ft.opts.snapDist.scale),
 			};
 
 		ft.showHandles();
@@ -823,11 +830,26 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			ft.attrs.rotate = Math.round(ft.attrs.rotate / ft.opts.snap.rotate) * ft.opts.snap.rotate;
 		}
 
-		// Scale with increments
-		if ( ft.opts.snap.scale ) {
+		// Snap to scale, scale with increments
+		dist = {
+			x: Math.abs(( ft.attrs.scale.x * ft.attrs.size.x ) % ft.opts.snap.scale),
+			y: Math.abs(( ft.attrs.scale.y * ft.attrs.size.x ) % ft.opts.snap.scale)
+			};
+
+		dist = {
+			x: Math.min(dist.x, ft.opts.snap.scale - dist.x),
+			y: Math.min(dist.y, ft.opts.snap.scale - dist.y),
+			};
+
+		if ( dist.x < ft.opts.snapDist.scale ) {
 			ft.attrs.scale.x = Math.round(ft.attrs.scale.x * ft.attrs.size.x / ft.opts.snap.scale) * ft.opts.snap.scale / ft.attrs.size.x;
+		}
+
+		if ( dist.y < ft.opts.snapDist.scale ) {
 			ft.attrs.scale.y = Math.round(ft.attrs.scale.y * ft.attrs.size.y / ft.opts.snap.scale) * ft.opts.snap.scale / ft.attrs.size.y;
 		}
+
+		console.log(ft.attrs.scale);
 
 		// Limit range of rotation
 		if ( ft.opts.range.rotate ) {
@@ -841,7 +863,21 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 
 		// Limit scale
 		if ( ft.opts.range.scale ) {
-			//if ( ft.attrs.scale.x * ft.attrs.size.x > ft.opts.scaleRange[1] ) ft.attrs.scale.x *= ft.attrs.scale.x * ft.attrs.size.x / ( ft.opts.scaleRange[1] - ft.attrs.scale.x * ft.attrs.size.x )
+			if ( ft.attrs.scale.x * ft.attrs.size.x < ft.opts.range.scale[0] ) {
+				ft.attrs.scale.x = ft.opts.range.scale[0] / ft.attrs.size.x;
+			}
+
+			if ( ft.attrs.scale.y * ft.attrs.size.y < ft.opts.range.scale[0] ) {
+				ft.attrs.scale.y = ft.opts.range.scale[0] / ft.attrs.size.y;
+			}
+
+			if ( ft.attrs.scale.x * ft.attrs.size.x > ft.opts.range.scale[1] ) {
+				ft.attrs.scale.x = ft.opts.range.scale[1] / ft.attrs.size.x;
+			}
+
+			if ( ft.attrs.scale.y * ft.attrs.size.y > ft.opts.range.scale[1] ) {
+				ft.attrs.scale.y = ft.opts.range.scale[1] / ft.attrs.size.y;
+			}
 		}
 	}
 
