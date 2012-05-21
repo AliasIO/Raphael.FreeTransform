@@ -849,8 +849,6 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			ft.attrs.scale.y = Math.round(ft.attrs.scale.y * ft.attrs.size.y / ft.opts.snap.scale) * ft.opts.snap.scale / ft.attrs.size.y;
 		}
 
-		console.log(ft.attrs.scale);
-
 		// Limit range of rotation
 		if ( ft.opts.range.rotate ) {
 			var deg = ( 360 + ft.attrs.rotate ) % 360;
