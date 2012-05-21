@@ -574,7 +574,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 		var i, j;
 
 		for ( i in options ) {
-			if ( typeof options[i] === 'object' ) {
+			if ( options[i] && options[i].constructor === Object ) {
 				for ( j in options[i] ) {
 					if ( options[i].hasOwnProperty(j) ) {
 						ft.opts[i][j] = options[i][j];
