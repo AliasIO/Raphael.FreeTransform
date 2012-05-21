@@ -107,7 +107,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			}
 		});
 
-		if ( ft.opts.draw.indexOf('bbox') >= 0 ) {
+		if ( ft.bbox ) {
 			ft.bbox.toFront().attr({
 				path: [
 					[ 'M', corners[0].x, corners[0].y ],
@@ -152,7 +152,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			}
 		}
 
-		if ( ft.opts.draw.indexOf('circle') >= 0 ) {
+		if ( ft.circle ) {
 			ft.circle.attr({
 				cx: ft.attrs.center.x + ft.attrs.translate.x,
 				cy: ft.attrs.center.y + ft.attrs.translate.y,
@@ -848,8 +848,6 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 		if ( dist.y < ft.opts.snapDist.scale ) {
 			ft.attrs.scale.y = Math.round(ft.attrs.scale.y * ft.attrs.size.y / ft.opts.snap.scale) * ft.opts.snap.scale / ft.attrs.size.y;
 		}
-
-		console.log(ft.attrs.scale);
 
 		// Limit range of rotation
 		if ( ft.opts.range.rotate ) {
