@@ -21,6 +21,16 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 		};
 	}
 
+	// Add Array.indexOf if not builtin
+	if ( !Array.prototype.hasOwnProperty('indexOf') ) {
+		Array.prototype.indexOf = function(obj, start) {
+			for ( var i = (start || 0), j = this.length; i < j; i++ ) {
+				if ( this[i] === obj ) { return i; }
+			}
+			return -1;
+		}
+	}
+		
 	var
 		paper = this;
 		bbox  = subject.getBBox(true)
@@ -619,13 +629,13 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 		ft.opts.snap = {
 			drag:   parseFloat(ft.opts.snap.drag),
 			rotate: parseFloat(ft.opts.snap.rotate),
-			scale:  parseFloat(ft.opts.snap.scale),
+			scale:  parseFloat(ft.opts.snap.scale)
 			};
 
 		ft.opts.snapDist = {
 			drag:   parseFloat(ft.opts.snapDist.drag),
 			rotate: parseFloat(ft.opts.snapDist.rotate),
-			scale:  parseFloat(ft.opts.snapDist.scale),
+			scale:  parseFloat(ft.opts.snapDist.scale)
 			};
 
 		ft.opts.size = parseInt(ft.opts.size);
@@ -845,7 +855,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 
 		dist = {
 			x: Math.min(dist.x, ft.opts.snap.scale - dist.x),
-			y: Math.min(dist.y, ft.opts.snap.scale - dist.y),
+			y: Math.min(dist.y, ft.opts.snap.scale - dist.y)
 			};
 
 		if ( dist.x < ft.opts.snapDist.scale ) {
