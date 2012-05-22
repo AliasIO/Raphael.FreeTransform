@@ -329,8 +329,8 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 		// Drag bbox corner handles
 		if ( ft.opts.draw.indexOf('bbox') >= 0 && ( ft.opts.scale.indexOf('bboxCorners') >= 0 || ft.opts.scale.indexOf('bboxSides') >= 0 ) ) {
 			ft.handles.bbox.map(function(handle) {
-				handle.element.drag(function(dx, dy, x, y) {
-					var rx, ry, mx, my, sx, sy;
+				handle.element.drag(function(dx, dy) {
+					var rx, ry, rdx, rdy, mx, my, sx, sy;
 
 					var
 						sin = ft.o.rotate.sin,
@@ -341,8 +341,6 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 					if ( ft.o.viewBoxRatio ) {
 						dx *= ft.o.viewBoxRatio.x;
 						dy *= ft.o.viewBoxRatio.y;
-						 x *= ft.o.viewBoxRatio.x;
-						 y *= ft.o.viewBoxRatio.y;
 					}
 
 					// First rotate dx, dy to element alignment
@@ -356,17 +354,17 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 					ry *= Math.abs(handle.y);
 
 					// And finally rotate back to canvas alignment
-					dx = rx *   cos + ry * sin;
-					dy = rx * - sin + ry * cos;
+					rdx = rx *   cos + ry * sin;
+					rdy = rx * - sin + ry * cos;
 
 					ft.attrs.translate = {
-						x: ft.o.translate.x + dx / 2,
-						y: ft.o.translate.y + dy / 2
+						x: ft.o.translate.x + rdx / 2,
+						y: ft.o.translate.y + rdy / 2
 						};
-
+					
 					// Mouse position, relative to element center after translation
-					mx = x - ft.attrs.center.x - ft.attrs.translate.x;
-					my = y - ft.attrs.center.y - ft.attrs.translate.y;
+					mx = ft.o.handlePos.cx + dx - ft.attrs.center.x - ft.attrs.translate.x;
+					my = ft.o.handlePos.cy + dy - ft.attrs.center.y - ft.attrs.translate.y;
 
 					// Position rotated to align with element
 					rx = mx * cos - my * sin;
@@ -387,10 +385,17 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 
 					asyncCallback([ 'scale' ]);
 				}, function() {
-					var rotate = ( ( 360 - ft.attrs.rotate ) % 360 ) / 180 * Math.PI;
+					var
+						rotate = ( ( 360 - ft.attrs.rotate ) % 360 ) / 180 * Math.PI,
+						handlePos = handle.element.attr(['x', 'y']);
 
 					// Offset values
 					ft.o = cloneObj(ft.attrs);
+
+					ft.o.handlePos = {
+						cx: handlePos.x + ft.opts.size,
+						cy: handlePos.y + ft.opts.size
+						};
 
 					// Pre-compute rotation sin & cos for efficiency
 					ft.o.rotate = {
@@ -622,6 +627,8 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			rotate: parseFloat(ft.opts.snapDist.rotate),
 			scale:  parseFloat(ft.opts.snapDist.scale),
 			};
+
+		ft.opts.size = parseInt(ft.opts.size);
 
 		ft.showHandles();
 
