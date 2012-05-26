@@ -30,7 +30,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			return -1;
 		}
 	}
-		
+
 	var
 		paper = this;
 		bbox  = subject.getBBox(true)
@@ -68,7 +68,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			range: { rotate: [ -180, 180 ], scale: [ -99999, 99999 ] },
 			rotate: true,
 			scale: true,
-			snap: { rotate: 0, scale: 0, drag: 20 },
+			snap: { rotate: 0, scale: 0, drag: 0 },
 			snapDist: { rotate: 0, scale: 0, drag: 7 },
 			size: 5
 			},
@@ -371,7 +371,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 						x: ft.o.translate.x + rdx / 2,
 						y: ft.o.translate.y + rdy / 2
 						};
-					
+
 					// Mouse position, relative to element center after translation
 					mx = ft.o.handlePos.cx + dx - ft.attrs.center.x - ft.attrs.translate.x;
 					my = ft.o.handlePos.cy + dy - ft.attrs.center.y - ft.attrs.translate.y;
