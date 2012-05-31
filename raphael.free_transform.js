@@ -605,7 +605,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 		if ( ft.opts.rotate  === true ) { ft.opts.rotate  = [ 'axisX', 'axisY' ]; }
 		if ( ft.opts.scale   === true ) { ft.opts.scale   = [ 'axisX', 'axisY', 'bboxCorners', 'bboxSides' ]; }
 
-		[ 'drag', 'draw', 'rotate', 'snap' ].map(function(option) {
+		[ 'drag', 'draw', 'rotate', 'scale', 'snap' ].map(function(option) {
 			if ( ft.opts[option] === false ) ft.opts[option] = [];
 		});
 
