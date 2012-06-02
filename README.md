@@ -59,92 +59,95 @@ Examples
 Options
 -------
 
-*Note: options have changed and this README has not yet been updated.*
+#### `animate: true|{ delay: num, easing: string }|false`
+
+Animate transformations. Works best in combination with `apply()` (see the functions section below).
+
+Default: `{ delay: 700, easing: 'linear' }`
 
 
-`attrs: { fill: hex, stroke: hex }`
+#### `attrs: { fill: hex, stroke: hex }`
 
-Sets the attributes of the handles (default: `{ fill: '#000', stroke: '#000' }`).
+Sets the attributes of the handles.
 
-`bboxScale: true|false|"rect"`
+Default: `{ fill: '#fff', stroke: '#000' }`
 
-Enables resizing by dragging handles at the corners of the object's bounding box (if `showBBox` is set to `true`) (default: `false`).
 
-`boundary: { x: int, y: int, width: int, height: int }|false`
+#### `boundary: { x: int, y: int, width: int, height: int }|false`
 
-Limits the drag area of the handles (default: dimensions of the paper).
+Limits the drag area of the handles.
 
-`distance: num`
+Default: dimensions of the paper
 
-Sets the distance of the handles from the center of the element (`num` times radius, default: `1.2`).
 
-`drag: true|false`
+#### `distance: num`
 
-Enables/disables dragging (default: `true`).
+Sets the distance of the handles from the center of the element (`num` times radius).
 
-`dragRotate: true|false`
+Default: `1.3`
 
-Rotate the subject by dragging (default: `false`).
 
-`dragScale: true|false`
+#### `drag: true|[ 'center', 'self' ]|false`
 
-Scale the subject by dragging (default: `false`).
+Enables/disables dragging.
 
-`dragSnap: num|false`
+Default: `[ 'center', 'self' ]`
 
-Set grid size for aligning elements (default: `false`).
 
-`dragSnapDist: num`
+#### `draw: [ 'bbox', 'circle' ]`
 
-Snap edges to grid when `num` pixels away from grid (default: value of `dragSnap`).
+Additional elements to draw.
 
-`keepRatio: true|false`
+Default: `false`
 
-Scale axes together or individually (default: `false`)
 
-`rotate: true|false`
+#### `keepRatio: true|false`
 
-Enables/disables rotating (default: `true`).
+Scale axes together or individually.
 
-`rotateRange: [ int, int ]`
+Default: `false`
 
-Limit the range of rotation (default: `[ -180, 180 ]`)
 
-`rotateSnap`: num|false
+#### `range: { rotate: [ num, num ], scale: [ num, num ] }`
 
-Rotate with n degree increments (default: `false`).
+Limit the range of transformation.
 
-`rotateSnapDist`: num
+Default: `{ rotate: [ -180, 180 ], scale: [ 0, 99999 ] }`
 
-Snap rotation when `num` degrees away from snap angle (default: value of `rotateSnap`).
 
-`scale: true|false`
+#### `rotate: true|[ 'axisX', 'axisY', 'self' ]|false`
 
-Enables/disables scaling (default: `true`).
+Enables/disables rotating.
 
-`scaleSnap`: num|false
+Default: `[ 'axisX', 'axisY' ]`
 
-Scale with n pixel increments (default: `false`).
 
-`scaleRange: [ int, int ]|false`
+#### `scale: true|[ 'axisX', 'axisY', 'bboxCorners', 'bboxSides' ]|false`
 
-Limit the minimum and maximum size of the object in pixels (default: `false`)
+Enables/disables scaling.
 
-`showBBox: true|false`
+Default: `[ 'axisX', 'axisY', 'bboxCorners', 'bboxSides' ]`
 
-Show the bounding box (default: `false`)
 
-`showAxisHandles: true|false`
+#### `snap: { rotate: num, scale: num, drag: num }`: 
 
-Show the two scale/rotate handles if `rotate` or `scale` are `true` (default: `true`).
+Snap transformations to num degrees (rotate) or pixels (scale, drag).
 
-`showCenterHandle: true|false`
+Default: `{ rotate: 0, scale: 0, drag: 0 }`
 
-Show the center drag handle if `drag` is also `true` (default: `true`).
 
-`size: num`
+#### `snapDist: { rotate: num, scale: num, drag: num }`
 
-Sets the radius of the handles in pixels (default: `5`).
+Snap distance in degrees (rotate) or pixels (scale, drag).
+
+Default: `{ rotate: 0, scale: 0, drag: 7 }`
+
+
+#### `size: num`
+
+Sets the radius of the handles in pixels.
+
+Default: `5`
 
 
 Callback
@@ -156,58 +159,31 @@ A callback function can be specified to capture changes and events.
 Functions
 ---------
 
-`apply()`
+#### `apply()`
 
-Programmatically apply transformations.
+Programmatically apply transformations (see the example above).
 
-`hideHandles()`
+
+#### `hideHandles()`
 
 Removes handles but keeps values set by the plugin in memory.
 
-`showHandles()`
+
+#### `showHandles()`
 
 Shows handles hidden with `hideHandles()`.
 
-`setOpts( object, function )`
+
+#### `setOpts( object, function )`
 
 Update options and callback.
 
-`unplug()`
+
+#### `unplug()`
 
 Removes handles and deletes all values set by the plugin.
 
-`updateHandles()`
+
+#### `updateHandles()`
 
 Updates handles to reflect the element's transformations.
-
-
-Animation
----------
-
-To use animation you have to set `animate` to `true`, and optionally configure the following options:
-
-`delay: [ int ]` (default: `700`)
-
-Duration of the animation in microseconds.
-
-`easing: [ string ]`: (default: `linear`)
-
-Easing.
-
-The previous example can be updated to:
-
-
-```javascript
-// Add freeTransform
-var ft = paper.freeTransform(rect, { animate: true }, function(ft, events) {
-	console.log(events); // animate start, animate end
-});
-
-// Hide freeTransform handles
-ft.hideHandles();
-
-// Apply transformations programmatically
-ft.attrs.rotate = 45;
-
-ft.apply();
-```

@@ -65,7 +65,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			drag: true,
 			draw: false,
 			keepRatio: false,
-			range: { rotate: [ -180, 180 ], scale: [ -99999, 99999 ] },
+			range: { rotate: [ -180, 180 ], scale: [ 0, 99999 ] },
 			rotate: true,
 			scale: true,
 			snap: { rotate: 0, scale: 0, drag: 0 },
@@ -605,7 +605,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 		if ( ft.opts.rotate  === true ) { ft.opts.rotate  = [ 'axisX', 'axisY' ]; }
 		if ( ft.opts.scale   === true ) { ft.opts.scale   = [ 'axisX', 'axisY', 'bboxCorners', 'bboxSides' ]; }
 
-		[ 'drag', 'draw', 'rotate', 'scale', 'snap' ].map(function(option) {
+		[ 'drag', 'draw', 'rotate', 'scale' ].map(function(option) {
 			if ( ft.opts[option] === false ) ft.opts[option] = [];
 		});
 
