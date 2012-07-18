@@ -32,7 +32,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 	}
 
 	var
-		paper = this;
+		paper = this,
 		bbox  = subject.getBBox(true)
 		;
 
