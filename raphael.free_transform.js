@@ -65,7 +65,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			drag: true,
 			draw: false,
 			keepRatio: false,
-			range: { rotate: [ -180, 180 ], scale: [ 0, 99999 ] },
+			range: { rotate: [ -180, 180 ], scale: [ -99999, 99999 ] },
 			rotate: true,
 			scale: true,
 			snap: { rotate: 0, scale: 0, drag: 0 },
@@ -385,8 +385,8 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 					sy = ry * 2 * handle.y / ft.o.size.y;
 
 					ft.attrs.scale = {
-						x: sx || ft.o.scale.x,
-						y: sy || ft.o.scale.y
+						x: sx || ft.attrs.scale.x,
+						y: sy || ft.attrs.scale.y
 						};
 
 					applyLimits();
