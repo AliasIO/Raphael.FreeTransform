@@ -10,7 +10,7 @@ Raphaël.FreeTransform
 Demo
 ----
 
-  http://elbertf.com/raphael/free_transform/
+  http://alias.io/raphael/free_transform/
 
 Examples
 --------
