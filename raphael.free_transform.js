@@ -714,17 +714,25 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 	};
 
 	// Store attributes for each item
-	( subject.type === 'set' ? subject.items : [ subject ] ).map(function(item) {
-		ft.items.push({
-			el: item,
-			attrs: {
-				rotate:    0,
-				scale:     { x: 1, y: 1 },
-				translate: { x: 0, y: 0 }
-				},
-			transformString: item.matrix.toTransformString()
-			});
-	});
+	function scan(subject) {
+		( subject.type === 'set' ? subject.items : [ subject ] ).map(function(item) {
+			if ( item.type === 'set' ) {
+				scan(item);
+			} else {
+				ft.items.push({
+					el: item,
+					attrs: {
+						rotate:    0,
+						scale:     { x: 1, y: 1 },
+						translate: { x: 0, y: 0 }
+						},
+					transformString: item.matrix.toTransformString()
+					});
+			}
+		});
+	}
+
+	scan(subject);
 
 	// Get the current transform values for each item
 	ft.items.map(function(item, i) {
