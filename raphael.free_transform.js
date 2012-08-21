@@ -737,7 +737,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 	// Get the current transform values for each item
 	ft.items.map(function(item, i) {
 		if ( item.el._ && item.el._.transform ) {
-			item.el._.transform.map(function(transform) {
+			Raphael.parseTransformString(item.el._.transform).map(function(transform) {
 				if ( transform[0] ) {
 					switch ( transform[0].toUpperCase() ) {
 						case 'T':
