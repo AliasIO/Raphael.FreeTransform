@@ -45,7 +45,8 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			center: { x: bbox.x + bbox.width  / 2, y: bbox.y + bbox.height / 2 },
 			rotate: 0,
 			scale: { x: 1, y: 1 },
-			translate: { x: 0, y: 0 }
+			translate: { x: 0, y: 0 },
+			ratio: 1
 			},
 		axes: null,
 		bbox: null,
@@ -138,10 +139,10 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 				ft.handles.bbox.map(function (handle, i) {
 					var cx, cy, j, k;
 
-					if ( i < 4 ) {	// corner handles
+					if ( handle.isCorner ) {
 						cx = corners[i].x;
 						cy = corners[i].y;
-					} else { // side handles
+					} else {
 						j  = i % 4;
 						k  = ( j + 1 ) % corners.length;
 						cx = ( corners[j].x + corners[k].x ) / 2;
@@ -150,8 +151,8 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 
 					handle.element.toFront()
 						.attr({
-							x: cx - ft.opts.size,
-							y: cy - ft.opts.size
+							x: cx - ( handle.isCorner ? ft.opts.size.bboxCorners : ft.opts.size.bboxSides ),
+							y: cy - ( handle.isCorner ? ft.opts.size.bboxCorners : ft.opts.size.bboxSides )
 							})
 						.transform('R' + ft.attrs.rotate)
 						;
@@ -204,7 +205,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 				;
 
 			ft.handles[axis].disc = paper
-				.circle(ft.attrs.center.x, ft.attrs.center.y, ft.opts.size)
+				.circle(ft.attrs.center.x, ft.attrs.center.y, ft.opts.size.axes)
 				.attr(ft.opts.attrs)
 				;
 		});
@@ -221,19 +222,24 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 
 			ft.handles.bbox = [];
 
-			var i;
+			var i, handle;
 
-			for ( i = ( ft.opts.scale.indexOf('bboxCorners') >= 0 ? 0 : 4 ); i < ( ft.opts.keepRatio || ft.opts.scale.indexOf('bboxSides') === -1 ? 4 : 8 ); i ++ ) {
-				ft.handles.bbox[i] = {};
+			for ( i = ( ft.opts.scale.indexOf('bboxCorners') >= 0 ? 0 : 4 ); i < ( ft.opts.scale.indexOf('bboxSides') === -1 ? 4 : 8 ); i ++ ) {
+				handle = {};
 
-				ft.handles.bbox[i].element = paper
-					.rect(ft.attrs.center.x, ft.attrs.center.y, ft.opts.size * 2, ft.opts.size * 2)
+				handle.axis     = i % 2 ? 'x' : 'y';
+				handle.isCorner = i < 4;
+
+				handle.element = paper
+					.rect(ft.attrs.center.x, ft.attrs.center.y, ft.opts.size[handle.isCorner ? 'bboxCorners' : 'bboxSides' ] * 2, ft.opts.size[handle.isCorner ? 'bboxCorners' : 'bboxSides' ] * 2)
 					.attr(ft.opts.attrs)
 					;
+
+				ft.handles.bbox[i] = handle;
 			}
 		}
 
-		if ( ft.opts.draw.indexOf('circle') >= 0 ) {
+		if ( ft.opts.draw.indexOf('circle') !== -1 ) {
 			ft.circle = paper
 				.circle(0, 0, 0)
 				.attr({
@@ -244,11 +250,11 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 				;
 		}
 
-		if ( ft.opts.drag.indexOf('center') >= 0 ) {
+		if ( ft.opts.drag.indexOf('center') !== -1 ) {
 			ft.handles.center = {};
 
 			ft.handles.center.disc = paper
-				.circle(ft.attrs.center.x, ft.attrs.center.y, ft.opts.size)
+				.circle(ft.attrs.center.x, ft.attrs.center.y, ft.opts.size.center)
 				.attr(ft.opts.attrs)
 				;
 		}
@@ -258,8 +264,8 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			if ( !ft.handles[axis] ) { return; }
 
 			var
-				rotate = ft.opts.rotate.indexOf('axis' + axis.toUpperCase()) >= 0,
-				scale  = ft.opts.scale .indexOf('axis' + axis.toUpperCase()) >= 0
+				rotate = ft.opts.rotate.indexOf('axis' + axis.toUpperCase()) !== -1,
+				scale  = ft.opts.scale .indexOf('axis' + axis.toUpperCase()) !== -1
 				;
 
 			ft.handles[axis].disc.drag(function(dx, dy) {
@@ -296,22 +302,19 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 				var radius = Math.sqrt(Math.pow(cx - ft.o.center.x - ft.o.translate.x, 2) + Math.pow(cy - ft.o.center.y - ft.o.translate.y, 2));
 
 				if ( scale ) {
-					if ( ft.opts.keepRatio ) {
-						ft.attrs.scale = {
-							x: radius / ( ft.o.size[axis] / 2 * ft.opts.distance ),
-							y: radius / ( ft.o.size[axis] / 2 * ft.opts.distance )
-							};
-					} else {
-						ft.attrs.scale = {
-							x: axis === 'x' ? radius / ( ft.o.size.x / 2 * ft.opts.distance ) : ft.o.scale.x,
-							y: axis === 'y' ? radius / ( ft.o.size.y / 2 * ft.opts.distance ) : ft.o.scale.y
-							};
-					}
+					ft.attrs.scale[axis] = radius / ( ft.o.size[axis] / 2 * ft.opts.distance );
 
 					if ( mirrored[axis] ) { ft.attrs.scale[axis] *= -1; }
 				}
 
 				applyLimits();
+
+				// Maintain aspect ratio
+				if ( ft.opts.keepRatio.indexOf('axis' + axis.toUpperCase()) !== -1 ) {
+					keepRatio(axis);
+				} else {
+					ft.attrs.ratio = ft.attrs.scale.x / ft.attrs.scale.y;
+				}
 
 				if ( ft.attrs.scale.x && ft.attrs.scale.y ) { ft.apply(); }
 
@@ -337,28 +340,28 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 		});
 
 		// Drag bbox corner handles
-		if ( ft.opts.draw.indexOf('bbox') >= 0 && ( ft.opts.scale.indexOf('bboxCorners') >= 0 || ft.opts.scale.indexOf('bboxSides') >= 0 ) ) {
+		if ( ft.opts.draw.indexOf('bbox') >= 0 && ( ft.opts.scale.indexOf('bboxCorners') !== -1 || ft.opts.scale.indexOf('bboxSides') !== -1 ) ) {
 			ft.handles.bbox.map(function(handle) {
 				handle.element.drag(function(dx, dy) {
-					var rx, ry, rdx, rdy, mx, my, sx, sy;
-
-					var
-						sin = ft.o.rotate.sin,
-						cos = ft.o.rotate.cos
-						;
-
 					// viewBox might be scaled
 					if ( ft.o.viewBoxRatio ) {
 						dx *= ft.o.viewBoxRatio.x;
 						dy *= ft.o.viewBoxRatio.y;
 					}
 
+					// Maintain aspect ratio
+					if ( handle.isCorner && ft.opts.keepRatio.indexOf('bboxCorners') !== -1 ) {
+						dx = handle.axis === 'x' ? -dy : dy;
+					}
+
+					var sin, cos, rx, ry, rdx, rdy, mx, my, sx, sy;
+
+					sin = ft.o.rotate.sin;
+					cos = ft.o.rotate.cos;
+
 					// First rotate dx, dy to element alignment
 					rx = dx * cos - dy * sin;
 					ry = dx * sin + dy * cos;
-
-					// Then clip to scale restriction
-					if ( ft.opts.keepRatio ) { rx = ry * ( handle.x * handle.y < 0 ? -1 : 1 ); }
 
 					rx *= Math.abs(handle.x);
 					ry *= Math.abs(handle.y);
@@ -391,6 +394,13 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 
 					applyLimits();
 
+					// Maintain aspect ratio
+					if ( !handle.isCorner && ft.opts.keepRatio.indexOf('bboxSides') !== -1 ) {
+						keepRatio(handle.axis);
+					}
+
+					ft.attrs.ratio = ft.attrs.scale.x / ft.attrs.scale.y;
+
 					ft.apply();
 
 					asyncCallback([ 'scale' ]);
@@ -403,8 +413,8 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 					ft.o = cloneObj(ft.attrs);
 
 					ft.o.handlePos = {
-						cx: handlePos.x + ft.opts.size,
-						cy: handlePos.y + ft.opts.size
+						cx: handlePos.x + ft.opts.size[handle.isCorner ? 'bboxCorners' : 'bboxSides'],
+						cy: handlePos.y + ft.opts.size[handle.isCorner ? 'bboxCorners' : 'bboxSides']
 						};
 
 					// Pre-compute rotation sin & cos for efficiency
@@ -600,16 +610,15 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			}
 		}
 
-		if ( ft.opts.animate === true ) { ft.opts.animate = { delay:   700, easing: 'linear' }; }
-		if ( ft.opts.drag    === true ) { ft.opts.drag    = [ 'center', 'self' ]; }
-		if ( ft.opts.rotate  === true ) { ft.opts.rotate  = [ 'axisX', 'axisY' ]; }
-		if ( ft.opts.scale   === true ) { ft.opts.scale   = [ 'axisX', 'axisY', 'bboxCorners', 'bboxSides' ]; }
+		if ( ft.opts.animate   === true ) { ft.opts.animate   = { delay:   700, easing: 'linear' }; }
+		if ( ft.opts.drag      === true ) { ft.opts.drag      = [ 'center', 'self' ]; }
+		if ( ft.opts.keepRatio === true ) { ft.opts.keepRatio = [ 'bboxCorners', 'bboxSides' ]; }
+		if ( ft.opts.rotate    === true ) { ft.opts.rotate    = [ 'axisX', 'axisY' ]; }
+		if ( ft.opts.scale     === true ) { ft.opts.scale     = [ 'axisX', 'axisY', 'bboxCorners', 'bboxSides' ]; }
 
-		[ 'drag', 'draw', 'rotate', 'scale' ].map(function(option) {
-			if ( ft.opts[option] === false ) ft.opts[option] = [];
+		[ 'drag', 'draw', 'keepRatio', 'rotate', 'scale' ].map(function(option) {
+			if ( ft.opts[option] === false ) { ft.opts[option] = []; }
 		});
-
-		if ( !ft.opts.scale ) { ft.opts.keepRatio = true; }
 
 		ft.axes = [];
 
@@ -617,7 +626,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 		if ( ft.opts.rotate.indexOf('axisY') >= 0 || ft.opts.scale.indexOf('axisY') >= 0 ) { ft.axes.push('y'); }
 
 		[ 'drag', 'rotate', 'scale' ].map(function(option) {
-			if ( !ft.opts.snapDist[option] ) ft.opts.snapDist[option] = ft.opts.snap[option];
+			if ( !ft.opts.snapDist[option] ) { ft.opts.snapDist[option] = ft.opts.snap[option]; }
 		});
 
 		// Force numbers
@@ -638,7 +647,18 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			scale:  parseFloat(ft.opts.snapDist.scale)
 			};
 
-		ft.opts.size = parseInt(ft.opts.size);
+		if ( typeof ft.opts.size === 'string' ) {
+			ft.opts.size = parseFloat(ft.opts.size);
+		}
+
+		if ( !isNaN(ft.opts.size) ) {
+			ft.opts.size = {
+				axes:        ft.opts.size,
+				bboxCorners: ft.opts.size,
+				bboxSides:   ft.opts.size,
+				center:      ft.opts.size
+				};
+		}
 
 		ft.showHandles();
 
@@ -736,7 +756,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 
 	// Get the current transform values for each item
 	ft.items.map(function(item, i) {
-		if ( item.el._ && item.el._.transform ) {
+		if ( item.el._ && item.el._.transform && typeof item.el._.transform === 'object' ) {
 			item.el._.transform.map(function(transform) {
 				if ( transform[0] ) {
 					switch ( transform[0].toUpperCase() ) {
@@ -844,9 +864,6 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			if ( ft.attrs.center.y + ft.attrs.translate.y > b.y + b.height ) { ft.attrs.translate.y += b.y + b.height - ( ft.attrs.center.y + ft.attrs.translate.y ); }
 		}
 
-		// Maintain aspect ratio when scaling
-		if ( ft.opts.keepRatio ) { ft.attrs.scale.x = ft.attrs.scale.y; }
-
 		// Snap to angle, rotate with increments
 		dist = Math.abs(ft.attrs.rotate % ft.opts.snap.rotate);
 		dist = Math.min(dist, ft.opts.snap.rotate - dist);
@@ -901,6 +918,14 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			if ( ft.attrs.scale.y * ft.attrs.size.y > ft.opts.range.scale[1] ) {
 				ft.attrs.scale.y = ft.opts.range.scale[1] / ft.attrs.size.y;
 			}
+		}
+	}
+
+	function keepRatio(axis) {
+		if ( axis === 'x' ) {
+			ft.attrs.scale.y = ft.attrs.scale.x / ft.attrs.ratio;
+		} else {
+			ft.attrs.scale.x = ft.attrs.scale.y * ft.attrs.ratio;
 		}
 	}
 

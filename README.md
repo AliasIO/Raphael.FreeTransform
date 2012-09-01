@@ -59,7 +59,7 @@ Examples
 Options
 -------
 
-#### `animate: true|{ delay: num, easing: string }|false`
+#### `animate: true | { delay: num, easing: string } | false`
 
 Animate transformations. Works best in combination with `apply()` (see the functions section below).
 
@@ -73,7 +73,7 @@ Sets the attributes of the handles.
 Default: `{ fill: '#fff', stroke: '#000' }`
 
 
-#### `boundary: { x: int, y: int, width: int, height: int }|false`
+#### `boundary: { x: int, y: int, width: int, height: int } | false`
 
 Limits the drag area of the handles.
 
@@ -87,7 +87,7 @@ Sets the distance of the handles from the center of the element (`num` times rad
 Default: `1.3`
 
 
-#### `drag: true|[ 'center', 'self' ]|false`
+#### `drag: true | [ 'center', 'self' ] | false`
 
 Enables/disables dragging.
 
@@ -101,7 +101,7 @@ Additional elements to draw.
 Default: `false`
 
 
-#### `keepRatio: true|false`
+#### `keepRatio: true | [ 'axisX', 'axisY', 'bboxCorners', 'bboxSides' ] | false`
 
 Scale axes together or individually.
 
@@ -115,14 +115,14 @@ Limit the range of transformation.
 Default: `{ rotate: [ -180, 180 ], scale: [ 0, 99999 ] }`
 
 
-#### `rotate: true|[ 'axisX', 'axisY', 'self' ]|false`
+#### `rotate: true | [ 'axisX', 'axisY', 'self' ]|false`
 
 Enables/disables rotating.
 
 Default: `[ 'axisX', 'axisY' ]`
 
 
-#### `scale: true|[ 'axisX', 'axisY', 'bboxCorners', 'bboxSides' ]|false`
+#### `scale: true | [ 'axisX', 'axisY', 'bboxCorners', 'bboxSides' ] | false`
 
 Enables/disables scaling.
 
@@ -143,7 +143,7 @@ Snap distance in degrees (rotate) or pixels (scale, drag).
 Default: `{ rotate: 0, scale: 0, drag: 7 }`
 
 
-#### `size: num`
+#### `size: num | { axes: num, bboxCorners: num, bboxSides: num, center: num }`
 
 Sets the radius of the handles in pixels.
 
