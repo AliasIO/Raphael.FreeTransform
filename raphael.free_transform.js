@@ -924,9 +924,6 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 	}
 
 	function keepRatio(axis) {
-		// Preserve mirrored state
-		//var sign = ( ft.attrs.scale.x < 0 && ft.attrs.scale.y > 0 ) || ( ft.attrs.scale.x > 0 && ft.attrs.scale.y < 0 ) ? -1 : 1;
-
 		if ( axis === 'x' ) {
 			ft.attrs.scale.y = ft.attrs.scale.x / ft.attrs.ratio;
 		} else {
