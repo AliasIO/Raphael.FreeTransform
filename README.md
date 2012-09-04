@@ -187,3 +187,11 @@ Removes handles and deletes all values set by the plugin.
 #### `updateHandles()`
 
 Updates handles to reflect the element's transformations.
+
+
+Raphaël.FreeTransform and Raphaël.JSON
+--------------------------------------
+
+Instructions on how to use Raphaël.FreeTransform ain combination with
+Raphaël.JSON can be found 
+[here](https://github.com/ElbertF/Raphael.JSON#raphaëljson-and-raphaëlfreetransform).
