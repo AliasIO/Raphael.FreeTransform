@@ -351,7 +351,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 
 					// Maintain aspect ratio
 					if ( handle.isCorner && ft.opts.keepRatio.indexOf('bboxCorners') !== -1 ) {
-						dx = handle.axis === 'x' ? -dy : dy;
+						dx = ( handle.axis === 'x' ? -dy : dy ) * ( ( ft.attrs.size.x * ft.attrs.scale.x ) / ( ft.attrs.size.y * ft.attrs.scale.y ) );
 					}
 
 					var sin, cos, rx, ry, rdx, rdy, mx, my, sx, sy;
