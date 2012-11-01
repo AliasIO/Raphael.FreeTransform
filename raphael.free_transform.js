@@ -184,6 +184,8 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 				Math.sqrt(Math.pow(corners[2].x - corners[1].x, 2) + Math.pow(corners[2].y - corners[1].y, 2))
 				) / 2;
 		}
+
+		return ft;
 	};
 
 	/**
@@ -546,6 +548,8 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 		}
 
 		ft.updateHandles();
+
+		return ft;
 	};
 
 	/**
@@ -590,6 +594,8 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 
 			ft.circle = null;
 		}
+
+		return ft;
 	};
 
 	// Override defaults
@@ -663,6 +669,8 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 		ft.showHandles();
 
 		asyncCallback([ 'init' ]);
+
+		return ft;
 	};
 
 	ft.setOpts(options, callback);
@@ -717,6 +725,8 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 				ft.updateHandles();
 			}
 		});
+
+		return ft;
 	};
 
 	/**
