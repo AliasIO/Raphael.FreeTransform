@@ -351,15 +351,15 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 						dy *= ft.o.viewBoxRatio.y;
 					}
 
-					// Maintain aspect ratio
-					if ( handle.isCorner && ft.opts.keepRatio.indexOf('bboxCorners') !== -1 ) {
-						dx = ( handle.axis === 'x' ? -dy : dy ) * ( ( ft.attrs.size.x * ft.attrs.scale.x ) / ( ft.attrs.size.y * ft.attrs.scale.y ) );
-					}
-
 					var sin, cos, rx, ry, rdx, rdy, mx, my, sx, sy;
 
 					sin = ft.o.rotate.sin;
 					cos = ft.o.rotate.cos;
+
+					// Maintain aspect ratio
+					if ( handle.isCorner && ft.opts.keepRatio.indexOf('bboxCorners') !== -1 ) {
+						dx = ( handle.axis === 'x' ? -dy : dy ) * ( ( ( cos + sin ) < 0 || ( cos - sin ) < 0 ) ? -1 : 1 ) * ( ( ft.attrs.size.x * ft.attrs.scale.x ) / ( ft.attrs.size.y * ft.attrs.scale.y ) );
+					}
 
 					// First rotate dx, dy to element alignment
 					rx = dx * cos - dy * sin;
@@ -397,8 +397,19 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 					applyLimits();
 
 					// Maintain aspect ratio
-					if ( !handle.isCorner && ft.opts.keepRatio.indexOf('bboxSides') !== -1 ) {
+					if ( ft.opts.keepRatio.indexOf('bboxSides') !== -1 ) {
 						keepRatio(handle.axis);
+
+						var trans = {
+							x: ( ft.attrs.scale.x - ft.o.scale.x ) * ft.o.size.x * handle.x,
+							y: ( ft.attrs.scale.y - ft.o.scale.y ) * ft.o.size.y * handle.y
+							};
+
+						rx =   trans.x * cos + trans.y * sin;
+						ry = - trans.x * sin + trans.y * cos;
+
+						ft.attrs.translate.x = ft.o.translate.x + rx / 2;
+						ft.attrs.translate.y = ft.o.translate.y + ry / 2;
 					}
 
 					ft.attrs.ratio = ft.attrs.scale.x / ft.attrs.scale.y;
