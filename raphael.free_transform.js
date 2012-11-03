@@ -397,7 +397,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 					applyLimits();
 
 					// Maintain aspect ratio
-					if ( ft.opts.keepRatio.indexOf('bboxSides') !== -1 ) {
+					if ( ( handle.isCorner ? ft.opts.keepRatio.indexOf('bboxCorners') : ft.opts.keepRatio.indexOf('bboxSides') ) !== -1 ) {
 						keepRatio(handle.axis);
 
 						var trans = {
