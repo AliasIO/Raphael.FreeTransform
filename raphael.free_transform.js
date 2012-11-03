@@ -341,7 +341,7 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 			});
 		});
 
-		// Drag bbox corner handles
+		// Drag bbox handles
 		if ( ft.opts.draw.indexOf('bbox') >= 0 && ( ft.opts.scale.indexOf('bboxCorners') !== -1 || ft.opts.scale.indexOf('bboxSides') !== -1 ) ) {
 			ft.handles.bbox.map(function(handle) {
 				handle.element.drag(function(dx, dy) {
@@ -351,7 +351,10 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 						dy *= ft.o.viewBoxRatio.y;
 					}
 
-					var sin, cos, rx, ry, rdx, rdy, mx, my, sx, sy;
+					var
+						sin, cos, rx, ry, rdx, rdy, mx, my, sx, sy,
+						previous = cloneObj(ft.attrs)
+						;
 
 					sin = ft.o.rotate.sin;
 					cos = ft.o.rotate.cos;
@@ -393,6 +396,9 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 						x: sx || ft.attrs.scale.x,
 						y: sy || ft.attrs.scale.y
 						};
+
+					// Check boundaries
+					if ( !isWithinBoundaries().x || !isWithinBoundaries().y ) { ft.attrs = previous; }
 
 					applyLimits();
 
@@ -942,6 +948,13 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 				ft.attrs.scale.y = ft.opts.range.scale[1] / ft.attrs.size.y;
 			}
 		}
+	}
+
+	function isWithinBoundaries() {
+		return {
+			x: ft.attrs.scale.x * ft.attrs.size.x >= ft.opts.range.scale[0] && ft.attrs.scale.x * ft.attrs.size.x <= ft.opts.range.scale[1],
+			y: ft.attrs.scale.y * ft.attrs.size.y >= ft.opts.range.scale[0] && ft.attrs.scale.y * ft.attrs.size.y <= ft.opts.range.scale[1]
+			};
 	}
 
 	function keepRatio(axis) {
