@@ -420,9 +420,9 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 
 					ft.attrs.ratio = ft.attrs.scale.x / ft.attrs.scale.y;
 
-					ft.apply();
-
 					asyncCallback([ 'scale' ]);
+
+					ft.apply();
 				}, function() {
 					var
 						rotate = ( ( 360 - ft.attrs.rotate ) % 360 ) / 180 * Math.PI,
@@ -480,9 +480,9 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 
 				applyLimits(bbox);
 
-				ft.apply();
-
 				asyncCallback([ 'drag' ]);
+
+				ft.apply();
 			}, function() {
 				// Offset values
 				ft.o = cloneObj(ft.attrs);
