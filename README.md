@@ -164,9 +164,12 @@ Functions
 Programmatically apply transformations (see the example above).
 
 
-#### `hideHandles()`
+#### `hideHandles( opts )`
 
-Removes handles but keeps values set by the plugin in memory.
+Removes handles but keeps values set by the plugin in memory. By
+default removes all drag events from the elements. If you'd like to
+keep then while the handles are hidden, pass ``{undrag: false}`` to
+hideHandles().
 
 
 #### `showHandles()`
