@@ -580,10 +580,21 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 	/**
 	 * Remove handles
 	 */
-	ft.hideHandles = function() {
-		ft.items.map(function(item) {
-			item.el.undrag();
-		});
+
+	/*
+
+	*/
+	ft.hideHandles = function(opts) {
+		var opts = opts || {}
+		if ( typeof opts.undrag === 'undefined' ) {
+			opts.undrag = true;
+		}
+
+		if ( opts.undrag ) {
+			ft.items.map(function(item) {
+				item.el.undrag();
+			});
+		}
 
 		if ( ft.handles.center ) {
 			ft.handles.center.disc.remove();
