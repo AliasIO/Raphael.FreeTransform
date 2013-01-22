@@ -359,19 +359,6 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 					sin = ft.o.rotate.sin;
 					cos = ft.o.rotate.cos;
 
-					// Maintain aspect ratio
-					if ( handle.isCorner && ft.opts.keepRatio.indexOf('bboxCorners') !== -1 ) {
-						var ratio = ( ft.attrs.size.x * ft.attrs.scale.x ) / ( ft.attrs.size.y * ft.attrs.scale.y );
-						var tdy = ( handle.axis === 'x' ? -dx : dx ) * ( ( ( cos + sin ) < 0 || ( cos - sin ) < 0 ) ? -1 : 1 ) * ( 1 / ratio );
-						var tdx = ( handle.axis === 'x' ? -dy : dy ) * ( ( ( cos + sin ) < 0 || ( cos - sin ) < 0 ) ? -1 : 1 ) * ratio;
-
-						if ( tdx > tdy * ratio ) {
-							dx = tdx;
-						} else {
-							dy = tdy;
-						}
-					}
-
 					// First rotate dx, dy to element alignment
 					rx = dx * cos - dy * sin;
 					ry = dx * sin + dy * cos;
@@ -395,6 +382,19 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 					// Position rotated to align with element
 					rx = mx * cos - my * sin;
 					ry = mx * sin + my * cos;
+
+					// Maintain aspect ratio
+					if ( handle.isCorner && ft.opts.keepRatio.indexOf('bboxCorners') !== -1 ) {
+						var ratio = ( ft.attrs.size.x * ft.attrs.scale.x ) / ( ft.attrs.size.y * ft.attrs.scale.y );
+						var tdy = rx * handle.x * ( 1 / ratio );
+						var tdx = ry * handle.y * ratio;
+
+						if ( tdx > tdy * ratio ) {
+							rx = tdx * handle.x;
+						} else {
+							ry = tdy * handle.y;
+						}
+					}
 
 					// Scale element so that handle is at mouse position
 					sx = rx * 2 * handle.x / ft.o.size.x;
