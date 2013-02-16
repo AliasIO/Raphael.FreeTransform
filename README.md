@@ -195,6 +195,6 @@ Updates handles to reflect the element's transformations.
 Raphaël.FreeTransform and Raphaël.JSON
 --------------------------------------
 
-Instructions on how to use Raphaël.FreeTransform ain combination with
+Instructions on how to use Raphaël.FreeTransform in combination with
 Raphaël.JSON can be found 
 [here](https://github.com/ElbertF/Raphael.JSON#raphaëljson-and-raphaëlfreetransform).
