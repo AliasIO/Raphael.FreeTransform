@@ -636,7 +636,9 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 
 	// Override defaults
 	ft.setOpts = function(options, callback) {
-		ft.callback = typeof callback === 'function' ? callback : false;
+		if ( typeof callback !== 'undefined' ) {
+			ft.callback = typeof callback === 'function' ? callback : false;
+		}
 
 		var i, j;
 
