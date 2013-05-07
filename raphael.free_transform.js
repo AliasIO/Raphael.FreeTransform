@@ -3,7 +3,19 @@
  * http://www.opensource.org/licenses/mit-license.php
  *
  */
-
+(function (root, factory) {
+	if (typeof define === "function" && define.amd) {
+		// AMD. Register as an anonymous module.
+		define(["raphael"], function(Raphael) {
+			// Use global variables if the locals are undefined.
+			return factory(Raphael || root.Raphael);
+		});
+	} else {
+		// RequireJS isn't being used. Assume underscore and backbone are loaded in <script> tags
+		factory(Raphael);
+	}
+}(this, function(Raphael) {
+	
 Raphael.fn.freeTransform = function(subject, options, callback) {
 	// Enable method chaining
 	if ( subject.freeTransform ) { return subject.freeTransform; }
@@ -1020,3 +1032,4 @@ Raphael.fn.freeTransform = function(subject, options, callback) {
 	// Enable method chaining
 	return ft;
 };
+}));
