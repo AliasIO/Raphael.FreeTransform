@@ -72,7 +72,7 @@
 			opts: {
 				animate: false,
 				attrs: { fill: '#fff', stroke: '#000' },
-				boundary: { x: paper._left || 0, y: paper._top || 0, width: paper.width, height: paper.height },
+				boundary: { x: paper._left || 0, y: paper._top || 0, width: paper.canvas.clientWidth, height: paper.canvas.clientHeight },
 				distance: 1.3,
 				drag: true,
 				draw: false,
