@@ -47,6 +47,14 @@
 			bbox  = subject.getBBox(true)
 			;
 
+		var paperWidth = function () {
+			return paper.canvas.clientWidth || parseInt(paper.width * 1, 10) || Infinity;
+		};
+
+		var paperHeight = function () {
+			return paper.canvas.clientHeight || parseInt(paper.height * 1, 10) || Infinity;
+		};
+
 		var ft = subject.freeTransform = {
 			// Keep track of transformations
 			attrs: {
@@ -72,7 +80,7 @@
 			opts: {
 				animate: false,
 				attrs: { fill: '#fff', stroke: '#000' },
-				boundary: { x: paper._left || 0, y: paper._top || 0, width: paper.canvas.clientWidth, height: paper.canvas.clientHeight },
+				boundary: { x: paper._left || 0, y: paper._top || 0, width: paperWidth(), height: paperHeight() },
 				distance: 1.3,
 				drag: true,
 				draw: false,
@@ -338,8 +346,8 @@
 
 					if ( paper._viewBox ) {
 						ft.o.viewBoxRatio = {
-							x: paper._viewBox[2] / paper.width,
-							y: paper._viewBox[3] / paper.height
+							x: paper._viewBox[2] / paperWidth(),
+							y: paper._viewBox[3] / paperHeight()
 							};
 					}
 
@@ -463,8 +471,8 @@
 
 						if ( paper._viewBox ) {
 							ft.o.viewBoxRatio = {
-								x: paper._viewBox[2] / paper.width,
-								y: paper._viewBox[3] / paper.height
+								x: paper._viewBox[2] / paperWidth(),
+								y: paper._viewBox[3] / paperHeight()
 							};
 						}
 
@@ -511,8 +519,8 @@
 					// viewBox might be scaled
 					if ( paper._viewBox ) {
 						ft.o.viewBoxRatio = {
-							x: paper._viewBox[2] / paper.width,
-							y: paper._viewBox[3] / paper.height
+							x: paper._viewBox[2] / paperWidth(),
+							y: paper._viewBox[3] / paperHeight()
 							};
 					}
 
@@ -572,8 +580,8 @@
 					// viewBox might be scaled
 					if ( paper._viewBox ) {
 						ft.o.viewBoxRatio = {
-							x: paper._viewBox[2] / paper.width,
-							y: paper._viewBox[3] / paper.height
+							x: paper._viewBox[2] / paperWidth(),
+							y: paper._viewBox[3] / paperHeight()
 							};
 					}
 
