@@ -49,7 +49,7 @@
 
 		var percentRegExp = /^([0-9]+)%$/;
 
-		var paperWidth = function () {
+		var getPaperWidth = function () {
 			var m = percentRegExp.exec(paper.width);
 			if (m) {
 				return paper.canvas.clientWidth || paper.canvas.parentNode.clientWidth * parseInt(m[1], 10) * 0.01;
@@ -58,7 +58,7 @@
 			}
 		};
 
-		var paperHeight = function () {
+		var getPaperHeight = function () {
 			var m = percentRegExp.exec(paper.height);
 			if (m) {
 				return paper.canvas.clientHeight || paper.canvas.parentNode.clientHeight * parseInt(m[1], 10) * 0.01;
@@ -92,7 +92,7 @@
 			opts: {
 				animate: false,
 				attrs: { fill: '#fff', stroke: '#000' },
-				boundary: { x: paper._left || 0, y: paper._top || 0, width: paperWidth(), height: paperHeight() },
+				boundary: { x: paper._left || 0, y: paper._top || 0, width: getPaperWidth(), height: getPaperHeight() },
 				distance: 1.3,
 				drag: true,
 				draw: false,
@@ -358,8 +358,8 @@
 
 					if ( paper._viewBox ) {
 						ft.o.viewBoxRatio = {
-							x: paper._viewBox[2] / paperWidth(),
-							y: paper._viewBox[3] / paperHeight()
+							x: paper._viewBox[2] / getPaperWidth(),
+							y: paper._viewBox[3] / getPaperHeight()
 							};
 					}
 
@@ -483,8 +483,8 @@
 
 						if ( paper._viewBox ) {
 							ft.o.viewBoxRatio = {
-								x: paper._viewBox[2] / paperWidth(),
-								y: paper._viewBox[3] / paperHeight()
+								x: paper._viewBox[2] / getPaperWidth(),
+								y: paper._viewBox[3] / getPaperHeight()
 							};
 						}
 
@@ -531,8 +531,8 @@
 					// viewBox might be scaled
 					if ( paper._viewBox ) {
 						ft.o.viewBoxRatio = {
-							x: paper._viewBox[2] / paperWidth(),
-							y: paper._viewBox[3] / paperHeight()
+							x: paper._viewBox[2] / getPaperWidth(),
+							y: paper._viewBox[3] / getPaperHeight()
 							};
 					}
 
@@ -592,8 +592,8 @@
 					// viewBox might be scaled
 					if ( paper._viewBox ) {
 						ft.o.viewBoxRatio = {
-							x: paper._viewBox[2] / paperWidth(),
-							y: paper._viewBox[3] / paperHeight()
+							x: paper._viewBox[2] / getPaperWidth(),
+							y: paper._viewBox[3] / getPaperHeight()
 							};
 					}
 
