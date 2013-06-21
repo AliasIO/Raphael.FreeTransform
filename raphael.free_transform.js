@@ -47,6 +47,26 @@
 			bbox  = subject.getBBox(true)
 			;
 
+		var percentRegExp = /^([0-9]+)%$/;
+
+		var getPaperWidth = function () {
+			var m = percentRegExp.exec(paper.width);
+			if (m) {
+				return paper.canvas.clientWidth || paper.canvas.parentNode.clientWidth * parseInt(m[1], 10) * 0.01;
+			} else {
+				return paper.canvas.clientWidth || paper.width;
+			}
+		};
+
+		var getPaperHeight = function () {
+			var m = percentRegExp.exec(paper.height);
+			if (m) {
+				return paper.canvas.clientHeight || paper.canvas.parentNode.clientHeight * parseInt(m[1], 10) * 0.01;
+			} else {
+				return paper.canvas.clientHeight || paper.height;
+			}
+		};
+
 		var ft = subject.freeTransform = {
 			// Keep track of transformations
 			attrs: {
@@ -72,7 +92,10 @@
 			opts: {
 				animate: false,
 				attrs: { fill: '#fff', stroke: '#000' },
-				boundary: { x: paper._left || 0, y: paper._top || 0, width: paper.canvas.clientWidth, height: paper.canvas.clientHeight },
+				boundary: { x: paper._left || 0, y: paper._top || 0, width: getPaperWidth(), height: getPaperHeight(), update: function () {
+					this.width = getPaperWidth();
+					this.height = getPaperHeight();
+				}},
 				distance: 1.3,
 				drag: true,
 				draw: false,
@@ -333,13 +356,18 @@
 
 					asyncCallback([ rotate ? 'rotate' : null, scale ? 'scale' : null ]);
 				}, function() {
+					// Updating the boundary because it may be changed
+					if ( ft.opts.boundary ) {
+						ft.opts.boundary.update();
+					}
+
 					// Offset values
 					ft.o = cloneObj(ft.attrs);
 
 					if ( paper._viewBox ) {
 						ft.o.viewBoxRatio = {
-							x: paper._viewBox[2] / paper.width,
-							y: paper._viewBox[3] / paper.height
+							x: paper._viewBox[2] / getPaperWidth(),
+							y: paper._viewBox[3] / getPaperHeight()
 							};
 					}
 
@@ -447,6 +475,11 @@
 							rotate = ( ( 360 - ft.attrs.rotate ) % 360 ) / 180 * Math.PI,
 							handlePos = handle.element.attr(['x', 'y']);
 
+						// Updating the boundary because it may be changed
+						if ( ft.opts.boundary ) {
+							ft.opts.boundary.update();
+						}
+
 						// Offset values
 						ft.o = cloneObj(ft.attrs);
 
@@ -463,8 +496,8 @@
 
 						if ( paper._viewBox ) {
 							ft.o.viewBoxRatio = {
-								x: paper._viewBox[2] / paper.width,
-								y: paper._viewBox[3] / paper.height
+								x: paper._viewBox[2] / getPaperWidth(),
+								y: paper._viewBox[3] / getPaperHeight()
 							};
 						}
 
@@ -503,6 +536,11 @@
 
 					ft.apply();
 				}, function() {
+					// Updating the boundary because it may be changed
+					if ( ft.opts.boundary ) {
+						ft.opts.boundary.update();
+					}
+
 					// Offset values
 					ft.o = cloneObj(ft.attrs);
 
@@ -511,8 +549,8 @@
 					// viewBox might be scaled
 					if ( paper._viewBox ) {
 						ft.o.viewBoxRatio = {
-							x: paper._viewBox[2] / paper.width,
-							y: paper._viewBox[3] / paper.height
+							x: paper._viewBox[2] / getPaperWidth(),
+							y: paper._viewBox[3] / getPaperHeight()
 							};
 					}
 
@@ -562,6 +600,11 @@
 
 					asyncCallback([ rotate ? 'rotate' : null, scale ? 'scale' : null ]);
 				}, function(x, y) {
+					// Updating the boundary because it may be changed
+					if ( ft.opts.boundary ) {
+						ft.opts.boundary.update();
+					}
+
 					// Offset values
 					ft.o = cloneObj(ft.attrs);
 
@@ -572,8 +615,8 @@
 					// viewBox might be scaled
 					if ( paper._viewBox ) {
 						ft.o.viewBoxRatio = {
-							x: paper._viewBox[2] / paper.width,
-							y: paper._viewBox[3] / paper.height
+							x: paper._viewBox[2] / getPaperWidth(),
+							y: paper._viewBox[3] / getPaperHeight()
 							};
 					}
 
