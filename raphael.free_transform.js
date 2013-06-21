@@ -92,7 +92,10 @@
 			opts: {
 				animate: false,
 				attrs: { fill: '#fff', stroke: '#000' },
-				boundary: { x: paper._left || 0, y: paper._top || 0, width: getPaperWidth(), height: getPaperHeight() },
+				boundary: { x: paper._left || 0, y: paper._top || 0, width: getPaperWidth(), height: getPaperHeight(), update: function () {
+					this.width = getPaperWidth();
+					this.height = getPaperHeight();
+				}},
 				distance: 1.3,
 				drag: true,
 				draw: false,
@@ -353,6 +356,11 @@
 
 					asyncCallback([ rotate ? 'rotate' : null, scale ? 'scale' : null ]);
 				}, function() {
+					// Updating the boundary because it may be changed
+					if ( ft.opts.boundary ) {
+						ft.opts.boundary.update();
+					}
+
 					// Offset values
 					ft.o = cloneObj(ft.attrs);
 
@@ -467,6 +475,11 @@
 							rotate = ( ( 360 - ft.attrs.rotate ) % 360 ) / 180 * Math.PI,
 							handlePos = handle.element.attr(['x', 'y']);
 
+						// Updating the boundary because it may be changed
+						if ( ft.opts.boundary ) {
+							ft.opts.boundary.update();
+						}
+
 						// Offset values
 						ft.o = cloneObj(ft.attrs);
 
@@ -523,6 +536,11 @@
 
 					ft.apply();
 				}, function() {
+					// Updating the boundary because it may be changed
+					if ( ft.opts.boundary ) {
+						ft.opts.boundary.update();
+					}
+
 					// Offset values
 					ft.o = cloneObj(ft.attrs);
 
@@ -582,6 +600,11 @@
 
 					asyncCallback([ rotate ? 'rotate' : null, scale ? 'scale' : null ]);
 				}, function(x, y) {
+					// Updating the boundary because it may be changed
+					if ( ft.opts.boundary ) {
+						ft.opts.boundary.update();
+					}
+
 					// Offset values
 					ft.o = cloneObj(ft.attrs);
 
