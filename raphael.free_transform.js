@@ -47,12 +47,24 @@
 			bbox  = subject.getBBox(true)
 			;
 
+		var percentRegExp = /^([0-9]+)%$/;
+
 		var paperWidth = function () {
-			return paper.canvas.clientWidth || parseInt(paper.width * 1, 10) || Infinity;
+			var m = percentRegExp.exec(paper.width);
+			if (m) {
+				return paper.canvas.clientWidth || paper.canvas.parentNode.clientWidth * parseInt(m[1], 10) * 0.01;
+			} else {
+				return paper.canvas.clientWidth || paper.width;
+			}
 		};
 
 		var paperHeight = function () {
-			return paper.canvas.clientHeight || parseInt(paper.height * 1, 10) || Infinity;
+			var m = percentRegExp.exec(paper.height);
+			if (m) {
+				return paper.canvas.clientHeight || paper.canvas.parentNode.clientHeight * parseInt(m[1], 10) * 0.01;
+			} else {
+				return paper.canvas.clientHeight || paper.height;
+			}
 		};
 
 		var ft = subject.freeTransform = {
