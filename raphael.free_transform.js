@@ -25,7 +25,9 @@
 				var i, mapped = [];
 
 				for ( i in this ) {
-					if ( this.hasOwnProperty(i) ) { mapped[i] = callback.call(arg, this[i], i, this); }
+					if ( this.hasOwnProperty(i) ) {
+						mapped[i] = callback.call(arg, this[i], i, this);
+					}
 				}
 
 				return mapped;
@@ -35,11 +37,14 @@
 		// Add Array.indexOf if not builtin
 		if ( !Array.prototype.hasOwnProperty('indexOf') ) {
 			Array.prototype.indexOf = function(obj, start) {
-				for ( var i = (start || 0), j = this.length; i < j; i++ ) {
-					if ( this[i] === obj ) { return i; }
+				for ( var i = ( start || 0 ), j = this.length; i < j; i++ ) {
+					if ( this[i] === obj ) {
+						return i;
+					}
 				}
+
 				return -1;
-			}
+			};
 		}
 
 		var
@@ -47,38 +52,18 @@
 			bbox  = subject.getBBox(true)
 			;
 
-		var percentRegExp = /^([0-9]+)%$/;
-
-		var getPaperWidth = function () {
-			var m = percentRegExp.exec(paper.width);
-			if (m) {
-				return paper.canvas.clientWidth || paper.canvas.parentNode.clientWidth * parseInt(m[1], 10) * 0.01;
-			} else {
-				return paper.canvas.clientWidth || paper.width;
-			}
-		};
-
-		var getPaperHeight = function () {
-			var m = percentRegExp.exec(paper.height);
-			if (m) {
-				return paper.canvas.clientHeight || paper.canvas.parentNode.clientHeight * parseInt(m[1], 10) * 0.01;
-			} else {
-				return paper.canvas.clientHeight || paper.height;
-			}
-		};
-
 		var ft = subject.freeTransform = {
 			// Keep track of transformations
 			attrs: {
 				x: bbox.x,
 				y: bbox.y,
 				size: { x: bbox.width, y: bbox.height },
-				center: { x: bbox.x + bbox.width  / 2, y: bbox.y + bbox.height / 2 },
+				center: { x: bbox.x + bbox.width / 2, y: bbox.y + bbox.height / 2 },
 				rotate: 0,
 				scale: { x: 1, y: 1 },
 				translate: { x: 0, y: 0 },
 				ratio: 1
-				},
+			},
 			axes: null,
 			bbox: null,
 			callback: null,
@@ -88,14 +73,11 @@
 				rotate: 0,
 				scale: { x: 1, y: 1 },
 				translate: { x: 0, y: 0 }
-				},
+			},
 			opts: {
 				animate: false,
 				attrs: { fill: '#fff', stroke: '#000' },
-				boundary: { x: paper._left || 0, y: paper._top || 0, width: getPaperWidth(), height: getPaperHeight(), update: function () {
-					this.width = getPaperWidth();
-					this.height = getPaperHeight();
-				}},
+				boundary: { x: paper._left || 0, y: paper._top || 0, width: null, height: null },
 				distance: 1.3,
 				drag: true,
 				draw: false,
@@ -106,9 +88,9 @@
 				snap: { rotate: 0, scale: 0, drag: 0 },
 				snapDist: { rotate: 0, scale: 0, drag: 7 },
 				size: 5
-				},
+			},
 			subject: subject
-			};
+		};
 
 		/**
 		 * Update handles based on the element's transformations
@@ -122,12 +104,12 @@
 			var rad = {
 				x: ( ft.attrs.rotate      ) * Math.PI / 180,
 				y: ( ft.attrs.rotate + 90 ) * Math.PI / 180
-				};
+			};
 
 			var radius = {
 				x: ft.attrs.size.x / 2 * ft.attrs.scale.x,
 				y: ft.attrs.size.y / 2 * ft.attrs.scale.y
-				};
+			};
 
 			ft.axes.map(function(axis) {
 				if ( ft.handles[axis] ) {
@@ -138,15 +120,15 @@
 
 					// Keep handle within boundaries
 					if ( ft.opts.boundary ) {
-						cx = Math.max(Math.min(cx, ft.opts.boundary.x + ft.opts.boundary.width),  ft.opts.boundary.x);
-						cy = Math.max(Math.min(cy, ft.opts.boundary.y + ft.opts.boundary.height), ft.opts.boundary.y);
+						cx = Math.max(Math.min(cx, ft.opts.boundary.x + ( ft.opts.boundary.width  || getPaperSize().x )), ft.opts.boundary.x);
+						cy = Math.max(Math.min(cy, ft.opts.boundary.y + ( ft.opts.boundary.height || getPaperSize().y )), ft.opts.boundary.y);
 					}
 
 					ft.handles[axis].disc.attr({ cx: cx, cy: cy });
 
 					ft.handles[axis].line.toFront().attr({
 						path: [ [ 'M', ft.attrs.center.x + ft.attrs.translate.x, ft.attrs.center.y + ft.attrs.translate.y ], [ 'L', ft.handles[axis].disc.attrs.cx, ft.handles[axis].disc.attrs.cy ] ]
-						});
+					});
 
 					ft.handles[axis].disc.toFront();
 				}
@@ -160,14 +142,14 @@
 						[ 'L', corners[2].x, corners[2].y ],
 						[ 'L', corners[3].x, corners[3].y ],
 						[ 'L', corners[0].x, corners[0].y ]
-						]
-					});
+					]
+				});
 
 				// Allowed x, y scaling directions for bbox handles
 				var bboxHandleDirection = [
 					[ -1, -1 ], [ 1, -1 ], [ 1, 1 ], [ -1, 1 ],
 					[  0, -1 ], [ 1,  0 ], [ 0, 1 ], [ -1, 0 ]
-					];
+				];
 
 				if ( ft.handles.bbox ) {
 					ft.handles.bbox.map(function (handle, i) {
@@ -187,7 +169,7 @@
 							.attr({
 								x: cx - ( handle.isCorner ? ft.opts.size.bboxCorners : ft.opts.size.bboxSides ),
 								y: cy - ( handle.isCorner ? ft.opts.size.bboxCorners : ft.opts.size.bboxSides )
-								})
+							})
 							.transform('R' + ft.attrs.rotate)
 							;
 
@@ -202,21 +184,21 @@
 					cx: ft.attrs.center.x + ft.attrs.translate.x,
 					cy: ft.attrs.center.y + ft.attrs.translate.y,
 					r:  Math.max(radius.x, radius.y) * ft.opts.distance
-					});
+				});
 			}
 
 			if ( ft.handles.center ) {
 				ft.handles.center.disc.toFront().attr({
 					cx: ft.attrs.center.x + ft.attrs.translate.x,
 					cy: ft.attrs.center.y + ft.attrs.translate.y
-					});
+				});
 			}
 
 			if ( ft.opts.rotate.indexOf('self') >= 0 ) {
 				radius = Math.max(
 					Math.sqrt(Math.pow(corners[1].x - corners[0].x, 2) + Math.pow(corners[1].y - corners[0].y, 2)),
 					Math.sqrt(Math.pow(corners[2].x - corners[1].x, 2) + Math.pow(corners[2].y - corners[1].y, 2))
-					) / 2;
+				) / 2;
 			}
 
 			return ft;
@@ -237,8 +219,7 @@
 						stroke: ft.opts.attrs.stroke,
 						'stroke-dasharray': '- ',
 						opacity: .5
-						})
-					;
+					});
 
 				ft.handles[axis].disc = paper
 					.circle(ft.attrs.center.x, ft.attrs.center.y, ft.opts.size.axes)
@@ -253,7 +234,7 @@
 						stroke: ft.opts.attrs.stroke,
 						'stroke-dasharray': '- ',
 						opacity: .5
-						})
+					})
 					;
 
 				ft.handles.bbox = [];
@@ -282,7 +263,7 @@
 						stroke: ft.opts.attrs.stroke,
 						'stroke-dasharray': '- ',
 						opacity: .3
-						})
+					})
 					;
 			}
 
@@ -297,7 +278,9 @@
 
 			// Drag x, y handles
 			ft.axes.map(function(axis) {
-				if ( !ft.handles[axis] ) { return; }
+				if ( !ft.handles[axis] ) {
+					return;
+				}
 
 				var
 					rotate = ft.opts.rotate.indexOf('axis' + axis.toUpperCase()) !== -1,
@@ -319,20 +302,22 @@
 					var mirrored = {
 						x: ft.o.scale.x < 0,
 						y: ft.o.scale.y < 0
-						};
+					};
 
 					if ( rotate ) {
 						var rad = Math.atan2(cy - ft.o.center.y - ft.o.translate.y, cx - ft.o.center.x - ft.o.translate.x);
 
 						ft.attrs.rotate = rad * 180 / Math.PI - ( axis === 'y' ? 90 : 0 );
 
-						if ( mirrored[axis] ) { ft.attrs.rotate -= 180; }
+						if ( mirrored[axis] ) {
+							ft.attrs.rotate -= 180;
+						}
 					}
 
 					// Keep handle within boundaries
 					if ( ft.opts.boundary ) {
-						cx = Math.max(Math.min(cx, ft.opts.boundary.x + ft.opts.boundary.width),  ft.opts.boundary.x);
-						cy = Math.max(Math.min(cy, ft.opts.boundary.y + ft.opts.boundary.height), ft.opts.boundary.y);
+						cx = Math.max(Math.min(cx, ft.opts.boundary.x + ( ft.opts.boundary.width  || getPaperSize().x )), ft.opts.boundary.x);
+						cy = Math.max(Math.min(cy, ft.opts.boundary.y + ( ft.opts.boundary.height || getPaperSize().y )), ft.opts.boundary.y);
 					}
 
 					var radius = Math.sqrt(Math.pow(cx - ft.o.center.x - ft.o.translate.x, 2) + Math.pow(cy - ft.o.center.y - ft.o.translate.y, 2));
@@ -340,7 +325,9 @@
 					if ( scale ) {
 						ft.attrs.scale[axis] = radius / ( ft.o.size[axis] / 2 * ft.opts.distance );
 
-						if ( mirrored[axis] ) { ft.attrs.scale[axis] *= -1; }
+						if ( mirrored[axis] ) {
+							ft.attrs.scale[axis] *= -1;
+						}
 					}
 
 					applyLimits();
@@ -356,19 +343,14 @@
 
 					asyncCallback([ rotate ? 'rotate' : null, scale ? 'scale' : null ]);
 				}, function() {
-					// Updating the boundary because it may be changed
-					if ( ft.opts.boundary ) {
-						ft.opts.boundary.update();
-					}
-
 					// Offset values
 					ft.o = cloneObj(ft.attrs);
 
 					if ( paper._viewBox ) {
 						ft.o.viewBoxRatio = {
-							x: paper._viewBox[2] / getPaperWidth(),
-							y: paper._viewBox[3] / getPaperHeight()
-							};
+							x: paper._viewBox[2] / getPaperSize().x,
+							y: paper._viewBox[3] / getPaperSize().y
+						};
 					}
 
 					ft.handles[axis].disc.ox = this.attrs.cx;
@@ -412,7 +394,7 @@
 						ft.attrs.translate = {
 							x: ft.o.translate.x + rdx / 2,
 							y: ft.o.translate.y + rdy / 2
-							};
+						};
 
 						// Mouse position, relative to element center after translation
 						mx = ft.o.handlePos.cx + dx - ft.attrs.center.x - ft.attrs.translate.x;
@@ -424,9 +406,11 @@
 
 						// Maintain aspect ratio
 						if ( handle.isCorner && ft.opts.keepRatio.indexOf('bboxCorners') !== -1 ) {
-							var ratio = ( ft.attrs.size.x * ft.attrs.scale.x ) / ( ft.attrs.size.y * ft.attrs.scale.y );
-							var tdy = rx * handle.x * ( 1 / ratio );
-							var tdx = ry * handle.y * ratio;
+							var
+								ratio = ( ft.attrs.size.x * ft.attrs.scale.x ) / ( ft.attrs.size.y * ft.attrs.scale.y ),
+								tdy = rx * handle.x * ( 1 / ratio ),
+								tdx = ry * handle.y * ratio
+								;
 
 							if ( tdx > tdy * ratio ) {
 								rx = tdx * handle.x;
@@ -442,7 +426,7 @@
 						ft.attrs.scale = {
 							x: sx || ft.attrs.scale.x,
 							y: sy || ft.attrs.scale.y
-							};
+						};
 
 						// Check boundaries
 						if ( !isWithinBoundaries().x || !isWithinBoundaries().y ) { ft.attrs = previous; }
@@ -456,7 +440,7 @@
 							var trans = {
 								x: ( ft.attrs.scale.x - ft.o.scale.x ) * ft.o.size.x * handle.x,
 								y: ( ft.attrs.scale.y - ft.o.scale.y ) * ft.o.size.y * handle.y
-								};
+							};
 
 							rx =   trans.x * cos + trans.y * sin;
 							ry = - trans.x * sin + trans.y * cos;
@@ -473,12 +457,8 @@
 					}, function() {
 						var
 							rotate = ( ( 360 - ft.attrs.rotate ) % 360 ) / 180 * Math.PI,
-							handlePos = handle.element.attr(['x', 'y']);
-
-						// Updating the boundary because it may be changed
-						if ( ft.opts.boundary ) {
-							ft.opts.boundary.update();
-						}
+							handlePos = handle.element.attr(['x', 'y'])
+							;
 
 						// Offset values
 						ft.o = cloneObj(ft.attrs);
@@ -486,24 +466,24 @@
 						ft.o.handlePos = {
 							cx: handlePos.x + ft.opts.size[handle.isCorner ? 'bboxCorners' : 'bboxSides'],
 							cy: handlePos.y + ft.opts.size[handle.isCorner ? 'bboxCorners' : 'bboxSides']
-							};
+						};
 
 						// Pre-compute rotation sin & cos for efficiency
 						ft.o.rotate = {
 							sin: Math.sin(rotate),
 							cos: Math.cos(rotate)
-							};
+						};
 
 						if ( paper._viewBox ) {
 							ft.o.viewBoxRatio = {
-								x: paper._viewBox[2] / getPaperWidth(),
-								y: paper._viewBox[3] / getPaperHeight()
+								x: paper._viewBox[2] / getPaperSize().x,
+								y: paper._viewBox[3] / getPaperSize().y
 							};
 						}
 
 						asyncCallback([ 'scale start' ]);
 					}, function() {
-						asyncCallback([ 'scale end'   ]);
+						asyncCallback([ 'scale end' ]);
 					});
 				});
 			}
@@ -511,8 +491,13 @@
 			// Drag element and center handle
 			var draggables = [];
 
-			if ( ft.opts.drag.indexOf('self')   >= 0 && ft.opts.scale.indexOf('self') === -1 && ft.opts.rotate.indexOf('self') === -1 ) { draggables.push(subject); }
-			if ( ft.opts.drag.indexOf('center') >= 0 ) { draggables.push(ft.handles.center.disc); }
+			if ( ft.opts.drag.indexOf('self') >= 0 && ft.opts.scale.indexOf('self') === -1 && ft.opts.rotate.indexOf('self') === -1 ) {
+				draggables.push(subject);
+			}
+
+			if ( ft.opts.drag.indexOf('center') >= 0 ) {
+				draggables.push(ft.handles.center.disc);
+			}
 
 			draggables.map(function(draggable) {
 				draggable.drag(function(dx, dy) {
@@ -525,6 +510,7 @@
 					ft.attrs.translate.x = ft.o.translate.x + dx;
 					ft.attrs.translate.y = ft.o.translate.y + dy;
 
+
 					var bbox = cloneObj(ft.o.bbox);
 
 					bbox.x += dx;
@@ -536,22 +522,19 @@
 
 					ft.apply();
 				}, function() {
-					// Updating the boundary because it may be changed
-					if ( ft.opts.boundary ) {
-						ft.opts.boundary.update();
-					}
-
 					// Offset values
 					ft.o = cloneObj(ft.attrs);
 
-					if ( ft.opts.snap.drag ) { ft.o.bbox = subject.getBBox(); }
+					if ( ft.opts.snap.drag ) {
+						ft.o.bbox = subject.getBBox();
+					}
 
 					// viewBox might be scaled
 					if ( paper._viewBox ) {
 						ft.o.viewBoxRatio = {
-							x: paper._viewBox[2] / getPaperWidth(),
-							y: paper._viewBox[3] / getPaperHeight()
-							};
+							x: paper._viewBox[2] / getPaperSize().x,
+							y: paper._viewBox[3] / getPaperSize().y
+						};
 					}
 
 					ft.axes.map(function(axis) {
@@ -563,7 +546,7 @@
 
 					asyncCallback([ 'drag start' ]);
 				}, function() {
-					asyncCallback([ 'drag end'   ]);
+					asyncCallback([ 'drag end' ]);
 				});
 			});
 
@@ -583,7 +566,7 @@
 					var mirrored = {
 						x: ft.o.scale.x < 0,
 						y: ft.o.scale.y < 0
-						};
+					};
 
 					if ( scale ) {
 						var radius = Math.sqrt(Math.pow(x - ft.o.center.x - ft.o.translate.x, 2) + Math.pow(y - ft.o.center.y - ft.o.translate.y, 2));
@@ -600,11 +583,6 @@
 
 					asyncCallback([ rotate ? 'rotate' : null, scale ? 'scale' : null ]);
 				}, function(x, y) {
-					// Updating the boundary because it may be changed
-					if ( ft.opts.boundary ) {
-						ft.opts.boundary.update();
-					}
-
 					// Offset values
 					ft.o = cloneObj(ft.attrs);
 
@@ -615,9 +593,9 @@
 					// viewBox might be scaled
 					if ( paper._viewBox ) {
 						ft.o.viewBoxRatio = {
-							x: paper._viewBox[2] / getPaperWidth(),
-							y: paper._viewBox[3] / getPaperHeight()
-							};
+							x: paper._viewBox[2] / getPaperSize().x,
+							y: paper._viewBox[3] / getPaperSize().y
+						};
 					}
 
 					asyncCallback([ rotate ? 'rotate start' : null, scale ? 'scale start' : null ]);
@@ -640,7 +618,8 @@
 		*/
 		ft.hideHandles = function(opts) {
 			var opts = opts || {}
-			if ( typeof opts.undrag === 'undefined' ) {
+
+			if ( opts.undrag === undefined ) {
 				opts.undrag = true;
 			}
 
@@ -690,7 +669,7 @@
 
 		// Override defaults
 		ft.setOpts = function(options, callback) {
-			if ( typeof callback !== 'undefined' ) {
+			if ( callback !== undefined ) {
 				ft.callback = typeof callback === 'function' ? callback : false;
 			}
 
@@ -715,7 +694,9 @@
 			if ( ft.opts.scale     === true ) { ft.opts.scale     = [ 'axisX', 'axisY', 'bboxCorners', 'bboxSides' ]; }
 
 			[ 'drag', 'draw', 'keepRatio', 'rotate', 'scale' ].map(function(option) {
-				if ( ft.opts[option] === false ) { ft.opts[option] = []; }
+				if ( ft.opts[option] === false ) {
+					ft.opts[option] = [];
+				}
 			});
 
 			ft.axes = [];
@@ -724,26 +705,28 @@
 			if ( ft.opts.rotate.indexOf('axisY') >= 0 || ft.opts.scale.indexOf('axisY') >= 0 ) { ft.axes.push('y'); }
 
 			[ 'drag', 'rotate', 'scale' ].map(function(option) {
-				if ( !ft.opts.snapDist[option] ) { ft.opts.snapDist[option] = ft.opts.snap[option]; }
+				if ( !ft.opts.snapDist[option] ) {
+					ft.opts.snapDist[option] = ft.opts.snap[option];
+				}
 			});
 
 			// Force numbers
 			ft.opts.range = {
 				rotate: [ parseFloat(ft.opts.range.rotate[0]), parseFloat(ft.opts.range.rotate[1]) ],
 				scale:  [ parseFloat(ft.opts.range.scale[0]),  parseFloat(ft.opts.range.scale[1])  ]
-				};
+			};
 
 			ft.opts.snap = {
 				drag:   parseFloat(ft.opts.snap.drag),
 				rotate: parseFloat(ft.opts.snap.rotate),
 				scale:  parseFloat(ft.opts.snap.scale)
-				};
+			};
 
 			ft.opts.snapDist = {
 				drag:   parseFloat(ft.opts.snapDist.drag),
 				rotate: parseFloat(ft.opts.snapDist.rotate),
 				scale:  parseFloat(ft.opts.snapDist.scale)
-				};
+			};
 
 			if ( typeof ft.opts.size === 'string' ) {
 				ft.opts.size = parseFloat(ft.opts.size);
@@ -755,7 +738,7 @@
 					bboxCorners: ft.opts.size,
 					bboxSides:   ft.opts.size,
 					center:      ft.opts.size
-					};
+				};
 			}
 
 			ft.showHandles();
@@ -796,7 +779,7 @@
 							'R', rotate, center.x, center.y,
 							'S', scale.x, scale.y, center.x, center.y,
 							'T', translate.x, translate.y
-							] + ft.items[i].transformString },
+						] + ft.items[i].transformString },
 						ft.opts.animate.delay,
 						ft.opts.animate.easing,
 						function() {
@@ -810,7 +793,7 @@
 						'R', rotate, center.x, center.y,
 						'S', scale.x, scale.y, center.x, center.y,
 						'T', translate.x, translate.y
-						] + ft.items[i].transformString);
+					] + ft.items[i].transformString);
 
 					asyncCallback([ 'apply' ]);
 
@@ -847,9 +830,9 @@
 							rotate:    0,
 							scale:     { x: 1, y: 1 },
 							translate: { x: 0, y: 0 }
-							},
+						},
 						transformString: item.matrix.toTransformString()
-						});
+					});
 				}
 			});
 		}
@@ -892,7 +875,7 @@
 				rotate:    0,
 				scale:     { x: 1, y: 1 },
 				translate: { x: 0, y: 0 }
-				};
+			};
 
 			ft.items[0].transformString = '';
 		}
@@ -906,12 +889,12 @@
 			var rad = {
 				x: ( ft.attrs.rotate      ) * Math.PI / 180,
 				y: ( ft.attrs.rotate + 90 ) * Math.PI / 180
-				};
+			};
 
 			var radius = {
 				x: ft.attrs.size.x / 2 * ft.attrs.scale.x,
 				y: ft.attrs.size.y / 2 * ft.attrs.scale.y
-				};
+			};
 
 			var
 				corners = [],
@@ -922,10 +905,22 @@
 				corners.push({
 					x: ( ft.attrs.center.x + ft.attrs.translate.x + sign.x * radius.x * Math.cos(rad.x) ) + sign.y * radius.y * Math.cos(rad.y),
 					y: ( ft.attrs.center.y + ft.attrs.translate.y + sign.x * radius.x * Math.sin(rad.x) ) + sign.y * radius.y * Math.sin(rad.y)
-					});
+				});
 			});
 
 			return corners;
+		}
+
+		/**
+		 * Get dimension of the paper
+		 */
+		function getPaperSize() {
+			var match = /^([0-9]+)%$/.exec(paper.width);
+
+			return {
+				x: match ? paper.canvas.clientWidth  || paper.canvas.parentNode.clientWidth  * parseInt(match[1], 10) * 0.01 : paper.canvas.clientWidth  || paper.width,
+				y: match ? paper.canvas.clientHeight || paper.canvas.parentNode.clientHeight * parseInt(match[1], 10) * 0.01 : paper.canvas.clientHeight || paper.height
+			};
 		}
 
 		/**
@@ -962,6 +957,9 @@
 			if ( ft.opts.boundary ) {
 				var b = ft.opts.boundary;
 
+				b.width  = b.width  || getPaperSize().x;
+				b.height = b.height || getPaperSize().y;
+
 				if ( ft.attrs.center.x + ft.attrs.translate.x < b.x            ) { ft.attrs.translate.x += b.x -            ( ft.attrs.center.x + ft.attrs.translate.x ); }
 				if ( ft.attrs.center.y + ft.attrs.translate.y < b.y            ) { ft.attrs.translate.y += b.y -            ( ft.attrs.center.y + ft.attrs.translate.y ); }
 				if ( ft.attrs.center.x + ft.attrs.translate.x > b.x + b.width  ) { ft.attrs.translate.x += b.x + b.width  - ( ft.attrs.center.x + ft.attrs.translate.x ); }
@@ -980,12 +978,12 @@
 			dist = {
 				x: Math.abs(( ft.attrs.scale.x * ft.attrs.size.x ) % ft.opts.snap.scale),
 				y: Math.abs(( ft.attrs.scale.y * ft.attrs.size.x ) % ft.opts.snap.scale)
-				};
+			};
 
 			dist = {
 				x: Math.min(dist.x, ft.opts.snap.scale - dist.x),
 				y: Math.min(dist.y, ft.opts.snap.scale - dist.y)
-				};
+			};
 
 			if ( dist.x < ft.opts.snapDist.scale ) {
 				ft.attrs.scale.x = Math.round(ft.attrs.scale.x * ft.attrs.size.x / ft.opts.snap.scale) * ft.opts.snap.scale / ft.attrs.size.x;
@@ -1029,7 +1027,7 @@
 			return {
 				x: ft.attrs.scale.x * ft.attrs.size.x >= ft.opts.range.scale[0] && ft.attrs.scale.x * ft.attrs.size.x <= ft.opts.range.scale[1],
 				y: ft.attrs.scale.y * ft.attrs.size.y >= ft.opts.range.scale[0] && ft.attrs.scale.y * ft.attrs.size.y <= ft.opts.range.scale[1]
-				};
+			};
 		}
 
 		function keepRatio(axis) {
