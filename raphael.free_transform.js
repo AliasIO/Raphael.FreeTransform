@@ -915,11 +915,14 @@
 		 * Get dimension of the paper
 		 */
 		function getPaperSize() {
-			var match = /^([0-9]+)%$/.exec(paper.width);
+			var match = {
+				x: /^([0-9]+)%$/.exec(paper.width),
+				y: /^([0-9]+)%$/.exec(paper.height)
+			};
 
 			return {
-				x: match ? paper.canvas.clientWidth  || paper.canvas.parentNode.clientWidth  * parseInt(match[1], 10) * 0.01 : paper.canvas.clientWidth  || paper.width,
-				y: match ? paper.canvas.clientHeight || paper.canvas.parentNode.clientHeight * parseInt(match[1], 10) * 0.01 : paper.canvas.clientHeight || paper.height
+				x: match.x ? paper.canvas.clientWidth  || paper.canvas.parentNode.clientWidth  * parseInt(match.x[1], 10) * 0.01 : paper.canvas.clientWidth  || paper.width,
+				y: match.y ? paper.canvas.clientHeight || paper.canvas.parentNode.clientHeight * parseInt(match.y[1], 10) * 0.01 : paper.canvas.clientHeight || paper.height
 			};
 		}
 
