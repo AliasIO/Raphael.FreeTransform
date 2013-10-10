@@ -1071,7 +1071,7 @@
 
 				clearTimeout(timeout);
 
-				setTimeout(function() { if ( ft.callback ) { ft.callback(ft, events); } }, 1);
+				timeout=setTimeout(function() { if ( ft.callback ) { ft.callback(ft, events); } }, 1);
 			}
 		}
 
