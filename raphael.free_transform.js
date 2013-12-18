@@ -120,8 +120,8 @@
 
 					// Keep handle within boundaries
 					if ( ft.opts.boundary ) {
-						cx = Math.max(Math.min(cx, ft.opts.boundary.x + ( ft.opts.boundary.width  || getPaperSize().x * ft.o.viewBoxRatio.x )), ft.opts.boundary.x);
-						cy = Math.max(Math.min(cy, ft.opts.boundary.y + ( ft.opts.boundary.height || getPaperSize().y * ft.o.viewBoxRatio.y )), ft.opts.boundary.y);
+						cx = Math.max(Math.min(cx, ft.opts.boundary.x + ( ft.opts.boundary.width  || getPaperSize().x * (paper._viewBox[2] / getPaperSize().x))), ft.opts.boundary.x);
+						cy = Math.max(Math.min(cy, ft.opts.boundary.y + ( ft.opts.boundary.height || getPaperSize().y * (paper._viewBox[3] / getPaperSize().y))), ft.opts.boundary.y);
 					}
 
 					ft.handles[axis].disc.attr({ cx: cx, cy: cy });
