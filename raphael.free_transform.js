@@ -963,8 +963,8 @@
 			if ( ft.opts.boundary ) {
 				var b = ft.opts.boundary;
 
-				b.width  = b.width  || getPaperSize().x;
-				b.height = b.height || getPaperSize().y;
+				b.width  = b.width  || getPaperSize().x * ft.o.viewBoxRatio.x;
+				b.height = b.height || getPaperSize().y * ft.o.viewBoxRatio.y;
 
 				if ( ft.attrs.center.x + ft.attrs.translate.x < b.x            ) { ft.attrs.translate.x += b.x -            ( ft.attrs.center.x + ft.attrs.translate.x ); }
 				if ( ft.attrs.center.y + ft.attrs.translate.y < b.y            ) { ft.attrs.translate.y += b.y -            ( ft.attrs.center.y + ft.attrs.translate.y ); }
