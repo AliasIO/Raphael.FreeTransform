@@ -251,6 +251,23 @@
 						.rect(ft.attrs.center.x, ft.attrs.center.y, ft.opts.size[handle.isCorner ? 'bboxCorners' : 'bboxSides' ] * 2, ft.opts.size[handle.isCorner ? 'bboxCorners' : 'bboxSides' ] * 2)
 						.attr(ft.opts.attrs)
 						;
+					if (i == 0) {
+			                        handle.element.attr({cursor:'nwse-resize'});
+					} else if (i == 1) {
+						handle.element.attr({cursor:'nesw-resize'});
+					} else if (i == 2) {
+						handle.element.attr({cursor:'nwse-resize'});
+					} else if (i == 3) {
+						handle.element.attr({cursor:'nesw-resize'});
+					} else if (i == 4) {
+						handle.element.attr({cursor:'ns-resize'});
+					} else if (i == 5) {
+						handle.element.attr({cursor:'ew-resize'});
+					} else if (i == 6) {
+						handle.element.attr({cursor:'ns-resize'});
+					} else if (i == 7) {
+						handle.element.attr({cursor:'ew-resize'});
+					}
 
 					ft.handles.bbox[i] = handle;
 				}
@@ -273,6 +290,7 @@
 				ft.handles.center.disc = paper
 					.circle(ft.attrs.center.x, ft.attrs.center.y, ft.opts.size.center)
 					.attr(ft.opts.attrs)
+					.attr({cursor:'move'})
 					;
 			}
 
