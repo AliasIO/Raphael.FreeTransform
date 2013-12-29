@@ -7,6 +7,8 @@ Raphaël.FreeTransform
 
   *Licensed under the [MIT license](http://www.opensource.org/licenses/mit-license.php).*
 
+	![Icon](http://alias.io/images/bitcoin.png) Donate Bitcoin: 1PgSBQXVBpVHxZKmQpaJDULyPwqw9ieVcT - *Thanks!*
+
 Demo
 ----
 
@@ -198,3 +200,4 @@ Raphaël.FreeTransform and Raphaël.JSON
 Instructions on how to use Raphaël.FreeTransform in combination with
 Raphaël.JSON can be found 
 [here](https://github.com/ElbertF/Raphael.JSON#raphaëljson-and-raphaëlfreetransform).
+
