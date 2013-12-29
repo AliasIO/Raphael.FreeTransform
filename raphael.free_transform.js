@@ -677,6 +677,9 @@
 
 			for ( i in options ) {
 				if ( options[i] && options[i].constructor === Object ) {
+					if(ft.opts[i] === false){
+            ft.opts[i] = {};
+          }
 					for ( j in options[i] ) {
 						if ( options[i].hasOwnProperty(j) ) {
 							ft.opts[i][j] = options[i][j];
@@ -1068,7 +1071,7 @@
 
 				clearTimeout(timeout);
 
-				setTimeout(function() { if ( ft.callback ) { ft.callback(ft, events); } }, 1);
+				timeout=setTimeout(function() { if ( ft.callback ) { ft.callback(ft, events); } }, 1);
 			}
 		}
 
