@@ -7,7 +7,7 @@ Raphaël.FreeTransform
 
   *Licensed under the [MIT license](http://www.opensource.org/licenses/mit-license.php).*
 
-	![Icon](http://alias.io/images/bitcoin.png) Donate Bitcoin: 1PgSBQXVBpVHxZKmQpaJDULyPwqw9ieVcT - *Thanks!*
+  ![Icon](http://alias.io/images/bitcoin.png) Donate Bitcoin: 1PgSBQXVBpVHxZKmQpaJDULyPwqw9ieVcT - *Thanks!*
 
 Demo
 ----
