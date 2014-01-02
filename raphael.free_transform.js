@@ -115,13 +115,20 @@
 				if ( ft.handles[axis] ) {
 					var
 						cx = ft.attrs.center.x + ft.attrs.translate.x + radius[axis] * ft.opts.distance * Math.cos(rad[axis]),
-						cy = ft.attrs.center.y + ft.attrs.translate.y + radius[axis] * ft.opts.distance * Math.sin(rad[axis])
-						;
+						cy = ft.attrs.center.y + ft.attrs.translate.y + radius[axis] * ft.opts.distance * Math.sin(rad[axis]);
+						
+					// viewBox might be scaled
+					if ( paper._viewBox ) {
+						var viewBoxRatio = {
+							x: paper._viewBox[2] / getPaperSize().x,
+							y: paper._viewBox[3] / getPaperSize().y
+						};
+					};
 
 					// Keep handle within boundaries
 					if ( ft.opts.boundary ) {
-						cx = Math.max(Math.min(cx, ft.opts.boundary.x + ( ft.opts.boundary.width  || getPaperSize().x )), ft.opts.boundary.x);
-						cy = Math.max(Math.min(cy, ft.opts.boundary.y + ( ft.opts.boundary.height || getPaperSize().y )), ft.opts.boundary.y);
+						cx = Math.max(Math.min(cx, ft.opts.boundary.x + ( ft.opts.boundary.width  || getPaperSize().x * viewBoxRatio.x)), ft.opts.boundary.x);
+						cy = Math.max(Math.min(cy, ft.opts.boundary.y + ( ft.opts.boundary.height || getPaperSize().y * viewBoxRatio.y)), ft.opts.boundary.y);
 					}
 
 					ft.handles[axis].disc.attr({ cx: cx, cy: cy });
@@ -316,8 +323,8 @@
 
 					// Keep handle within boundaries
 					if ( ft.opts.boundary ) {
-						cx = Math.max(Math.min(cx, ft.opts.boundary.x + ( ft.opts.boundary.width  || getPaperSize().x )), ft.opts.boundary.x);
-						cy = Math.max(Math.min(cy, ft.opts.boundary.y + ( ft.opts.boundary.height || getPaperSize().y )), ft.opts.boundary.y);
+						cx = Math.max(Math.min(cx, ft.opts.boundary.x + ( ft.opts.boundary.width  || getPaperSize().x * ft.o.viewBoxRatio.x )), ft.opts.boundary.x);
+						cy = Math.max(Math.min(cy, ft.opts.boundary.y + ( ft.opts.boundary.height || getPaperSize().y * ft.o.viewBoxRatio.y )), ft.opts.boundary.y);
 					}
 
 					var radius = Math.sqrt(Math.pow(cx - ft.o.center.x - ft.o.translate.x, 2) + Math.pow(cy - ft.o.center.y - ft.o.translate.y, 2));
@@ -963,8 +970,8 @@
 			if ( ft.opts.boundary ) {
 				var b = ft.opts.boundary;
 
-				b.width  = b.width  || getPaperSize().x;
-				b.height = b.height || getPaperSize().y;
+				b.width  = b.width  || getPaperSize().x * ft.o.viewBoxRatio.x;
+				b.height = b.height || getPaperSize().y * ft.o.viewBoxRatio.y;
 
 				if ( ft.attrs.center.x + ft.attrs.translate.x < b.x            ) { ft.attrs.translate.x += b.x -            ( ft.attrs.center.x + ft.attrs.translate.x ); }
 				if ( ft.attrs.center.y + ft.attrs.translate.y < b.y            ) { ft.attrs.translate.y += b.y -            ( ft.attrs.center.y + ft.attrs.translate.y ); }
