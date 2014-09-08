@@ -889,6 +889,10 @@
 			};
 
 			ft.items[0].transformString = '';
+
+			// NEW CODE TO RESOLVE TRANSLATION ISSUE FROM PREVIOUS TRANSFORMATION
+			ft.attrs.translate.x = ft.items[0].el.matrix.x(ft.attrs.center.x, ft.attrs.center.y) - ft.attrs.center.x;
+			ft.attrs.translate.y = ft.items[0].el.matrix.y(ft.attrs.center.x, ft.attrs.center.y) - ft.attrs.center.y;
 		}
 
 		ft.attrs.ratio = ft.attrs.scale.x / ft.attrs.scale.y;
