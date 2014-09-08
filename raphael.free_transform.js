@@ -889,6 +889,10 @@
 			};
 
 			ft.items[0].transformString = '';
+
+			// NEW CODE TO RESOLVE TRANSLATION ISSUE FROM PREVIOUS TRANSFORMATION
+		    ft.attrs.translate.x = ft.items[0].el.matrix.x(ft.attrs.center.x, ft.attrs.center.y) - ft.attrs.center.x;
+		    ft.attrs.translate.y = ft.items[0].el.matrix.y(ft.attrs.center.x, ft.attrs.center.y) - ft.attrs.center.y;
 		}
 
 		ft.attrs.ratio = ft.attrs.scale.x / ft.attrs.scale.y;
@@ -950,7 +954,7 @@
 					snap = { x: 0, y: 0 }
 					;
 
-				[ 0 ].map(function() {
+				[ 0, 1 ].map(function() {
 					// Top and left sides first
 					dist.x = x - Math.round(x / ft.opts.snap.drag) * ft.opts.snap.drag;
 					dist.y = y - Math.round(y / ft.opts.snap.drag) * ft.opts.snap.drag;
@@ -959,8 +963,8 @@
 					if ( Math.abs(dist.y) <= ft.opts.snapDist.drag ) { snap.y = dist.y; }
 
 					// Repeat for bottom and right sides
-					// x += bbox.width  - snap.x;
-					// y += bbox.height - snap.y;
+					x += bbox.width  - snap.x;
+					y += bbox.height - snap.y;
 				});
 
 				ft.attrs.translate.x -= snap.x;
