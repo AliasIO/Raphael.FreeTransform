@@ -202,6 +202,20 @@
 				});
 			}
 
+
+			//cursor type for freeTransform elements
+
+			ft.handles.x.disc.attr({cursor:'url(rotate.png)12 12,auto'});
+			ft.handles.y.disc.attr({cursor:'url(rotate.png)12 12,auto'});
+			ft.handles.bbox[0].element.attr({cursor:'nw-resize'});
+			ft.handles.bbox[1].element.attr({cursor:'ne-resize'});
+			ft.handles.bbox[2].element.attr({cursor:'se-resize'});
+			ft.handles.bbox[3].element.attr({cursor:'sw-resize'});
+			ft.handles.bbox[4].element.attr({cursor:'n-resize'});
+			ft.handles.bbox[5].element.attr({cursor:'e-resize'});
+			ft.handles.bbox[6].element.attr({cursor:'s-resize'});
+			ft.handles.bbox[7].element.attr({cursor:'w-resize'});
+
 			if ( ft.opts.rotate.indexOf('self') >= 0 ) {
 				radius = Math.max(
 					Math.sqrt(Math.pow(corners[1].x - corners[0].x, 2) + Math.pow(corners[1].y - corners[0].y, 2)),
