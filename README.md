@@ -7,12 +7,12 @@ Raphaël.FreeTransform
 
   *Licensed under the [MIT license](http://www.opensource.org/licenses/mit-license.php).*
 
-  ![Icon](http://alias.io/images/bitcoin_16x16.png) Donate Bitcoin: 1PgSBQXVBpVHxZKmQpaJDULyPwqw9ieVcT - *Thanks!*
+  ![Icon](https://alias.io/images/bitcoin_16x16.png) Donate Bitcoin: 1PgSBQXVBpVHxZKmQpaJDULyPwqw9ieVcT - *Thanks!*
 
 Demo
 ----
 
-  http://alias.io/raphael/free_transform/
+  https://alias.io/raphael/free_transform/
 
 Examples
 --------
@@ -28,8 +28,7 @@ Examples
 
 	var rect = paper
 		.rect(200, 200, 100, 100)
-		.attr('fill', '#f00')
-		;
+		.attr('fill', '#f00');
 
 	// Add freeTransform
 	var ft = paper.freeTransform(rect);
@@ -73,6 +72,17 @@ Default: `{ delay: 700, easing: 'linear' }`
 Sets the attributes of the handles.
 
 Default: `{ fill: '#fff', stroke: '#000' }`
+
+
+#### `customCorners: { size: num, distance: num, corners: [ { action: string: image: string }, ... ] } | false
+
+Specify custom images and events for corner handles.
+
+The corners array should contain 4 objects, one for each corner starting top left going clockwise.
+
+Valid actions: `drag`, `rotate`, `scale` or a custom string. Actions are emitted as events in the callback.
+
+Default: `false`
 
 
 #### `boundary: { x: int, y: int, width: int, height: int } | false`
@@ -201,3 +211,8 @@ Instructions on how to use Raphaël.FreeTransform in combination with
 Raphaël.JSON can be found 
 [here](https://github.com/ElbertF/Raphael.JSON#raphaëljson-and-raphaëlfreetransform).
 
+
+Sponsors
+--------
+
+Some of the work done for this plugin was paid for by [Signs.com](http://www.signs.com/) and [Merchbro.com](http://www.merchbro.com/).
