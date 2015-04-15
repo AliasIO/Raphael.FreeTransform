@@ -67,11 +67,11 @@ Animate transformations. Works best in combination with `apply()` (see the funct
 Default: `{ delay: 700, easing: 'linear' }`
 
 
-#### `attrs: { fill: hex, stroke: hex }`
+#### `attrs: { data: { fill: hex, stroke: hex }, scale: { fill: hex, stroke: hex } }`
 
-Sets the attributes of the handles.
+Sets the attributes of the handles. Drag for the center handle, and scale for the rotation/scale handle.
 
-Default: `{ fill: '#fff', stroke: '#000' }`
+Default: `{ data: { fill: '#fff', stroke: '#000' }, scale: { fill: '#fff', stroke: '#000' } }`
 
 
 #### `customCorners: { size: num, distance: num, corners: [ { action: string: image: string }, ... ] } | false
@@ -141,7 +141,7 @@ Enables/disables scaling.
 Default: `[ 'axisX', 'axisY', 'bboxCorners', 'bboxSides' ]`
 
 
-#### `snap: { rotate: num, scale: num, drag: num }`: 
+#### `snap: { rotate: num, scale: num, drag: num }`:
 
 Snap transformations to num degrees (rotate) or pixels (scale, drag).
 
@@ -208,7 +208,7 @@ Raphaël.FreeTransform and Raphaël.JSON
 --------------------------------------
 
 Instructions on how to use Raphaël.FreeTransform in combination with
-Raphaël.JSON can be found 
+Raphaël.JSON can be found
 [here](https://github.com/ElbertF/Raphael.JSON#raphaëljson-and-raphaëlfreetransform).
 
 

@@ -79,7 +79,10 @@
 			},
 			opts: {
 				animate: false,
-				attrs: { fill: '#fff', stroke: '#000' },
+				attrs: {
+                  drag: { fill: '#fff', stroke: '#000' },
+                  scale: { fill: '#fff', stroke: '#000' }
+                },
 				boundary: { x: paper._left || 0, y: paper._top || 0, width: null, height: null },
 				customCorners: false, // { size: <number>, distance: <number>, corners: [ action: <string>, image: <string> ]	}
 				distance: 1.3,
@@ -236,7 +239,7 @@
 				ft.handles[axis].line = paper
 					.path([ 'M', ft.attrs.center.x, ft.attrs.center.y ])
 					.attr({
-						stroke: ft.opts.attrs.stroke,
+						stroke: ft.opts.attrs.scale.stroke,
 						'stroke-dasharray': '- ',
 						opacity: .5
 					});
@@ -250,7 +253,7 @@
 				ft.bbox = paper
 					.path('')
 					.attr({
-						stroke: ft.opts.attrs.stroke,
+						stroke: ft.opts.attrs.scale.stroke,
 						'stroke-dasharray': '- ',
 						opacity: .5
 					});
@@ -270,7 +273,7 @@
 					} else {
 						handle.element = paper
 							.rect(ft.attrs.center.x, ft.attrs.center.y, ft.opts.size[handle.isCorner ? 'bboxCorners' : 'bboxSides' ] * 2, ft.opts.size[handle.isCorner ? 'bboxCorners' : 'bboxSides' ] * 2)
-							.attr(ft.opts.attrs);
+							.attr(ft.opts.drag.attrs);
 					}
 
 					ft.handles.bbox[i] = handle;
