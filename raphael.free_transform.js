@@ -244,6 +244,8 @@
 				ft.handles[axis].disc = paper
 					.circle(ft.attrs.center.x, ft.attrs.center.y, ft.opts.size.axes)
 					.attr(ft.opts.attrs);
+
+				ft.handles[axis].disc.node.setAttribute('class', 'handle arm axis-' + axis);
 			});
 
 			if ( ft.opts.draw.indexOf('bbox') >= 0 ) {
@@ -271,6 +273,12 @@
 						handle.element = paper
 							.rect(ft.attrs.center.x, ft.attrs.center.y, ft.opts.size[handle.isCorner ? 'bboxCorners' : 'bboxSides' ] * 2, ft.opts.size[handle.isCorner ? 'bboxCorners' : 'bboxSides' ] * 2)
 							.attr(ft.opts.attrs);
+
+						if ( handle.isCorner ) {
+							handle.element.node.setAttribute('class', 'handle bbox corner index-' + i + ' axis-' + handle.axis);
+						} else {
+							handle.element.node.setAttribute('class', 'handle bbox side index-' + ( i - 4 ) + ' axis-' + handle.axis);
+						}
 					}
 
 					ft.handles.bbox[i] = handle;
@@ -293,6 +301,8 @@
 				ft.handles.center.disc = paper
 					.circle(ft.attrs.center.x, ft.attrs.center.y, ft.opts.size.center)
 					.attr(ft.opts.attrs);
+
+				ft.handles.center.disc.node.setAttribute('class', 'handle center');
 			}
 
 			// Drag x, y handles and custom corners
