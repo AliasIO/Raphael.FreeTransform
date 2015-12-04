@@ -1082,16 +1082,16 @@
 				ft.opts.boundarywidth  = ft.opts.boundarywidth  || getPaperSize().x * (ft.o.viewBoxRatio && ft.o.viewBoxRatio.x || 1);
 				ft.opts.boundaryheight = ft.opts.boundaryheight || getPaperSize().y * (ft.o.viewBoxRatio && ft.o.viewBoxRatio.y || 1);
 
-				if ( ft.attrs.center.x + ft.attrs.translate.x < ft.opts.boundaryx ) {
-					ft.attrs.translate.x += ft.opts.boundaryx - ( ft.attrs.center.x + ft.attrs.translate.x );
+				if ( ft.attrs.center.x + ft.attrs.translate.x < ft.opts.boundary.x ) {
+					ft.attrs.translate.x += ft.opts.boundary.x - ( ft.attrs.center.x + ft.attrs.translate.x );
 				}
 
 				if ( ft.attrs.center.y + ft.attrs.translate.y < ft.opts.boundaryy ) {
 					ft.attrs.translate.y += ft.opts.boundaryy - ( ft.attrs.center.y + ft.attrs.translate.y );
 				}
 
-				if ( ft.attrs.center.x + ft.attrs.translate.x > ft.opts.boundaryx + ft.opts.boundarywidth  ) {
-					ft.attrs.translate.x += ft.opts.boundaryx + ft.opts.boundarywidth - ( ft.attrs.center.x + ft.attrs.translate.x );
+				if ( ft.attrs.center.x + ft.attrs.translate.x > ft.opts.boundary.x + ft.opts.boundarywidth  ) {
+					ft.attrs.translate.x += ft.opts.boundary.x + ft.opts.boundarywidth - ( ft.attrs.center.x + ft.attrs.translate.x );
 				}
 
 				if ( ft.attrs.center.y + ft.attrs.translate.y > ft.opts.boundaryy + ft.opts.boundaryheight ) {
