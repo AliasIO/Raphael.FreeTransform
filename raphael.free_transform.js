@@ -1086,16 +1086,16 @@
 					ft.attrs.translate.x += ft.opts.boundary.x - ( ft.attrs.center.x + ft.attrs.translate.x );
 				}
 
-				if ( ft.attrs.center.y + ft.attrs.translate.y < ft.opts.boundaryy ) {
-					ft.attrs.translate.y += ft.opts.boundaryy - ( ft.attrs.center.y + ft.attrs.translate.y );
+				if ( ft.attrs.center.y + ft.attrs.translate.y < ft.opts.boundary ) {
+					ft.attrs.translate.y += ft.opts.boundary - ( ft.attrs.center.y + ft.attrs.translate.y );
 				}
 
 				if ( ft.attrs.center.x + ft.attrs.translate.x > ft.opts.boundary.x + ft.opts.boundarywidth  ) {
 					ft.attrs.translate.x += ft.opts.boundary.x + ft.opts.boundarywidth - ( ft.attrs.center.x + ft.attrs.translate.x );
 				}
 
-				if ( ft.attrs.center.y + ft.attrs.translate.y > ft.opts.boundaryy + ft.opts.boundaryheight ) {
-					ft.attrs.translate.y += ft.opts.boundaryy + ft.opts.boundaryheight - ( ft.attrs.center.y + ft.attrs.translate.y );
+				if ( ft.attrs.center.y + ft.attrs.translate.y > ft.opts.boundary + ft.opts.boundaryheight ) {
+					ft.attrs.translate.y += ft.opts.boundary + ft.opts.boundaryheight - ( ft.attrs.center.y + ft.attrs.translate.y );
 				}
 			}
 
