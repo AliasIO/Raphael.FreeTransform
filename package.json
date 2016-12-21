@@ -4,5 +4,8 @@
   "main": "raphael.free_transform.js",
   "repository": "git@github.com:AliasIO/Raphael.FreeTransform.git",
   "author": "Elbert Alias <elbert@alias.io>",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "raphael": "^2.2.7"
+  }
 }
