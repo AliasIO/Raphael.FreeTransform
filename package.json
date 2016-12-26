@@ -1,0 +1,11 @@
+{
+  "name": "Raphael.FreeTransform",
+  "version": "1.0.0",
+  "main": "raphael.free_transform.js",
+  "repository": "git@github.com:AliasIO/Raphael.FreeTransform.git",
+  "author": "Elbert Alias <elbert@alias.io>",
+  "license": "MIT",
+  "dependencies": {
+    "raphael": "^2.2.7"
+  }
+}
